@@ -15,7 +15,7 @@
 	<Grid RowDefinitions="*,Auto"
         Background="Gray">
 		<Border Background="White">
-			<inking:AvaloniaSkiaInkCanvas x:Name="InkCanvas"/>
+			<inking:InkCanvas x:Name="InkCanvas"/>
         </Border>
 		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,10,10">
 			<Button x:Name="PenModeButton" Click="PenModeButton_OnClick">Pen</Button>

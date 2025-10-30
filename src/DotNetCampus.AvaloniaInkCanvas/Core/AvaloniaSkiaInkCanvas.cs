@@ -93,7 +93,7 @@ public class AvaloniaSkiaInkCanvas : Control
         }
     }
 
-    public void WritingDown(InkingModeInputArgs args)
+    public void WritingDown(in InkingModeInputArgs args)
     {
         var dynamicStrokeContext = new DynamicStrokeContext(args, Context.Settings);
         _contextDictionary[args.Id] = dynamicStrokeContext;
@@ -102,7 +102,7 @@ public class AvaloniaSkiaInkCanvas : Control
         InvalidateVisual();
     }
 
-    public void WritingMove(InkingModeInputArgs args)
+    public void WritingMove(in InkingModeInputArgs args)
     {
         if (_contextDictionary.TryGetValue(args.Id, out var context))
         {
@@ -111,7 +111,7 @@ public class AvaloniaSkiaInkCanvas : Control
         }
     }
 
-    public void WritingUp(InkingModeInputArgs args)
+    public void WritingUp(in InkingModeInputArgs args)
     {
         if (_contextDictionary.Remove(args.Id, out var context))
         {

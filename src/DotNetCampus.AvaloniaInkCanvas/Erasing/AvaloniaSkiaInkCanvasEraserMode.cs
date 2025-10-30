@@ -39,7 +39,6 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     public void StartEraser()
     {
-
 #if DEBUG
         var topLevel = TopLevel.GetTopLevel(InkCanvas)!;
         topLevel.PointerWheelChanged -= InkCanvas_PointerWheelChanged;
@@ -52,7 +51,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
         InkCanvas.AddChild(_eraserView);
     }
 
-    public void EraserDown(InkingModeInputArgs args)
+    public void EraserDown(in InkingModeInputArgs args)
     {
         //InkCanvas.EnsureInputConflicts();
         if (!IsErasing)
@@ -71,7 +70,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
         }
     }
 
-    public void EraserMove(InkingModeInputArgs args)
+    public void EraserMove(in InkingModeInputArgs args)
     {
         //InkCanvas.EnsureInputConflicts();
         if (IsErasing && args.Id == MainEraserInputId)
@@ -105,7 +104,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
         }
     }
 
-    public void EraserUp(InkingModeInputArgs args)
+    public void EraserUp(in InkingModeInputArgs args)
     {
         //InkCanvas.EnsureInputConflicts();
         if (IsErasing && args.Id == MainEraserInputId)
