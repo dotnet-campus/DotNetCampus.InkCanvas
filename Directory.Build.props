@@ -1,0 +1,43 @@
+﻿<Project>
+
+  <Import Project="build\Version.props" />
+
+  <!-- Framework and language -->
+  <PropertyGroup>
+    <!-- Language -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Build -->
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+    <Deterministic>true</Deterministic>
+    <!--
+      Add NoWarn to remove build warnings
+      NU1803: Using an insecure http NuGet source
+    -->
+    <NoWarn>$(NoWarn);NU1507;NU1803;NETSDK1201;NETSDK1138;PRI257</NoWarn>
+    <!--
+      CA1416: Platform compatibility warning
+    -->
+    <WarningsAsErrors>$(WarningsAsErrors);CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Custom properties -->
+  <PropertyGroup>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <ThisYear>$([System.DateTime]::Now.ToString(`yyyy`))</ThisYear>
+  </PropertyGroup>
+
+  <!-- Package and project properties -->
+  <PropertyGroup>
+    <Description>The InkCanvas</Description>
+    <Company>dotnet campus（.NET 职业技术学院）</Company>
+    <Authors>dotnet-campus</Authors>
+    <Copyright>Copyright © 2023-$(ThisYear) dotnet campus, All Rights Reserved.</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/dotnet-campus/DotNetCampus.InkCanvas</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/dotnet-campus/DotNetCampus.InkCanvas</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>

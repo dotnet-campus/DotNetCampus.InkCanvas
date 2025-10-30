@@ -905,7 +905,6 @@ class SkInkCanvas : IInkingInputProcessor, IInkingModeInputDispatcherSensitive
         if (IsInEraserMode && _isErasing)
         {
             // 如果是橡皮擦模式，且在擦中，则啥都不需要做
-            // 修复 gitlab/45
         }
         else
         {
