@@ -1,8 +1,9 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:AvaloniaInkCanvasDemo.ViewModels"
+             xmlns:inking="clr-namespace:DotNetCampus.Inking;assembly=DotNetCampus.AvaloniaInkCanvas"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AvaloniaInkCanvasDemo.Views.MainView"
              x:DataType="vm:MainViewModel">
@@ -11,6 +12,14 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <vm:MainViewModel />
   </Design.DataContext>
-
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	<Grid RowDefinitions="*,Auto"
+        Background="Gray">
+		<Border Background="White">
+			<inking:AvaloniaSkiaInkCanvas x:Name="InkCanvas"/>
+        </Border>
+		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,10,10">
+			<Button x:Name="PenModeButton" Click="PenModeButton_OnClick">Pen</Button>
+			<Button x:Name="EraserModeButton" Margin="10,0,0,0" Click="EraserModeButton_OnClick">Eraser</Button>
+        </StackPanel>
+    </Grid>
 </UserControl>
