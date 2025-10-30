@@ -36,8 +36,11 @@ public class InkCanvas : Control
             }
 
             _editingMode = value;
+            EditingModeChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    public event EventHandler? EditingModeChanged;
 
     public IReadOnlyList<SkiaStroke> Strokes => _avaloniaSkiaInkCanvas.StaticStrokeList;
 
