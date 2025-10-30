@@ -56,6 +56,8 @@ public class InkCanvas : Control
             return;
         }
 
+        _inputDictionary[e.Pointer.Id] = new InputInfo();
+
         var args = ToArgs(e);
 
         if (EditingMode == InkCanvasEditingMode.Ink)
@@ -65,17 +67,10 @@ public class InkCanvas : Control
                 _avaloniaSkiaInkCanvas.WritingStart();
             }
 
-            _inputDictionary[e.Pointer.Id] = new InputInfo();
-
             _avaloniaSkiaInkCanvas.WritingDown(in args);
         }
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
-            if (!EraserMode.IsErasing)
-            {
-                EraserMode.StartEraser();
-            }
-
             EraserMode.EraserDown(in args);
         }
 
