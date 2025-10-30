@@ -1,0 +1,17 @@
+﻿name: .NET Build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Build
+      run: dotnet build -c release
+
+    - name: Pack
+      run: dotnet pack -c release --no-build
