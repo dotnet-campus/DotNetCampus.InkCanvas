@@ -148,6 +148,9 @@ public class AvaloniaSkiaInkCanvas : Control
     private readonly List<Rect> _list = [];
 #endif
 
+    /// <summary>
+    /// 静态笔迹列表
+    /// </summary>
     public IReadOnlyList<SkiaStroke> StaticStrokeList => _staticStrokeList;
 
     /// <summary>

@@ -39,6 +39,8 @@ public class InkCanvas : Control
         }
     }
 
+    public IReadOnlyList<SkiaStroke> Strokes => _avaloniaSkiaInkCanvas.StaticStrokeList;
+
     private InkCanvasEditingMode _editingMode = InkCanvasEditingMode.Ink;
 
     private readonly AvaloniaSkiaInkCanvas _avaloniaSkiaInkCanvas;
