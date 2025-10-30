@@ -83,6 +83,11 @@ public class AvaloniaSkiaInkCanvas : Control
         VisualChildren.Remove(childControl);
     }
 
+
+    public AvaloniaSkiaInkCanvasEraserMode EraserMode => _eraserMode ??= new AvaloniaSkiaInkCanvasEraserMode(this);
+
+    private AvaloniaSkiaInkCanvasEraserMode? _eraserMode;
+
     public void WritingStart()
     {
         if (_contextDictionary.Count > 0)
@@ -240,6 +245,12 @@ public class AvaloniaSkiaInkCanvas : Control
             Debug.Assert(skiaStroke != null);
         }
 #endif
+
+        if (_eraserMode?.IsErasing is true)
+        {
+            _eraserMode.Render(context);
+            return;
+        }
 
         foreach (var skiaStroke in _staticStrokeList)
         {

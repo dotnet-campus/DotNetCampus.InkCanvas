@@ -43,9 +43,7 @@ public class InkCanvas : Control
 
     private readonly AvaloniaSkiaInkCanvas _avaloniaSkiaInkCanvas;
 
-    private AvaloniaSkiaInkCanvasEraserMode EraserMode => _eraserMode ??= new AvaloniaSkiaInkCanvasEraserMode(_avaloniaSkiaInkCanvas);
-
-    private AvaloniaSkiaInkCanvasEraserMode? _eraserMode;
+    private AvaloniaSkiaInkCanvasEraserMode EraserMode => _avaloniaSkiaInkCanvas.EraserMode;
 
     #region Input
 

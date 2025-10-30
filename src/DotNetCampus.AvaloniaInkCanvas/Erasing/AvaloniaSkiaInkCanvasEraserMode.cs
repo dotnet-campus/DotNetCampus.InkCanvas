@@ -63,6 +63,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
             StartEraser();
 
             _eraserView.Move(args.Position.ToAvaloniaPoint());
+            InkCanvas.InvalidateVisual();
         }
         else
         {
@@ -101,6 +102,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
             _eraserView.SetEraserSize(new Size(eraserWidth, eraserHeight));
             _eraserView.Move(args.Position.ToAvaloniaPoint());
+            InkCanvas.InvalidateVisual();
         }
     }
 
@@ -111,6 +113,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
         {
             IsErasing = false;
             var pointPathEraserResult = PointPathEraserManager.Finish();
+            InkCanvas.InvalidateVisual();
 
             InkCanvas.ResetStaticStrokeListByEraserResult(pointPathEraserResult.ErasingSkiaStrokeList.SelectMany(t => t.NewStrokeList ?? Enumerable.Empty<SkiaStroke>()));
 
