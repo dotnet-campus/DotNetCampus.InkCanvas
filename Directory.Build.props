@@ -21,6 +21,8 @@
       CA1416: Platform compatibility warning
     -->
     <WarningsAsErrors>$(WarningsAsErrors);CA1416</WarningsAsErrors>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <!-- Custom properties -->

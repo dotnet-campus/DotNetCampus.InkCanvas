@@ -8,8 +8,6 @@ using DotNetCampus.Numerics.Geometry;
 
 using SkiaSharp;
 
-using UnoInk.Inking.InkCore;
-
 namespace DotNetCampus.Inking;
 
 public class SkiaStroke : IDisposable
