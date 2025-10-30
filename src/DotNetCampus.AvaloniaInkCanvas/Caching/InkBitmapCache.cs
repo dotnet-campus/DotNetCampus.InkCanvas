@@ -47,7 +47,7 @@ internal sealed class InkBitmapCache : IDisposable
     /// 将此值设置为 <see langword="true"/> 以在下次绘制时使用位图缓存；反之，设置为 <see langword="false"/> 将在下帧不使用位图缓存。
     /// </summary>
     /// <remarks>
-    /// 如果希望立即使用位图缓存，请在将此值设置为 <see langword="true"/> 后立即调用 <see cref="Avalonia.Controls.Control.InvalidateVisual"/> 方法刷新渲染。
+    /// 如果希望立即使用位图缓存，请在将此值设置为 <see langword="true"/> 后立即调用 <see cref="Avalonia.Visual.InvalidateVisual"/> 方法刷新渲染。
     /// </remarks>
     public bool UseCacheOnNextRender
     {

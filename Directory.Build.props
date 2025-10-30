@@ -15,14 +15,13 @@
     <!--
       Add NoWarn to remove build warnings
       NU1803: Using an insecure http NuGet source
+      CS1591: Missing XML comment for publicly visible type or member
     -->
-    <NoWarn>$(NoWarn);NU1507;NU1803;NETSDK1201;NETSDK1138;PRI257</NoWarn>
+    <NoWarn>$(NoWarn);NU1507;NU1803;NETSDK1201;NETSDK1138;PRI257;CS1591</NoWarn>
     <!--
       CA1416: Platform compatibility warning
     -->
     <WarningsAsErrors>$(WarningsAsErrors);CA1416</WarningsAsErrors>
-
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <!-- Custom properties -->
@@ -40,6 +39,20 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dotnet-campus/DotNetCampus.InkCanvas</RepositoryUrl>
     <PackageProjectUrl>https://github.com/dotnet-campus/DotNetCampus.InkCanvas</PackageProjectUrl>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EmbedAllSources Condition="'$(Configuration)' != 'Debug'">true</EmbedAllSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)"/>
+    <!-- 嵌入 README 文件 -->
+    <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\" Visible="false"/>
+  </ItemGroup>
 
 </Project>
