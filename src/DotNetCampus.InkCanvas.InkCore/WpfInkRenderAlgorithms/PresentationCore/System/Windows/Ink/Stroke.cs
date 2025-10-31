@@ -75,67 +75,66 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
             //_stylusPoints.CountGoingToZero += new CancelEventHandler(StylusPoints_CountGoingToZero);
         }
 
-        /// <summary>Returns a new stroke that has a deep copy.</summary>
-        /// <remarks>Deep copied data includes points, point description, drawing attributes, and transform</remarks>
-        /// <returns>Deep copy of current stroke</returns>
-        public virtual Stroke Clone()
-        {
-            //
-            // use MemberwiseClone, which will instance the most derived type
-            // We use this instead of Activator.CreateInstance because it does not 
-            // require ReflectionPermission.  One thing to note, all references 
-            // are shared, including event delegates, so we need to set those to null
-            //
-            Stroke clone = (Stroke) this.MemberwiseClone();
+        ///// <summary>Returns a new stroke that has a deep copy.</summary>
+        ///// <remarks>Deep copied data includes points, point description, drawing attributes, and transform</remarks>
+        ///// <returns>Deep copy of current stroke</returns>
+        //public virtual Stroke Clone()
+        //{
+        //    //
+        //    // use MemberwiseClone, which will instance the most derived type
+        //    // We use this instead of Activator.CreateInstance because it does not 
+        //    // require ReflectionPermission.  One thing to note, all references 
+        //    // are shared, including event delegates, so we need to set those to null
+        //    //
+        //    Stroke clone = (Stroke) this.MemberwiseClone();
 
-            //
-            // null the delegates in the cloned strokes
-            //
-            clone.DrawingAttributesChanged = null;
-            clone.DrawingAttributesReplaced = null;
-            clone.StylusPointsReplaced = null;
-            clone.StylusPointsChanged = null;
-            clone.PropertyDataChanged = null;
-            clone.Invalidated = null;
-            clone._propertyChanged = null;
+        //    //
+        //    // null the delegates in the cloned strokes
+        //    //
+        //    clone.DrawingAttributesChanged = null;
+        //    clone.DrawingAttributesReplaced = null;
+        //    clone.StylusPointsReplaced = null;
+        //    clone.StylusPointsChanged = null;
+        //    clone.PropertyDataChanged = null;
+        //    clone.Invalidated = null;
+        //    clone._propertyChanged = null;
 
-            //Clone is also called from Stroke.Copy internally for point 
-            //erase.  In that case, we don't want to clone the StylusPoints
-            //because they will be replaced after we call
-            if (_cloneStylusPoints)
-            {
-                //clone._stylusPoints = _stylusPoints.Clone();
-                throw new NotImplementedException();
-            }
-            clone._drawingAttributes = _drawingAttributes.Clone();
-            if (_extendedProperties != null)
-            {
-                clone._extendedProperties = _extendedProperties.Clone();
-            }
-            //set up listeners
-            clone.Initialize();
+        //    //Clone is also called from Stroke.Copy internally for point 
+        //    //erase.  In that case, we don't want to clone the StylusPoints
+        //    //because they will be replaced after we call
+        //    if (_cloneStylusPoints)
+        //    {
+        //        //clone._stylusPoints = _stylusPoints.Clone();
+        //        throw new NotImplementedException();
+        //    }
+        //    clone._drawingAttributes = _drawingAttributes.Clone();
+        //    if (_extendedProperties != null)
+        //    {
+        //        clone._extendedProperties = _extendedProperties.Clone();
+        //    }
+        //    //set up listeners
+        //    clone.Initialize();
 
-            //
-            // copy state
-            //
-            //Debug.Assert(_cachedGeometry == null || _cachedGeometry.IsFrozen);
-            //we don't need to cache if this is frozen
-            //if (null != _cachedGeometry)
-            //{
-            //    clone._cachedGeometry = _cachedGeometry.Clone();
-            //}
-            //don't need to clone these, they are value types 
-            //and are copied by MemberwiseClone
-            //_isSelected
-            //_drawAsHollow 
-            //_cachedBounds
+        //    //
+        //    // copy state
+        //    //
+        //    //Debug.Assert(_cachedGeometry == null || _cachedGeometry.IsFrozen);
+        //    //we don't need to cache if this is frozen
+        //    //if (null != _cachedGeometry)
+        //    //{
+        //    //    clone._cachedGeometry = _cachedGeometry.Clone();
+        //    //}
+        //    //don't need to clone these, they are value types 
+        //    //and are copied by MemberwiseClone
+        //    //_isSelected
+        //    //_drawAsHollow 
+        //    //_cachedBounds
 
-            //this need to be reset
-            clone._cloneStylusPoints = true;
+        //    //this need to be reset
+        //    clone._cloneStylusPoints = true;
 
-            return clone;
-        }
-
+        //    return clone;
+        //}
 
         /// <summary>
         /// Returns a Bezier smoothed version of the StylusPoints
@@ -648,270 +647,270 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         }
 
 
-        /// <summary>
-        /// Clip
-        /// </summary>
-        /// <param name="cutAt">Fragment markers for clipping</param>
-        private StrokeCollection Clip(StrokeFIndices[] cutAt)
-        {
-            Debug.Assert(cutAt != null);
-            Debug.Assert(cutAt.Length != 0);
+//        /// <summary>
+//        /// Clip
+//        /// </summary>
+//        /// <param name="cutAt">Fragment markers for clipping</param>
+//        private StrokeCollection Clip(StrokeFIndices[] cutAt)
+//        {
+//            Debug.Assert(cutAt != null);
+//            Debug.Assert(cutAt.Length != 0);
 
-#if DEBUG
-            //
-            // Assert there are  no overlaps between multiple StrokeFIndices
-            //
-            AssertSortedNoOverlap(cutAt);
-#endif
+//#if DEBUG
+//            //
+//            // Assert there are  no overlaps between multiple StrokeFIndices
+//            //
+//            AssertSortedNoOverlap(cutAt);
+//#endif
 
-            StrokeCollection leftovers = new StrokeCollection();
-            if (cutAt.Length == 0)
-            {
-                return leftovers;
-            }
+//            StrokeCollection leftovers = new StrokeCollection();
+//            if (cutAt.Length == 0)
+//            {
+//                return leftovers;
+//            }
 
-            if ((cutAt.Length == 1) && cutAt[0].IsFull)
-            {
-                leftovers.Add(this.Clone()); //clip and erase always return clones
-                return leftovers;
-            }
-
-
-            StylusPointCollection sourceStylusPoints = this.StylusPoints;
-            if (this.DrawingAttributes.FitToCurve)
-            {
-                sourceStylusPoints = this.GetBezierStylusPoints();
-            }
-
-            //
-            // Assert the findices are NOT out of range with the packets
-            //
-            Debug.Assert(false == ((!DoubleUtil.AreClose(cutAt[cutAt.Length - 1].EndFIndex, StrokeFIndices.AfterLast)) &&
-                                        Math.Ceiling(cutAt[cutAt.Length - 1].EndFIndex) > sourceStylusPoints.Count - 1));
-
-            for (int i = 0; i < cutAt.Length; i++)
-            {
-                StrokeFIndices fragment = cutAt[i];
-                if (DoubleUtil.GreaterThanOrClose(fragment.BeginFIndex, fragment.EndFIndex))
-                {
-                    // ISSUE-2004/06/26-vsmirnov - temporary workaround for bugs
-                    // in point erasing: drop invalid fragments
-                    Debug.Assert(DoubleUtil.LessThan(fragment.BeginFIndex, fragment.EndFIndex));
-                    continue;
-                }
-
-                Stroke stroke = Copy(sourceStylusPoints, fragment.BeginFIndex, fragment.EndFIndex);
-
-                // Add the stroke to the output collection
-                leftovers.Add(stroke);
-            }
-
-            return leftovers;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="cutAt">Fragment markers for clipping</param>
-        /// <returns>Survived fragments of current Stroke as a StrokeCollection</returns>
-        private StrokeCollection Erase(StrokeFIndices[] cutAt)
-        {
-            Debug.Assert(cutAt != null);
-            Debug.Assert(cutAt.Length != 0);
-
-#if DEBUG
-            //
-            // Assert there are  no overlaps between multiple StrokeFIndices
-            //
-            AssertSortedNoOverlap(cutAt);
-#endif
-
-            StrokeCollection leftovers = new StrokeCollection();
-            // Return an empty collection if the entire stroke it to erase
-            if ((cutAt.Length == 0) || ((cutAt.Length == 1) && cutAt[0].IsFull))
-            {
-                return leftovers;
-            }
-
-            StylusPointCollection sourceStylusPoints = this.StylusPoints;
-            if (this.DrawingAttributes.FitToCurve)
-            {
-                sourceStylusPoints = this.GetBezierStylusPoints();
-            }
-
-            //
-            // Assert the findices are NOT out of range with the packets
-            //
-            Debug.Assert(false == ((!DoubleUtil.AreClose(cutAt[cutAt.Length - 1].EndFIndex, StrokeFIndices.AfterLast)) &&
-                                        Math.Ceiling(cutAt[cutAt.Length - 1].EndFIndex) > sourceStylusPoints.Count - 1));
+//            if ((cutAt.Length == 1) && cutAt[0].IsFull)
+//            {
+//                leftovers.Add(this.Clone()); //clip and erase always return clones
+//                return leftovers;
+//            }
 
 
-            int i = 0;
-            double beginFIndex = StrokeFIndices.BeforeFirst;
-            if (cutAt[0].BeginFIndex == StrokeFIndices.BeforeFirst)
-            {
-                beginFIndex = cutAt[0].EndFIndex;
-                i++;
-            }
-            for (; i < cutAt.Length; i++)
-            {
-                StrokeFIndices fragment = cutAt[i];
-                if (DoubleUtil.GreaterThanOrClose(beginFIndex, fragment.BeginFIndex))
-                {
-                    // ISSUE-2004/06/26-vsmirnov - temporary workaround for bugs
-                    // in point erasing: drop invalid fragments
-                    Debug.Assert(DoubleUtil.LessThan(beginFIndex, fragment.BeginFIndex));
-                    continue;
-                }
+//            StylusPointCollection sourceStylusPoints = this.StylusPoints;
+//            if (this.DrawingAttributes.FitToCurve)
+//            {
+//                sourceStylusPoints = this.GetBezierStylusPoints();
+//            }
+
+//            //
+//            // Assert the findices are NOT out of range with the packets
+//            //
+//            Debug.Assert(false == ((!DoubleUtil.AreClose(cutAt[cutAt.Length - 1].EndFIndex, StrokeFIndices.AfterLast)) &&
+//                                        Math.Ceiling(cutAt[cutAt.Length - 1].EndFIndex) > sourceStylusPoints.Count - 1));
+
+//            for (int i = 0; i < cutAt.Length; i++)
+//            {
+//                StrokeFIndices fragment = cutAt[i];
+//                if (DoubleUtil.GreaterThanOrClose(fragment.BeginFIndex, fragment.EndFIndex))
+//                {
+//                    // ISSUE-2004/06/26-vsmirnov - temporary workaround for bugs
+//                    // in point erasing: drop invalid fragments
+//                    Debug.Assert(DoubleUtil.LessThan(fragment.BeginFIndex, fragment.EndFIndex));
+//                    continue;
+//                }
+
+//                Stroke stroke = Copy(sourceStylusPoints, fragment.BeginFIndex, fragment.EndFIndex);
+
+//                // Add the stroke to the output collection
+//                leftovers.Add(stroke);
+//            }
+
+//            return leftovers;
+//        }
+
+//        /// <summary>
+//        ///
+//        /// </summary>
+//        /// <param name="cutAt">Fragment markers for clipping</param>
+//        /// <returns>Survived fragments of current Stroke as a StrokeCollection</returns>
+//        private StrokeCollection Erase(StrokeFIndices[] cutAt)
+//        {
+//            Debug.Assert(cutAt != null);
+//            Debug.Assert(cutAt.Length != 0);
+
+//#if DEBUG
+//            //
+//            // Assert there are  no overlaps between multiple StrokeFIndices
+//            //
+//            AssertSortedNoOverlap(cutAt);
+//#endif
+
+//            StrokeCollection leftovers = new StrokeCollection();
+//            // Return an empty collection if the entire stroke it to erase
+//            if ((cutAt.Length == 0) || ((cutAt.Length == 1) && cutAt[0].IsFull))
+//            {
+//                return leftovers;
+//            }
+
+//            StylusPointCollection sourceStylusPoints = this.StylusPoints;
+//            if (this.DrawingAttributes.FitToCurve)
+//            {
+//                sourceStylusPoints = this.GetBezierStylusPoints();
+//            }
+
+//            //
+//            // Assert the findices are NOT out of range with the packets
+//            //
+//            Debug.Assert(false == ((!DoubleUtil.AreClose(cutAt[cutAt.Length - 1].EndFIndex, StrokeFIndices.AfterLast)) &&
+//                                        Math.Ceiling(cutAt[cutAt.Length - 1].EndFIndex) > sourceStylusPoints.Count - 1));
 
 
-                Stroke stroke = Copy(sourceStylusPoints, beginFIndex, fragment.BeginFIndex);
-                // Add the stroke to the output collection
-                leftovers.Add(stroke);
+//            int i = 0;
+//            double beginFIndex = StrokeFIndices.BeforeFirst;
+//            if (cutAt[0].BeginFIndex == StrokeFIndices.BeforeFirst)
+//            {
+//                beginFIndex = cutAt[0].EndFIndex;
+//                i++;
+//            }
+//            for (; i < cutAt.Length; i++)
+//            {
+//                StrokeFIndices fragment = cutAt[i];
+//                if (DoubleUtil.GreaterThanOrClose(beginFIndex, fragment.BeginFIndex))
+//                {
+//                    // ISSUE-2004/06/26-vsmirnov - temporary workaround for bugs
+//                    // in point erasing: drop invalid fragments
+//                    Debug.Assert(DoubleUtil.LessThan(beginFIndex, fragment.BeginFIndex));
+//                    continue;
+//                }
 
-                beginFIndex = fragment.EndFIndex;
-            }
 
-            if (beginFIndex != StrokeFIndices.AfterLast)
-            {
-                Stroke stroke = Copy(sourceStylusPoints, beginFIndex, StrokeFIndices.AfterLast);
+//                Stroke stroke = Copy(sourceStylusPoints, beginFIndex, fragment.BeginFIndex);
+//                // Add the stroke to the output collection
+//                leftovers.Add(stroke);
 
-                // Add the stroke to the output collection
-                leftovers.Add(stroke);
-            }
+//                beginFIndex = fragment.EndFIndex;
+//            }
 
-            return leftovers;
-        }
+//            if (beginFIndex != StrokeFIndices.AfterLast)
+//            {
+//                Stroke stroke = Copy(sourceStylusPoints, beginFIndex, StrokeFIndices.AfterLast);
+
+//                // Add the stroke to the output collection
+//                leftovers.Add(stroke);
+//            }
+
+//            return leftovers;
+//        }
 
 
-        /// <summary>
-        /// Creates a new stroke from a subset of the points
-        /// </summary>
-        private Stroke Copy(StylusPointCollection sourceStylusPoints, double beginFIndex, double endFIndex)
-        {
-            Debug.Assert(sourceStylusPoints != null);
-            //
-            // get the floor and ceiling to copy from, we'll adjust the ends below
-            //
-            int beginIndex =
-                (DoubleUtil.AreClose(StrokeFIndices.BeforeFirst, beginFIndex))
-                    ? 0 : (int) Math.Floor(beginFIndex);
+        ///// <summary>
+        ///// Creates a new stroke from a subset of the points
+        ///// </summary>
+        //private Stroke Copy(StylusPointCollection sourceStylusPoints, double beginFIndex, double endFIndex)
+        //{
+        //    Debug.Assert(sourceStylusPoints != null);
+        //    //
+        //    // get the floor and ceiling to copy from, we'll adjust the ends below
+        //    //
+        //    int beginIndex =
+        //        (DoubleUtil.AreClose(StrokeFIndices.BeforeFirst, beginFIndex))
+        //            ? 0 : (int) Math.Floor(beginFIndex);
 
-            int endIndex =
-                (DoubleUtil.AreClose(StrokeFIndices.AfterLast, endFIndex))
-                    ? (sourceStylusPoints.Count - 1) : (int) Math.Ceiling(endFIndex);
+        //    int endIndex =
+        //        (DoubleUtil.AreClose(StrokeFIndices.AfterLast, endFIndex))
+        //            ? (sourceStylusPoints.Count - 1) : (int) Math.Ceiling(endFIndex);
 
-            int pointCount = endIndex - beginIndex + 1;
-            Debug.Assert(pointCount >= 1);
+        //    int pointCount = endIndex - beginIndex + 1;
+        //    Debug.Assert(pointCount >= 1);
 
-            StylusPointCollection stylusPoints =
-                new StylusPointCollection(pointCount);
+        //    StylusPointCollection stylusPoints =
+        //        new StylusPointCollection(pointCount);
 
-            //
-            // copy the data from the floor of beginIndex to the ceiling
-            //
-            for (int i = 0; i < pointCount; i++)
-            {
-                Debug.Assert(sourceStylusPoints.Count > i + beginIndex);
-                StylusPoint stylusPoint = sourceStylusPoints[i + beginIndex];
-                stylusPoints.Add(stylusPoint);
-            }
-            Debug.Assert(stylusPoints.Count == pointCount);
+        //    //
+        //    // copy the data from the floor of beginIndex to the ceiling
+        //    //
+        //    for (int i = 0; i < pointCount; i++)
+        //    {
+        //        Debug.Assert(sourceStylusPoints.Count > i + beginIndex);
+        //        StylusPoint stylusPoint = sourceStylusPoints[i + beginIndex];
+        //        stylusPoints.Add(stylusPoint);
+        //    }
+        //    Debug.Assert(stylusPoints.Count == pointCount);
 
-            //
-            // at this point, the stroke has been reduced to one with n number of points
-            // so we need to adjust the fIndices based on the new point data
-            //
-            // for example, in a stroke with 4 points:
-            // 0, 1, 2, 3
-            //
-            // if the fIndexes passed 1.1 and 2.7
-            // at this point beginIndex is 1 and endIndex is 3
-            //
-            // now that we've copied the stroke points 1, 2 and 3, we need to
-            // adjust beginFIndex to .1 and endFIndex to 1.7
-            //
-            if (!DoubleUtil.AreClose(beginFIndex, StrokeFIndices.BeforeFirst))
-            {
-                beginFIndex = beginFIndex - beginIndex;
-            }
-            if (!DoubleUtil.AreClose(endFIndex, StrokeFIndices.AfterLast))
-            {
-                endFIndex = endFIndex - beginIndex;
-            }
+        //    //
+        //    // at this point, the stroke has been reduced to one with n number of points
+        //    // so we need to adjust the fIndices based on the new point data
+        //    //
+        //    // for example, in a stroke with 4 points:
+        //    // 0, 1, 2, 3
+        //    //
+        //    // if the fIndexes passed 1.1 and 2.7
+        //    // at this point beginIndex is 1 and endIndex is 3
+        //    //
+        //    // now that we've copied the stroke points 1, 2 and 3, we need to
+        //    // adjust beginFIndex to .1 and endFIndex to 1.7
+        //    //
+        //    if (!DoubleUtil.AreClose(beginFIndex, StrokeFIndices.BeforeFirst))
+        //    {
+        //        beginFIndex = beginFIndex - beginIndex;
+        //    }
+        //    if (!DoubleUtil.AreClose(endFIndex, StrokeFIndices.AfterLast))
+        //    {
+        //        endFIndex = endFIndex - beginIndex;
+        //    }
 
-            if (stylusPoints.Count > 1)
-            {
-                Point begPoint = (Point) stylusPoints[0];
-                Point endPoint = (Point) stylusPoints[stylusPoints.Count - 1];
+        //    if (stylusPoints.Count > 1)
+        //    {
+        //        Point begPoint = (Point) stylusPoints[0];
+        //        Point endPoint = (Point) stylusPoints[stylusPoints.Count - 1];
 
-                // Adjust the last point to fragment.EndFIndex.
-                if ((!DoubleUtil.AreClose(endFIndex, StrokeFIndices.AfterLast)) && !DoubleUtil.AreClose(endIndex, endFIndex))
-                {
-                    //
-                    // for 1.7, we need to get .3, because that is the distance
-                    // we need to back up between the third point and the second
-                    //
-                    // so this would be .3 = 2 - 1.7
-                    double ceiling = Math.Ceiling(endFIndex);
-                    double fraction = ceiling - endFIndex;
+        //        // Adjust the last point to fragment.EndFIndex.
+        //        if ((!DoubleUtil.AreClose(endFIndex, StrokeFIndices.AfterLast)) && !DoubleUtil.AreClose(endIndex, endFIndex))
+        //        {
+        //            //
+        //            // for 1.7, we need to get .3, because that is the distance
+        //            // we need to back up between the third point and the second
+        //            //
+        //            // so this would be .3 = 2 - 1.7
+        //            double ceiling = Math.Ceiling(endFIndex);
+        //            double fraction = ceiling - endFIndex;
 
-                    endPoint = GetIntermediatePoint(stylusPoints[stylusPoints.Count - 1],
-                                                    stylusPoints[stylusPoints.Count - 2],
-                                                    fraction);
-                }
+        //            endPoint = GetIntermediatePoint(stylusPoints[stylusPoints.Count - 1],
+        //                                            stylusPoints[stylusPoints.Count - 2],
+        //                                            fraction);
+        //        }
 
-                // Adjust the first point to fragment.BeginFIndex.
-                if ((!DoubleUtil.AreClose(beginFIndex, StrokeFIndices.BeforeFirst)) && !DoubleUtil.AreClose(beginIndex, beginFIndex))
-                {
-                    begPoint = GetIntermediatePoint(stylusPoints[0],
-                                                    stylusPoints[1],
-                                                    beginFIndex);
-                }
+        //        // Adjust the first point to fragment.BeginFIndex.
+        //        if ((!DoubleUtil.AreClose(beginFIndex, StrokeFIndices.BeforeFirst)) && !DoubleUtil.AreClose(beginIndex, beginFIndex))
+        //        {
+        //            begPoint = GetIntermediatePoint(stylusPoints[0],
+        //                                            stylusPoints[1],
+        //                                            beginFIndex);
+        //        }
 
-                //
-                // now set the end points
-                //
-                StylusPoint tempEnd = stylusPoints[stylusPoints.Count - 1];
-                tempEnd.X = endPoint.X;
-                tempEnd.Y = endPoint.Y;
-                stylusPoints[stylusPoints.Count - 1] = tempEnd;
+        //        //
+        //        // now set the end points
+        //        //
+        //        StylusPoint tempEnd = stylusPoints[stylusPoints.Count - 1];
+        //        tempEnd.X = endPoint.X;
+        //        tempEnd.Y = endPoint.Y;
+        //        stylusPoints[stylusPoints.Count - 1] = tempEnd;
 
-                StylusPoint tempBegin = stylusPoints[0];
-                tempBegin.X = begPoint.X;
-                tempBegin.Y = begPoint.Y;
-                stylusPoints[0] = tempBegin;
-            }
+        //        StylusPoint tempBegin = stylusPoints[0];
+        //        tempBegin.X = begPoint.X;
+        //        tempBegin.Y = begPoint.Y;
+        //        stylusPoints[0] = tempBegin;
+        //    }
 
-            Stroke stroke = null;
-            try
-            {
-                //
-                // set a flag that tells clone not to clone the StylusPoints
-                // we do this in a try finally so we alway reset our state
-                // even if Clone (which is virtual) throws
-                //
-                _cloneStylusPoints = false;
-                stroke = this.Clone();
-                if (stroke.DrawingAttributes.FitToCurve)
-                {
-                    //
-                    // we're using the beziered points for the new data,
-                    // FitToCurve needs to be false to prevent re-bezier.
-                    //
-                    stroke.DrawingAttributes.FitToCurve = false;
-                }
+        //    Stroke stroke = null;
+        //    try
+        //    {
+        //        //
+        //        // set a flag that tells clone not to clone the StylusPoints
+        //        // we do this in a try finally so we alway reset our state
+        //        // even if Clone (which is virtual) throws
+        //        //
+        //        _cloneStylusPoints = false;
+        //        stroke = this.Clone();
+        //        if (stroke.DrawingAttributes.FitToCurve)
+        //        {
+        //            //
+        //            // we're using the beziered points for the new data,
+        //            // FitToCurve needs to be false to prevent re-bezier.
+        //            //
+        //            stroke.DrawingAttributes.FitToCurve = false;
+        //        }
 
-                //this will reset the cachedGeometry and cachedBounds
-                stroke.StylusPoints = stylusPoints;
-            }
-            finally
-            {
-                _cloneStylusPoints = true;
-            }
+        //        //this will reset the cachedGeometry and cachedBounds
+        //        stroke.StylusPoints = stylusPoints;
+        //    }
+        //    finally
+        //    {
+        //        _cloneStylusPoints = true;
+        //    }
 
-            return stroke;
-        }
+        //    return stroke;
+        //}
 
         /// <summary>
         /// Private helper that will generate a new point between two points at an findex

@@ -299,14 +299,13 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         }
 
 
-        /// <summary>
-        /// Returns a copy of the EPC
-        /// </summary>
-        internal ExtendedPropertyCollection CopyPropertyData()
-        {
-            return this.ExtendedProperties.Clone();
-        }
-
+        ///// <summary>
+        ///// Returns a copy of the EPC
+        ///// </summary>
+        //internal ExtendedPropertyCollection CopyPropertyData()
+        //{
+        //    return this.ExtendedProperties.Clone();
+        //}
 
         #endregion
 
@@ -468,37 +467,37 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         }
         #endregion
 
-        /// <summary>
-        /// Copies the DrawingAttributes
-        /// </summary>
-        /// <returns>Deep copy of the DrawingAttributes</returns>
-        /// <remarks></remarks>
-        public virtual DrawingAttributes Clone()
-        {
-            //
-            // use MemberwiseClone, which will instance the most derived type
-            // We use this instead of Activator.CreateInstance because it does not 
-            // require ReflectionPermission.  One thing to note, all references 
-            // are shared, including event delegates, so we need to set those to null
-            //
-            DrawingAttributes clone = (DrawingAttributes) this.MemberwiseClone();
+        ///// <summary>
+        ///// Copies the DrawingAttributes
+        ///// </summary>
+        ///// <returns>Deep copy of the DrawingAttributes</returns>
+        ///// <remarks></remarks>
+        //public virtual DrawingAttributes Clone()
+        //{
+        //    //
+        //    // use MemberwiseClone, which will instance the most derived type
+        //    // We use this instead of Activator.CreateInstance because it does not 
+        //    // require ReflectionPermission.  One thing to note, all references 
+        //    // are shared, including event delegates, so we need to set those to null
+        //    //
+        //    DrawingAttributes clone = (DrawingAttributes) this.MemberwiseClone();
 
-            //
-            // null the delegates in the cloned DrawingAttributes
-            //
-            clone.AttributeChanged = null;
-            clone.PropertyDataChanged = null;
+        //    //
+        //    // null the delegates in the cloned DrawingAttributes
+        //    //
+        //    clone.AttributeChanged = null;
+        //    clone.PropertyDataChanged = null;
 
-            //make a copy of the epc , set up listeners
-            clone._extendedProperties = _extendedProperties.Clone();
-            clone.Initialize();
+        //    //make a copy of the epc , set up listeners
+        //    clone._extendedProperties = _extendedProperties.Clone();
+        //    clone.Initialize();
 
-            //don't need to clone these, it is a value type 
-            //and is copied by MemberwiseClone
-            //_v1RasterOperation
-            //_heightChangedForCompatabity
-            return clone;
-        }
+        //    //don't need to clone these, it is a value type 
+        //    //and is copied by MemberwiseClone
+        //    //_v1RasterOperation
+        //    //_heightChangedForCompatabity
+        //    return clone;
+        //}
         #endregion
 
         #region Events

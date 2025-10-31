@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetCampus.Inking</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>

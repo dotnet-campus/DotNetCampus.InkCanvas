@@ -163,49 +163,49 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
             }
         }
 
-        /// <summary>
-        /// Creates a copy of the Guid and Value
-        /// </summary>
-        /// <returns></returns>
-        internal ExtendedProperty Clone()
-        {
-            //
-            // the only properties we accept are value types or arrays of
-            // value types with the exception of string.
-            //
-            Guid guid = _id; //Guid is a ValueType that copies on assignment
-            Type type = _value.GetType();
+        ///// <summary>
+        ///// Creates a copy of the Guid and Value
+        ///// </summary>
+        ///// <returns></returns>
+        //internal ExtendedProperty Clone()
+        //{
+        //    //
+        //    // the only properties we accept are value types or arrays of
+        //    // value types with the exception of string.
+        //    //
+        //    Guid guid = _id; //Guid is a ValueType that copies on assignment
+        //    Type type = _value.GetType();
 
-            //
-            // check for the very common, copy on assignment
-            // types (ValueType or string)
-            //
-            if (type.IsValueType || type == typeof(string))
-            {
-                //
-                // either ValueType or string is passed by value
-                //
-                return new ExtendedProperty(guid, _value);
-            }
-            else if (type.IsArray)
-            {
-                Type elementType = type.GetElementType();
-                if (elementType.IsValueType && type.GetArrayRank() == 1)
-                {
-                    //
-                    // copy the array memebers, which we know are copy
-                    // on assignment value types
-                    //
-                    Array newArray = Array.CreateInstance(elementType, ((Array) _value).Length);
-                    Array.Copy((Array) _value, newArray, ((Array) _value).Length);
-                    return new ExtendedProperty(guid, newArray);
-                }
-            }
-            //
-            // we didn't find a type we expect, throw
-            //
-            throw new InvalidOperationException(SR.Get(SRID.InvalidDataTypeForExtendedProperty));
-        }
+        //    //
+        //    // check for the very common, copy on assignment
+        //    // types (ValueType or string)
+        //    //
+        //    if (type.IsValueType || type == typeof(string))
+        //    {
+        //        //
+        //        // either ValueType or string is passed by value
+        //        //
+        //        return new ExtendedProperty(guid, _value);
+        //    }
+        //    else if (type.IsArray)
+        //    {
+        //        Type elementType = type.GetElementType();
+        //        if (elementType.IsValueType && type.GetArrayRank() == 1)
+        //        {
+        //            //
+        //            // copy the array memebers, which we know are copy
+        //            // on assignment value types
+        //            //
+        //            Array newArray = Array.CreateInstance(elementType, ((Array) _value).Length);
+        //            Array.Copy((Array) _value, newArray, ((Array) _value).Length);
+        //            return new ExtendedProperty(guid, newArray);
+        //        }
+        //    }
+        //    //
+        //    // we didn't find a type we expect, throw
+        //    //
+        //    throw new InvalidOperationException(SR.Get(SRID.InvalidDataTypeForExtendedProperty));
+        //}
 
 
         private Guid _id;                // id of attribute

@@ -55,33 +55,33 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         }
 
 
-        /// <summary>
-        /// Performs a deep copy of the StrokeCollection.
-        /// </summary>
-        public virtual StrokeCollection Clone()
-        {
-            StrokeCollection clone = new StrokeCollection();
-            foreach (Stroke s in this)
-            {
-                // samgeo - Presharp issue
-                // Presharp gives a warning when get methods might deref a null.  It's complaining
-                // here that s could be null, but StrokeCollection never allows nulls to be added
-                // so this is not possible
-#pragma warning disable 1634, 1691
-#pragma warning suppress 6506
-                clone.Add(s.Clone());
-#pragma warning restore 1634, 1691
-            }
+//        /// <summary>
+//        /// Performs a deep copy of the StrokeCollection.
+//        /// </summary>
+//        public virtual StrokeCollection Clone()
+//        {
+//            StrokeCollection clone = new StrokeCollection();
+//            foreach (Stroke s in this)
+//            {
+//                // samgeo - Presharp issue
+//                // Presharp gives a warning when get methods might deref a null.  It's complaining
+//                // here that s could be null, but StrokeCollection never allows nulls to be added
+//                // so this is not possible
+//#pragma warning disable 1634, 1691
+//#pragma warning suppress 6506
+//                clone.Add(s.Clone());
+//#pragma warning restore 1634, 1691
+//            }
 
-            //
-            // clone epc if we have them
-            //
-            if (_extendedProperties != null)
-            {
-                clone._extendedProperties = _extendedProperties.Clone();
-            }
-            return clone;
-        }
+//            //
+//            // clone epc if we have them
+//            //
+//            if (_extendedProperties != null)
+//            {
+//                clone._extendedProperties = _extendedProperties.Clone();
+//            }
+//            return clone;
+//        }
 
         /// <summary>
         /// called by base class Collection&lt;T&gt; when the list is being cleared;

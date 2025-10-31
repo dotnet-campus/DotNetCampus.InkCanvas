@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DotNetCampus.Inking</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <!-- 至少需要 Avalonia 11.3.0 版本，才能支持 https://github.com/AvaloniaUI/Avalonia/pull/16498 的功能 -->

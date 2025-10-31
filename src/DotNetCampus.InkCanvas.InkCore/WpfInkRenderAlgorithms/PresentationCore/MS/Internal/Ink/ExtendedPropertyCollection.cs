@@ -129,21 +129,21 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
             return false;
         }
 
-        /// <summary>
-        /// Copies the ExtendedPropertyCollection
-        /// </summary>
-        /// <returns>Copy of the ExtendedPropertyCollection</returns>
-        /// <remarks>Any reference types held in the collection will only be deep copied (e.g. Arrays).
-        /// </remarks>
-        internal ExtendedPropertyCollection Clone()
-        {
-            ExtendedPropertyCollection copied = new ExtendedPropertyCollection();
-            for (int x = 0; x < _extendedProperties.Count; x++)
-            {
-                copied.Add(_extendedProperties[x].Clone());
-            }
-            return copied;
-        }
+        ///// <summary>
+        ///// Copies the ExtendedPropertyCollection
+        ///// </summary>
+        ///// <returns>Copy of the ExtendedPropertyCollection</returns>
+        ///// <remarks>Any reference types held in the collection will only be deep copied (e.g. Arrays).
+        ///// </remarks>
+        //internal ExtendedPropertyCollection Clone()
+        //{
+        //    ExtendedPropertyCollection copied = new ExtendedPropertyCollection();
+        //    for (int x = 0; x < _extendedProperties.Count; x++)
+        //    {
+        //        copied.Add(_extendedProperties[x].Clone());
+        //    }
+        //    return copied;
+        //}
 
         /// <summary>
         /// Add
