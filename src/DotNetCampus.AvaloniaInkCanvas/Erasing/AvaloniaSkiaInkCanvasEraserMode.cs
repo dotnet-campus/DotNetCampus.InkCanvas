@@ -30,6 +30,8 @@ public class AvaloniaSkiaInkCanvasEraserMode
     private double _debugEraserSizeScale = 0;
 
     public AvaloniaSkiaInkCanvas InkCanvas { get; }
+    private AvaloniaSkiaInkCanvasSettings Settings => InkCanvas.Settings;
+
     public bool IsErasing { get; private set; }
     private int MainEraserInputId { set; get; }
 
@@ -62,6 +64,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
             StartEraser();
 
+            _eraserView.SetEraserSize(Settings.EraserSize);
             _eraserView.Move(args.Position.ToAvaloniaPoint());
             InkCanvas.InvalidateVisual();
         }
@@ -77,8 +80,8 @@ public class AvaloniaSkiaInkCanvasEraserMode
         if (IsErasing && args.Id == MainEraserInputId)
         {
             // 擦除
-            var eraserWidth = 50d;
-            var eraserHeight = 70d;
+            var eraserWidth = Settings.EraserSize.Width;
+            var eraserHeight = Settings.EraserSize.Height;
 
 #if DEBUG
             if (_debugEraserSizeScale > 0)
