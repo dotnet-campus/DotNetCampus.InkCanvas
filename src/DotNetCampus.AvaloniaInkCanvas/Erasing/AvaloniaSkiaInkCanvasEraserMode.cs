@@ -66,6 +66,12 @@ public class AvaloniaSkiaInkCanvasEraserMode
         var staticStrokeList = InkCanvas.StaticStrokeList;
         PointPathEraserManager.StartEraserPointPath(staticStrokeList);
 
+        // 如果没有自定义渲染器，则使用简单渲染器
+        if (InkCanvas.Settings.InkStrokeRenderer is null)
+        {
+            PointPathEraserManager.SimpleInkRender = InkCanvas.SimpleInkRender;
+        }
+
         if (EraserView is Control eraserView)
         {
             InkCanvas.AddChild(eraserView);

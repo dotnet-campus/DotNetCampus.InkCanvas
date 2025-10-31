@@ -38,6 +38,7 @@ class PointPathEraserManager
     }
 
     private List<InkInfoForEraserPointPath> WorkList { get; } = [];
+    public SkiaSimpleInkRender? SimpleInkRender { get; set; }
 
     private readonly List<SubInkInfoForEraserPointPath> _cacheList = [];
 
@@ -237,7 +238,7 @@ class PointPathEraserManager
         return result;
     }
 
-    private static SKPath ToPath(SubInkInfoForEraserPointPath subInkInfoForEraserPointPath)
+    private SKPath ToPath(SubInkInfoForEraserPointPath subInkInfoForEraserPointPath)
     {
         SkiaStroke originSkiaStroke = subInkInfoForEraserPointPath.PointPath.OriginSkiaStroke;
 
@@ -252,12 +253,14 @@ class PointPathEraserManager
                 return inkStrokeRenderer.RenderInkToPath(pointList.ToReadOnlyList(), originSkiaStroke.InkThickness);
             }
 
+            // 如果没有自定义的渲染器，就使用默认的渲染器来进行渲染。默认简单渲染器要求大于两个点才能进行渲染
             if (subSpan.Length > 2)
             {
-                var outlinePointList = SimpleInkRender.GetOutlinePointList(pointList.ToReadOnlyList(), originSkiaStroke.InkThickness);
+                SimpleInkRender ??= new SkiaSimpleInkRender();
+                var outlinePointList = SimpleInkRender.GetOutlineSKPointList(pointList.ToReadOnlyList(), originSkiaStroke.InkThickness);
 
                 var skPath = new SKPath();
-                skPath.AddPoly(outlinePointList.Select(t => new SKPoint((float) t.X, (float) t.Y)).ToArray());
+                skPath.AddPoly(outlinePointList);
                 return skPath;
             }
         }
