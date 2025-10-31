@@ -15,19 +15,19 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// X
         /// </summary>
         public static readonly StylusPointProperty X =
-                new StylusPointProperty( StylusPointPropertyIds.X, false);
+                new StylusPointProperty(StylusPointPropertyIds.X, false);
 
         /// <summary>
         /// Y
         /// </summary>
         public static readonly StylusPointProperty Y =
-                new StylusPointProperty( StylusPointPropertyIds.Y, false);
+                new StylusPointProperty(StylusPointPropertyIds.Y, false);
 
         /// <summary>
         /// Z
         /// </summary>
         public static readonly StylusPointProperty Z =
-                new StylusPointProperty( StylusPointPropertyIds.Z, false);
+                new StylusPointProperty(StylusPointPropertyIds.Z, false);
 
         /// <summary>
         /// Width
@@ -40,7 +40,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// </summary>
         public static readonly StylusPointProperty Height =
                 new StylusPointProperty(StylusPointPropertyIds.Height, false);
-        
+
         /// <summary>
         /// SystemContact
         /// </summary>
@@ -51,7 +51,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// PacketStatus
         /// </summary>
         public static readonly StylusPointProperty PacketStatus =
-                new StylusPointProperty( StylusPointPropertyIds.PacketStatus, false);
+                new StylusPointProperty(StylusPointPropertyIds.PacketStatus, false);
 
         /// <summary>
         /// SerialNumber
@@ -63,55 +63,55 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// NormalPressure
         /// </summary>
         public static readonly StylusPointProperty NormalPressure =
-                new StylusPointProperty( StylusPointPropertyIds.NormalPressure, false);
+                new StylusPointProperty(StylusPointPropertyIds.NormalPressure, false);
 
         /// <summary>
         /// TangentPressure
         /// </summary>
         public static readonly StylusPointProperty TangentPressure =
-                new StylusPointProperty( StylusPointPropertyIds.TangentPressure, false);
+                new StylusPointProperty(StylusPointPropertyIds.TangentPressure, false);
 
         /// <summary>
         /// ButtonPressure
         /// </summary>
         public static readonly StylusPointProperty ButtonPressure =
-                new StylusPointProperty( StylusPointPropertyIds.ButtonPressure, false);
+                new StylusPointProperty(StylusPointPropertyIds.ButtonPressure, false);
 
         /// <summary>
         /// XTiltOrientation
         /// </summary>
         public static readonly StylusPointProperty XTiltOrientation =
-                new StylusPointProperty( StylusPointPropertyIds.XTiltOrientation, false);
+                new StylusPointProperty(StylusPointPropertyIds.XTiltOrientation, false);
 
         /// <summary>
         /// YTiltOrientation
         /// </summary>
         public static readonly StylusPointProperty YTiltOrientation =
-                new StylusPointProperty( StylusPointPropertyIds.YTiltOrientation, false);
+                new StylusPointProperty(StylusPointPropertyIds.YTiltOrientation, false);
 
         /// <summary>
         /// AzimuthOrientation
         /// </summary>
         public static readonly StylusPointProperty AzimuthOrientation =
-                new StylusPointProperty( StylusPointPropertyIds.AzimuthOrientation, false);
+                new StylusPointProperty(StylusPointPropertyIds.AzimuthOrientation, false);
 
         /// <summary>
         /// AltitudeOrientation
         /// </summary>
         public static readonly StylusPointProperty AltitudeOrientation =
-                new StylusPointProperty( StylusPointPropertyIds.AltitudeOrientation, false);
+                new StylusPointProperty(StylusPointPropertyIds.AltitudeOrientation, false);
 
         /// <summary>
         /// TwistOrientation
         /// </summary>
         public static readonly StylusPointProperty TwistOrientation =
-                new StylusPointProperty( StylusPointPropertyIds.TwistOrientation, false);
+                new StylusPointProperty(StylusPointPropertyIds.TwistOrientation, false);
 
         /// <summary>
         /// PitchRotation
         /// </summary>
         public static readonly StylusPointProperty PitchRotation =
-                new StylusPointProperty( StylusPointPropertyIds.PitchRotation, false);
+                new StylusPointProperty(StylusPointPropertyIds.PitchRotation, false);
 
         /// <summary>
         /// RollRotation

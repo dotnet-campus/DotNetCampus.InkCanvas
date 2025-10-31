@@ -31,7 +31,7 @@ namespace WpfInk.PresentationCore.System.Windows
         {
             get
             {
-                return Math.Sqrt(_x*_x + _y*_y);
+                return Math.Sqrt(_x * _x + _y * _y);
             }
         }
 
@@ -42,7 +42,7 @@ namespace WpfInk.PresentationCore.System.Windows
         {
             get
             {
-                return _x*_x + _y*_y;
+                return _x * _x + _y * _y;
             }
         }
 
@@ -53,7 +53,7 @@ namespace WpfInk.PresentationCore.System.Windows
         public void Normalize()
         {
             // Avoid overflow
-            this /= Math.Max(Math.Abs(_x),Math.Abs(_y));
+            this /= Math.Max(Math.Abs(_x), Math.Abs(_y));
             this /= Length;
         }
 
@@ -80,9 +80,9 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <param name="vector2"> The second Vector </param>
         public static double AngleBetween(Vector vector1, Vector vector2)
         {
-            double sin = vector1._x * vector2._y - vector2._x * vector1._y;  
+            double sin = vector1._x * vector2._y - vector2._x * vector1._y;
             double cos = vector1._x * vector2._x + vector1._y * vector2._y;
- 
+
             return Math.Atan2(sin, cos) * (180 / Math.PI);
         }
 
@@ -92,9 +92,9 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator -Vector (unary negation)
         /// </summary>
-        public static Vector operator - (Vector vector)
+        public static Vector operator -(Vector vector)
         {
-            return new Vector(-vector._x,-vector._y);
+            return new Vector(-vector._x, -vector._y);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector + Vector
         /// </summary>
-        public static Vector operator + (Vector vector1, Vector vector2)
+        public static Vector operator +(Vector vector1, Vector vector2)
         {
             return new Vector(vector1._x + vector2._x,
                 vector1._y + vector2._y);
@@ -127,7 +127,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector - Vector
         /// </summary>
-        public static Vector operator - (Vector vector1, Vector vector2)
+        public static Vector operator -(Vector vector1, Vector vector2)
         {
             return new Vector(vector1._x - vector2._x,
                 vector1._y - vector2._y);
@@ -145,7 +145,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector + Point
         /// </summary>
-        public static Point operator + (Vector vector, Point point)
+        public static Point operator +(Vector vector, Point point)
         {
             return new Point(point._x + vector._x, point._y + vector._y);
         }
@@ -161,7 +161,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector * double
         /// </summary>
-        public static Vector operator * (Vector vector, double scalar)
+        public static Vector operator *(Vector vector, double scalar)
         {
             return new Vector(vector._x * scalar,
                 vector._y * scalar);
@@ -179,7 +179,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator double * Vector
         /// </summary>
-        public static Vector operator * (double scalar, Vector vector)
+        public static Vector operator *(double scalar, Vector vector)
         {
             return new Vector(vector._x * scalar,
                 vector._y * scalar);
@@ -197,7 +197,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector / double
         /// </summary>
-        public static Vector operator / (Vector vector, double scalar)
+        public static Vector operator /(Vector vector, double scalar)
         {
             return vector * (1.0 / scalar);
         }
@@ -213,7 +213,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// <summary>
         /// Operator Vector * Vector, interpreted as their dot product
         /// </summary>
-        public static double operator * (Vector vector1, Vector vector2)
+        public static double operator *(Vector vector1, Vector vector2)
         {
             return vector1._x * vector2._x + vector1._y * vector2._y;
         }
@@ -243,7 +243,7 @@ namespace WpfInk.PresentationCore.System.Windows
         {
             return vector1._x * vector2._y - vector1._y * vector2._x;
         }
-        
+
         /// <summary>
         /// Explicit conversion to Size.  Note that since Size cannot contain negative values,
         /// the resulting size will contains the absolute values of X and Y
@@ -349,8 +349,8 @@ namespace WpfInk.PresentationCore.System.Windows
                 return false;
             }
 
-            Vector value = (Vector)o;
-            return Vector.Equals(this,value);
+            Vector value = (Vector) o;
+            return Vector.Equals(this, value);
         }
 
         /// <summary>

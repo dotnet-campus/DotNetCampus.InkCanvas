@@ -110,7 +110,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
                 return false;
             }
 
-            Matrix value = (Matrix)o;
+            Matrix value = (Matrix) o;
             return Matrix.Equals(this, value);
         }
 

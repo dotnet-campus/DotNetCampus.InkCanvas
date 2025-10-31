@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using DotNetCampus.Numerics.Geometry;
 using Rect = DotNetCampus.Numerics.Geometry.Rect2D;
 

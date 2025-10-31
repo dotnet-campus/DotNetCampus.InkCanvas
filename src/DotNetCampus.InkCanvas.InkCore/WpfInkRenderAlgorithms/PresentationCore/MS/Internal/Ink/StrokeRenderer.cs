@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-﻿//#define DEBUG_RENDERING_FEEDBACK
+//#define DEBUG_RENDERING_FEEDBACK
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
 
-using SRID=MS.Internal.PresentationCore.SRID;
+using SRID = MS.Internal.PresentationCore.SRID;
 using MS.Internal;
 using MS.Internal.PresentationCore;
 using WpfInk;
@@ -191,7 +191,7 @@ namespace MS.Internal.Ink
             }
             finally
             {
-           
+
             }
         }
 
@@ -264,10 +264,10 @@ namespace MS.Internal.Ink
                     //
                     List<Point> pathFigureABSide = new List<Point>();//don't prealloc.  It causes Gen2 collections to rise and doesn't help execution time
                     List<Point> pathFigureDCSide = new List<Point>();
-                    List<Point> polyLinePoints =  new List<Point>(4);
+                    List<Point> polyLinePoints = new List<Point>(4);
 
                     int iteratorCount = iterator.Count;
-                    for (int index = 0, previousIndex = -1; index < iteratorCount; )
+                    for (int index = 0, previousIndex = -1; index < iteratorCount;)
                     {
                         if (!prevPrevStrokeNode.IsValid)
                         {
@@ -302,8 +302,8 @@ namespace MS.Internal.Ink
                                 prevStrokeNode = iterator[index++, previousIndex];
                                 prevStrokeNodeBounds = prevStrokeNode.GetBounds();
 
-                                RectCompareResult result = 
-                                    FuzzyContains(  prevStrokeNodeBounds, 
+                                RectCompareResult result =
+                                    FuzzyContains(prevStrokeNodeBounds,
                                                     prevPrevStrokeNodeBounds,
                                                     isStartOfSegment ? 99.99999d : percentIntersect);
 
@@ -351,7 +351,7 @@ namespace MS.Internal.Ink
                                 }
 
                                 Debug.Assert(!prevStrokeNode.GetConnectingQuad().IsEmpty, "prevStrokeNode.GetConnectingQuad() is Empty!");
-                                
+
                                 // if neither was true, we now have two of our three nodes required to 
                                 // start our computation, we need to update previousIndex to point
                                 // to our current, valid prevStrokeNode
@@ -367,16 +367,16 @@ namespace MS.Internal.Ink
                             strokeNodeBounds = strokeNode.GetBounds();
 
                             RectCompareResult result =
-                                    FuzzyContains(  strokeNodeBounds,
+                                    FuzzyContains(strokeNodeBounds,
                                                     prevStrokeNodeBounds,
                                                     isStartOfSegment ? 99.99999 : percentIntersect);
 
                             RectCompareResult result2 =
-                                    FuzzyContains(  strokeNodeBounds,
+                                    FuzzyContains(strokeNodeBounds,
                                                     prevPrevStrokeNodeBounds,
                                                     isStartOfSegment ? 99.99999 : percentIntersect);
 
-                            if ( isStartOfSegment &&
+                            if (isStartOfSegment &&
                                  result == RectCompareResult.Rect1ContainsRect2 &&
                                  result2 == RectCompareResult.Rect1ContainsRect2)
                             {
@@ -403,7 +403,7 @@ namespace MS.Internal.Ink
                                 // increment previousIndex to to point to this node
                                 previousIndex = index - 1;
                                 continue;
-}
+                            }
                             else if (result == RectCompareResult.Rect1ContainsRect2)
                             {
                                 // this node (C) already contains the prevStrokeNodeBounds (P):
@@ -433,7 +433,7 @@ namespace MS.Internal.Ink
                                 //strokeNodeBounds = empty;
 
                                 prevAngle = double.MinValue; //invalidate
-                                
+
                                 // go back to our main loop
                                 continue;
                             }
@@ -512,7 +512,7 @@ namespace MS.Internal.Ink
                             isStartOfSegment = false;
                         }
 
-                        
+
 
                         if (prevAngle == double.MinValue)
                         {
@@ -604,7 +604,7 @@ namespace MS.Internal.Ink
                                     //render
                                     ReverseDCPointsRenderAndClear(context, pathFigureABSide, pathFigureDCSide, polyLinePoints, isEllipse, true/*clear the point collections*/);
                                 }
-                             }
+                            }
                         }
 
                         //
@@ -613,7 +613,7 @@ namespace MS.Internal.Ink
                         //
                         prevPrevStrokeNode = emptyStrokeNode;
                         prevPrevStrokeNodeBounds = empty;
-}
+                    }
 
                     //
                     // anything left to render?
@@ -651,7 +651,7 @@ namespace MS.Internal.Ink
                                 // we've only seen two points to render
                                 Debug.Assert(pathFigureDCSide.Count == 0);
                                 //contains all the logic to render two stroke nodes
-                                RenderTwoStrokeNodes(   context,
+                                RenderTwoStrokeNodes(context,
                                                         prevPrevStrokeNode,
                                                         prevPrevStrokeNodeBounds,
                                                         prevStrokeNode,
@@ -665,7 +665,7 @@ namespace MS.Internal.Ink
                                                        showFeedback
 #endif
                                                     );
-}
+                            }
                         }
                         else
                         {
@@ -678,7 +678,7 @@ namespace MS.Internal.Ink
                             Debug.Assert(pathFigureABSide.Count == 0);
                             prevPrevStrokeNode.GetContourPoints(pathFigureABSide);
                             AddFigureToStreamGeometryContext(context, pathFigureABSide, prevPrevStrokeNode.IsEllipse/*isBezierFigure*/);
-}
+                        }
                     }
                     else if (prevStrokeNode.IsValid && strokeNode.IsValid)
                     {
@@ -712,7 +712,7 @@ namespace MS.Internal.Ink
                         {
                             Debug.Assert(pathFigureDCSide.Count == 0);
                             //contains all the logic to render two stroke nodes
-                            RenderTwoStrokeNodes(   context,
+                            RenderTwoStrokeNodes(context,
                                                     prevStrokeNode,
                                                     prevStrokeNodeBounds,
                                                     strokeNode,
@@ -726,7 +726,7 @@ namespace MS.Internal.Ink
                                                    showFeedback
 #endif
                                                 );
-} 
+                        }
                     }
                 }
                 finally
@@ -741,7 +741,7 @@ namespace MS.Internal.Ink
         /// <summary>
         /// Helper routine to render two distinct stroke nodes
         /// </summary>
-        private static void RenderTwoStrokeNodes(   IInternalStreamGeometryContext context,
+        private static void RenderTwoStrokeNodes(IInternalStreamGeometryContext context,
                                                     StrokeNode strokeNodePrevious,
                                                     Rect strokeNodePreviousBounds,
                                                     StrokeNode strokeNodeCurrent,
@@ -760,8 +760,8 @@ namespace MS.Internal.Ink
             Debug.Assert(pointBuffer2 != null);
             Debug.Assert(pointBuffer3 != null);
             Debug.Assert(context != null);
-            
-            
+
+
             //see if we need to render a quad - if there is not at least a 70% overlap
             if (FuzzyContains(strokeNodePreviousBounds, strokeNodeCurrentBounds, 70d) != RectCompareResult.NoItersection)
             {
@@ -837,8 +837,8 @@ namespace MS.Internal.Ink
 
             double intersectLeft = Math.Max(rect1.Left, rect2.Left);
             double intersectTop = Math.Max(rect1.Top, rect2.Top);
-            double intersectWidth = Math.Max((double)(Math.Min(rect1.Right, rect2.Right) - intersectLeft), (double)0);
-            double intersectHeight = Math.Max((double)(Math.Min(rect1.Bottom, rect2.Bottom) - intersectTop), (double)0);
+            double intersectWidth = Math.Max((double) (Math.Min(rect1.Right, rect2.Right) - intersectLeft), (double) 0);
+            double intersectHeight = Math.Max((double) (Math.Min(rect1.Bottom, rect2.Bottom) - intersectTop), (double) 0);
 
             if (intersectWidth == 0.0d || intersectHeight == 0.0d)
             {
@@ -911,7 +911,7 @@ namespace MS.Internal.Ink
             context.PolyLineTo(dcPoints,
                                  true,      //isStroked
                                  true);     //isSmoothJoin
-}
+        }
 
         /// <summary>
         /// Private helper to render a path figure to the SGC
@@ -935,7 +935,7 @@ namespace MS.Internal.Ink
             {
                 List<Point> points = j == 0 ? abPoints : dcPoints;
                 int startIndex = j == 0 ? 1 : 0;
-                for (int i = startIndex; i < points.Count; )
+                for (int i = startIndex; i < points.Count;)
                 {
                     Point next = points[i];
                     if (next == StrokeRenderer.ArcToMarker)
@@ -943,7 +943,7 @@ namespace MS.Internal.Ink
                         if (polyLinePoints.Count > 0)
                         {
                             //polyline first
-                            context.PolyLineTo(  polyLinePoints,
+                            context.PolyLineTo(polyLinePoints,
                                                  true,      //isStroked
                                                  true);     //isSmoothJoin
                             polyLinePoints.Clear();
@@ -958,7 +958,7 @@ namespace MS.Internal.Ink
 
                             bool isLargeArc = false; //>= 180
 
-                            context.ArcTo(  arcToPoint,
+                            context.ArcTo(arcToPoint,
                                             ellipseSize,
                                             0d,             //rotation
                                             isLargeArc,     //isLargeArc
@@ -993,17 +993,17 @@ namespace MS.Internal.Ink
         private static double GetAngleDeltaFromLast(Point previousPosition, Point currentPosition, ref double lastAngle)
         {
             double delta = 0.0d;
-            
+
             //input points typically come in very close to each other
             double dx = (currentPosition.X * 1000) - (previousPosition.X * 1000);
             double dy = (currentPosition.Y * 1000) - (previousPosition.Y * 1000);
-            if ((Int64)dx == 0 && (Int64)dy == 0)
+            if ((Int64) dx == 0 && (Int64) dy == 0)
             {
                 //the points are close enough not to matter
                 //don't update lastAngle
                 return delta;
             }
-            
+
             double angle = GetAngleBetween(previousPosition, currentPosition);
 
             //special case when angle / lastAngle span 0 degrees
@@ -1036,7 +1036,7 @@ namespace MS.Internal.Ink
             //input points typically come in very close to each other
             double dx = (currentPosition.X * 1000) - (previousPosition.X * 1000);
             double dy = (currentPosition.Y * 1000) - (previousPosition.Y * 1000);
-            if ((Int64)dx == 0 && (Int64)dy == 0)
+            if ((Int64) dx == 0 && (Int64) dy == 0)
             {
                 //the points are close enough not to matter
                 return angle;

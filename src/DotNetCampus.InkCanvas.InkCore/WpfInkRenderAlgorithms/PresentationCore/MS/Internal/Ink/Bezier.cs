@@ -14,7 +14,7 @@ using WpfInk.PresentationCore.System.Windows;
 using WpfInk.PresentationCore.System.Windows.Input.Stylus;
 
 namespace MS.Internal.Ink
-{    
+{
     /// <summary>
     /// Bezier curve generation class
     /// </summary>
@@ -23,7 +23,7 @@ namespace MS.Internal.Ink
         /// <summary>
         /// Default constructor
         /// </summary>
-        public Bezier() {}
+        public Bezier() { }
 
         /// <summary>
         /// Construct bezier control points from points
@@ -39,7 +39,7 @@ namespace MS.Internal.Ink
 
             // Compile list of distinct points and their nodes
             CuspData dat = new CuspData();
-            dat.Analyze(stylusPoints, 
+            dat.Analyze(stylusPoints,
                         fitError /*typically zero*/);
 
             return ConstructFromData(dat, fitError);
@@ -135,11 +135,11 @@ namespace MS.Internal.Ink
         {
             switch (to - from)
             {
-                case 1 :
+                case 1:
                     AddLine(data, from, to);
                     return true;
 
-                case 2 :
+                case 2:
                     AddParabola(data, from);
                     return true;
             }
@@ -217,7 +217,7 @@ namespace MS.Internal.Ink
                 to = from + 3;
 
                 // No meat in this loop, just extending the index range
-                while (ExtendingRange(fitError, data, from, next_cusp, ref to, ref is_a_cusp, ref done));
+                while (ExtendingRange(fitError, data, from, next_cusp, ref to, ref is_a_cusp, ref done)) ;
 
                 // Find the tangent 
                 if (!data.Tangent(ref tanEnd, to, prev_cusp, next_cusp, true, is_a_cusp))
@@ -386,7 +386,7 @@ namespace MS.Internal.Ink
             double s = b1 * a22 - b2 * a12;
             double u = b2 * a11 - b1 * a12;
             double det = a11 * a22 - a12 * a12;
-            bool accept = (Math.Abs(det) > Math.Abs(s) * DoubleUtil.DBL_EPSILON && 
+            bool accept = (Math.Abs(det) > Math.Abs(s) * DoubleUtil.DBL_EPSILON &&
                             Math.Abs(det) > Math.Abs(u) * DoubleUtil.DBL_EPSILON);
 
             if (accept)
@@ -433,10 +433,10 @@ namespace MS.Internal.Ink
             double d23 = d04 / (data.Node(i[3]) - data.Node(i[2]));
             double d24 = d04 / (data.Node(i[4]) - data.Node(i[2]));
             double d34 = d04 / (data.Node(i[4]) - data.Node(i[3]));
-            Vector P =  d01 * d02 * d03 * data.XY(i[0]) - 
-                        d01 * d12 * d13 * d14 * data.XY(i[1]) + 
-                        d02 * d12 * d23 * d24 * data.XY(i[2]) - 
-                        d03 * d13 * d23 * d34 * data.XY(i[3]) + 
+            Vector P = d01 * d02 * d03 * data.XY(i[0]) -
+                        d01 * d12 * d13 * d14 * data.XY(i[1]) +
+                        d02 * d12 * d23 * d24 * data.XY(i[2]) -
+                        d03 * d13 * d23 * d34 * data.XY(i[3]) +
                         d14 * d24 * d34 * data.XY(i[4]);
 
             return ((P * P) < fitError);
@@ -449,7 +449,7 @@ namespace MS.Internal.Ink
         /// <param name="point">In: The point to add</param>
         private void AddBezierPoint(Vector point)
         {
-            _bezierControlPoints.Add((Point)point);
+            _bezierControlPoints.Add((Point) point);
         }
 
 
@@ -460,7 +460,7 @@ namespace MS.Internal.Ink
         /// <param name="index">In: The index of the point to add</param>
         private void AddSegmentPoint(CuspData data, int index)
         {
-            _bezierControlPoints.Add((Point)data.XY(index));
+            _bezierControlPoints.Add((Point) data.XY(index));
         }
 
 
@@ -511,16 +511,16 @@ namespace MS.Internal.Ink
 
             for (i = checked(iFirst + 1); i <= checked(iFirst + 2); i++)
             {
-				// Get the longer median
-				Q[0] = (GetBezierPoint(i - 1) + GetBezierPoint(i + 1)) * 0.5f - GetBezierPoint(i);
+                // Get the longer median
+                Q[0] = (GetBezierPoint(i - 1) + GetBezierPoint(i + 1)) * 0.5f - GetBezierPoint(i);
 
-				double r = Q[0].Length;
+                double r = Q[0].Length;
 
-				if (r > rCurv)
-					rCurv = r;
-			}
+                if (r > rCurv)
+                    rCurv = r;
+            }
 
-			// Now we look at the ratio between the medain and the error tolerance.
+            // Now we look at the ratio between the medain and the error tolerance.
             // the points are collinear then one point - the endpoint - will do. 
             // Otherwise, since curvature is roughly inverse proportional
             // to the square of nPoints, we set nPoints to be the square root of this 
@@ -534,12 +534,12 @@ namespace MS.Internal.Ink
 
             // Otherwise we'll have at least 3 points
             // Tolerance is assumed to be positive
-            nPoints = (int)(Math.Sqrt(rCurv / tolerance)) + 3;
+            nPoints = (int) (Math.Sqrt(rCurv / tolerance)) + 3;
             if (nPoints > 1000)
                 nPoints = 1000; // Arbitrary limitation, but...
 
             // Get the first 4 points on the segment in the buffer
-            double d = 1.0f / (double)nPoints;
+            double d = 1.0f / (double) nPoints;
 
             Q[0] = GetBezierPoint(iFirst);
             for (i = 1; i <= 3; i++)
@@ -569,7 +569,7 @@ namespace MS.Internal.Ink
         /// <returns></returns>
         private Vector GetBezierPoint(int index)
         {
-            return (Vector)_bezierControlPoints[index];
+            return (Vector) _bezierControlPoints[index];
         }
 
 

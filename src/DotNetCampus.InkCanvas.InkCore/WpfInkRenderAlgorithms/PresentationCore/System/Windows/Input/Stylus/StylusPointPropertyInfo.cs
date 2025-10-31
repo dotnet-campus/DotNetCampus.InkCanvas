@@ -17,17 +17,17 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// <summary>
         /// Instance data
         /// </summary>
-        private int                     _min;
-        private int                     _max;
-        private float                   _resolution;
+        private int _min;
+        private int _max;
+        private float _resolution;
         private StylusPointPropertyUnit _unit;
 
         /// <summary>
         /// For a given StylusPointProperty, instantiates a StylusPointPropertyInfo with default values
         /// </summary>
         /// <param name="stylusPointProperty"></param>
-        public StylusPointPropertyInfo(StylusPointProperty stylusPointProperty) 
-            : base (stylusPointProperty) //base checks for null
+        public StylusPointPropertyInfo(StylusPointProperty stylusPointProperty)
+            : base(stylusPointProperty) //base checks for null
         {
             StylusPointPropertyInfo info =
                 StylusPointPropertyInfoDefaults.GetStylusPointPropertyInfoDefault(stylusPointProperty);
@@ -35,7 +35,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
             _max = info.Maximum;
             _resolution = info.Resolution;
             _unit = info.Unit;
-}
+        }
 
         /// <summary>
         /// StylusPointProperty
@@ -51,7 +51,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
             // validate unit
             if (!StylusPointPropertyUnitHelper.IsDefined(unit))
             {
-                throw new InvalidEnumArgumentException("unit", (int)unit, typeof(StylusPointPropertyUnit));
+                throw new InvalidEnumArgumentException("unit", (int) unit, typeof(StylusPointPropertyUnit));
             }
 
             // validate min/max
@@ -115,7 +115,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
                 throw new ArgumentNullException("stylusPointPropertyInfo");
             }
 
-            Debug.Assert((  stylusPointPropertyInfo1.Id != StylusPointPropertyIds.X &&
+            Debug.Assert((stylusPointPropertyInfo1.Id != StylusPointPropertyIds.X &&
                             stylusPointPropertyInfo1.Id != StylusPointPropertyIds.Y &&
                             stylusPointPropertyInfo2.Id != StylusPointPropertyIds.X &&
                             stylusPointPropertyInfo2.Id != StylusPointPropertyIds.Y),

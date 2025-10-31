@@ -16,7 +16,7 @@ namespace MS.Internal.Ink
     internal partial class StrokeNodeOperations
     {
         #region Static API
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -35,7 +35,7 @@ namespace MS.Internal.Ink
             return new StrokeNodeOperations(nodeShape);
         }
         #endregion
-        
+
         #region API
 
         /// <summary>
@@ -66,11 +66,11 @@ namespace MS.Internal.Ink
                 int i;
                 for (i = 0; (i + 1) < _vertices.Length; i += 2)
                 {
-                    _shapeBounds.Union(new Rect((Point)_vertices[i], (Point)_vertices[i + 1]));
+                    _shapeBounds.Union(new Rect((Point) _vertices[i], (Point) _vertices[i + 1]));
                 }
                 if (i < _vertices.Length)
                 {
-                    _shapeBounds.Union((Point)_vertices[i]);
+                    _shapeBounds.Union((Point) _vertices[i]);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace MS.Internal.Ink
             System.Diagnostics.Debug.Assert((boundingBox.X <= 0) && (boundingBox.Y <= 0));
 
             double pressureFactor = node.PressureFactor;
-            if (!DoubleUtil.AreClose(pressureFactor,1d))
+            if (!DoubleUtil.AreClose(pressureFactor, 1d))
             {
                 boundingBox = new Rect(
                     _shapeBounds.X * pressureFactor,
@@ -86,8 +86,8 @@ namespace MS.Internal.Ink
                     _shapeBounds.Width * pressureFactor,
                     _shapeBounds.Height * pressureFactor);
             }
-            
-            boundingBox.Location += (Vector)node.Position;
+
+            boundingBox.Location += (Vector) node.Position;
 
             return boundingBox;
         }
@@ -110,7 +110,7 @@ namespace MS.Internal.Ink
                 }
             }
         }
-        
+
         /// <summary>
         /// Returns an enumerator for edges of the contour comprised by a given node 
         /// and its connecting quadrangle.
@@ -166,7 +166,7 @@ namespace MS.Internal.Ink
         /// <returns></returns>
         internal virtual IEnumerable<ContourSegment> GetNonBezierContourSegments(StrokeNodeData beginNode, StrokeNodeData endNode)
         {
-            Quad quad = beginNode.IsEmpty ? Quad.Empty : GetConnectingQuad(beginNode, endNode); 
+            Quad quad = beginNode.IsEmpty ? Quad.Empty : GetConnectingQuad(beginNode, endNode);
             return GetContourSegments(endNode, quad);
         }
 
@@ -178,7 +178,7 @@ namespace MS.Internal.Ink
         /// <param name="endNode">another node, next to beginNode</param>
         /// <returns>connecting quadrangle, that can be empty if one node is inside the other</returns>
         internal virtual Quad GetConnectingQuad(in StrokeNodeData beginNode, in StrokeNodeData endNode)
-        {            
+        {
             // Return an empty quad if either of the nodes is empty (not a node) 
             // or if both nodes are at the same position.
             if (beginNode.IsEmpty || endNode.IsEmpty || DoubleUtil.AreClose(beginNode.Position, endNode.Position))
@@ -266,10 +266,10 @@ namespace MS.Internal.Ink
                     }
                 }
             }
-            
+
             if (!foundAB || !foundCD ||   // (2)
                 ((pressureDelta != 0) && Vector.Determinant(quad.B - quad.A, quad.D - quad.A) == 0)) // (1)
-            {   
+            {
                 //                                          _____        _______
                 // One of the nodes,                    (1) |__  |   (2) | ___  |
                 // as well as the connecting quad,          |  | |       | |  | |
@@ -437,13 +437,13 @@ namespace MS.Internal.Ink
         /// <returns>true if the contours intersect or overlap</returns>
         internal virtual bool HitTest(
            in StrokeNodeData beginNode, in StrokeNodeData endNode, Quad quad, IEnumerable<ContourSegment> hitContour)
-        {           
+        {
             // Check for special cases when the endNode is the very first one (beginNode.IsEmpty) 
             // or one node is completely inside the other. In either case the connecting quad 
             // would be Empty and we need to hittest against the biggest node (the one with 
             // the greater PressureFactor)
             if (quad.IsEmpty)
-            {               
+            {
                 // Make a call to hit-test the biggest node the hitting contour.
                 return HitTestPolygonContourSegments(hitContour, beginNode, endNode);
             }
@@ -578,7 +578,7 @@ namespace MS.Internal.Ink
             {
 
                 // First, find out if hitSegment intersects with either of the ink nodes
-                bool isHit = HitTestStrokeNodes(hitSegment,beginNode,endNode, ref result);
+                bool isHit = HitTestStrokeNodes(hitSegment, beginNode, endNode, ref result);
 
                 // If both nodes are hit, return.
                 if (result.IsFull)
@@ -597,7 +597,7 @@ namespace MS.Internal.Ink
                              ? HitTestQuadCircle(quad, hitSegment.Begin + hitSegment.Radius, hitSegment.Radius)
                              : HitTestQuadSegment(quad, hitSegment.Begin, hitSegment.End);
                     }
-                    
+
                     if (isHit == false)
                     {
                         if (isInside == true)
@@ -743,7 +743,7 @@ namespace MS.Internal.Ink
                     }
                     else if (hit == HitResult.Right)
                     {
-                         side++;
+                        side++;
                         if (HitResult.Left == WhereIsVectorAboutVector(
                             hitPoint - nextVertex, nextVertexNextNode))
                         {
@@ -1003,7 +1003,7 @@ namespace MS.Internal.Ink
                 }
             }
             return (isInside || isHit);
-        }   
+        }
 
         /// <summary>
         /// Helper function to HitTest the the hitting contour against the inking contour
@@ -1165,7 +1165,7 @@ namespace MS.Internal.Ink
                         : (WhereIsVectorAboutVector(-hitBegin, hitSegment.Vector) == HitResult.Right);
                 }
             }
-            return (isHit||isInside);
+            return (isHit || isInside);
         }
 
 
@@ -1283,10 +1283,10 @@ namespace MS.Internal.Ink
                     : ClipTest(spineVector, pressureDelta,
                         (hitSegment.Begin - beginNode.Position) / beginNode.PressureFactor,
                         (hitSegment.End - beginNode.Position) / beginNode.PressureFactor);
-                
+
                 // ClipTest returns StrokeFIndices.AfterLast to indicate a false hit test.
                 // But the caller CutTest expects StrokeFIndices.BeforeFirst when there is no hit.
-                if ( findex == StrokeFIndices.AfterLast )
+                if (findex == StrokeFIndices.AfterLast)
                 {
                     findex = StrokeFIndices.BeforeFirst;
                 }
@@ -1321,10 +1321,10 @@ namespace MS.Internal.Ink
         #endregion
 
         #region Instance data
-        
+
         // Shape parameters
-        private Rect        _shapeBounds = Rect.Empty;
-        protected Vector[]    _vertices;
+        private Rect _shapeBounds = Rect.Empty;
+        protected Vector[] _vertices;
 
         #endregion
     }

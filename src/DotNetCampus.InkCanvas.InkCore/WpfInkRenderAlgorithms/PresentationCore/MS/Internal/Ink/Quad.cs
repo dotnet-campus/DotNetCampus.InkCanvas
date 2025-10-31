@@ -21,8 +21,8 @@ namespace MS.Internal.Ink
 
         private static readonly Quad s_empty = new Quad(new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0));
 
-        #endregion 
-        
+        #endregion
+
         #region API
 
         /// <summary> Returns the static object representing an empty (unitialized) quad </summary>
@@ -36,10 +36,10 @@ namespace MS.Internal.Ink
 
         /// <summary> The A vertex of the quad </summary>
         internal Point A { get { return _A; } set { _A = value; } }
-        
+
         /// <summary> The B vertex of the quad </summary>
         internal Point B { get { return _B; } set { _B = value; } }
-        
+
         /// <summary> The C vertex of the quad </summary>
         internal Point C { get { return _C; } set { _C = value; } }
 
@@ -49,7 +49,7 @@ namespace MS.Internal.Ink
         // Returns quad's vertex by index where A is of the index 0, B - is 1, etc
         internal Point this[int index]
         {
-            get 
+            get
             {
                 switch (index)
                 {
@@ -64,9 +64,9 @@ namespace MS.Internal.Ink
         }
 
         /// <summary> Tells whether the quad is invalid (empty) </summary>
-        internal bool IsEmpty 
-        { 
-            get { return (_A == _B) && (_C == _D); } 
+        internal bool IsEmpty
+        {
+            get { return (_A == _B) && (_C == _D); }
         }
 
         internal void GetPoints(List<Point> pointBuffer)
@@ -76,13 +76,13 @@ namespace MS.Internal.Ink
             pointBuffer.Add(_C);
             pointBuffer.Add(_D);
         }
-        
+
         /// <summary> Returns the bounds of the quad </summary>
-        internal Rect Bounds 
+        internal Rect Bounds
         {
             get { return IsEmpty ? Rect.Empty : Rect.Union(new Rect(_A, _B), new Rect(_C, _D)); }
         }
-        
+
         #endregion
 
         #region Fields

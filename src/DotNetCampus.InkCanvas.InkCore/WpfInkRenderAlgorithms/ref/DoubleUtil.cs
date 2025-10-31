@@ -36,8 +36,8 @@ namespace MS.Internal
     internal static class DoubleUtil
     {
         // Const values come from sdk\inc\crt\float.h
-        internal const double DBL_EPSILON  =   2.2204460492503131e-016; /* smallest such that 1.0+DBL_EPSILON != 1.0 */
-        internal const float  FLT_MIN      =   1.175494351e-38F; /* Number close to zero, where float.MinValue is -float.MaxValue */
+        internal const double DBL_EPSILON = 2.2204460492503131e-016; /* smallest such that 1.0+DBL_EPSILON != 1.0 */
+        internal const float FLT_MIN = 1.175494351e-38F; /* Number close to zero, where float.MinValue is -float.MaxValue */
 
         /// <summary>
         /// AreClose - Returns whether or not two doubles are "close".  That is, whether or 
@@ -57,11 +57,11 @@ namespace MS.Internal
         public static bool AreClose(double value1, double value2)
         {
             //in case they are Infinities (then epsilon check does not work)
-            if(value1 == value2) return true;
+            if (value1 == value2) return true;
             // This computes (|value1-value2| / (|value1| + |value2| + 10.0)) < DBL_EPSILON
             double eps = (Math.Abs(value1) + Math.Abs(value2) + 10.0) * DBL_EPSILON;
             double delta = value1 - value2;
-            return(-eps < delta) && (eps > delta);
+            return (-eps < delta) && (eps > delta);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace MS.Internal
         /// <param name="value"> The double to compare to 1. </param>
         public static bool IsOne(double value)
         {
-            return Math.Abs(value-1.0) < 10.0 * DBL_EPSILON;
+            return Math.Abs(value - 1.0) < 10.0 * DBL_EPSILON;
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace MS.Internal
         /// <returns>Whether or not the two points are equal</returns>
         public static bool AreClose(Point point1, Point point2)
         {
-            return DoubleUtil.AreClose(point1.X, point2.X) && 
+            return DoubleUtil.AreClose(point1.X, point2.X) &&
             DoubleUtil.AreClose(point1.Y, point2.Y);
         }
 
@@ -202,10 +202,10 @@ namespace MS.Internal
         /// <returns>Whether or not the two Size instances are equal</returns>
         public static bool AreClose(Size size1, Size size2)
         {
-            return DoubleUtil.AreClose(size1.Width, size2.Width) && 
+            return DoubleUtil.AreClose(size1.Width, size2.Width) &&
                    DoubleUtil.AreClose(size1.Height, size2.Height);
         }
-        
+
         /// <summary>
         /// Compares two Vector instances for fuzzy equality.  This function
         /// helps compensate for the fact that double values can 
@@ -215,8 +215,8 @@ namespace MS.Internal
         /// <param name='vector2'>The second Vector to compare</param>
         /// <returns>Whether or not the two Vector instances are equal</returns>
         public static bool AreClose(Vector vector1, Vector vector2)
-        { 
-            return DoubleUtil.AreClose(vector1.X, vector2.X) && 
+        {
+            return DoubleUtil.AreClose(vector1.X, vector2.X) &&
                    DoubleUtil.AreClose(vector1.Y, vector2.Y);
         }
 
@@ -237,7 +237,7 @@ namespace MS.Internal
         /// <returns></returns>
         public static int DoubleToInt(double val)
         {
-            return (0 < val) ? (int)(val + 0.5) : (int)(val - 0.5);
+            return (0 < val) ? (int) (val + 0.5) : (int) (val - 0.5);
         }
 
 
@@ -262,7 +262,7 @@ namespace MS.Internal
 
             UInt64 exp = t.UintValue & 0xfff0000000000000;
             UInt64 man = t.UintValue & 0x000fffffffffffff;
-            
+
             return (exp == 0x7ff0000000000000 || exp == 0xfff0000000000000) && (man != 0);
         }
 #endif

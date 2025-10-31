@@ -37,8 +37,8 @@ namespace MS.Internal
     {
         TRANSFORM_IS_IDENTITY = 0,
         TRANSFORM_IS_TRANSLATION = 1,
-        TRANSFORM_IS_SCALING     = 2,
-        TRANSFORM_IS_UNKNOWN     = 4
+        TRANSFORM_IS_SCALING = 2,
+        TRANSFORM_IS_UNKNOWN = 4
     }
 
     internal static class MatrixUtil
@@ -116,7 +116,7 @@ namespace MS.Internal
 
             // trans1._type |  trans2._type
             //  7  6  5  4   |  3  2  1  0
-            int combinedType = ((int)type1 << 4) | (int)type2;
+            int combinedType = ((int) type1 << 4) | (int) type2;
 
             switch (combinedType)
             {
@@ -165,12 +165,12 @@ namespace MS.Internal
                         matrix1._offsetX * matrix2._m12 + matrix1._offsetY * matrix2._m22 + matrix2._offsetY);
                     return;
 #if DEBUG
-            default:
-                Debug.Fail("Matrix multiply hit an invalid case: " + combinedType);
-                break;
+                default:
+                    Debug.Fail("Matrix multiply hit an invalid case: " + combinedType);
+                    break;
 #endif
             }
-        }        
+        }
 
         /// <summary>
         /// Applies an offset to the specified matrix in place.

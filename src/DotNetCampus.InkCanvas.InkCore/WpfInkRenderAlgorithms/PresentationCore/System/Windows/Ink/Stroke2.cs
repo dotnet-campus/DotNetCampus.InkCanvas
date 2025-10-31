@@ -110,9 +110,9 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
 
 
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
 
         #region Internal APIs
@@ -142,12 +142,12 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         #region Private fields
 
 
-        private bool                    _isSelected         = false;
-        private bool                    _drawAsHollow       = false;
-        private bool                    _cloneStylusPoints  = true;
-        private bool                    _delayRaiseInvalidated  = false;
-        private static readonly double  HollowLineSize      = 1.0f;
-        private Rect                    _cachedBounds       = Rect.Empty;
+        private bool _isSelected = false;
+        private bool _drawAsHollow = false;
+        private bool _cloneStylusPoints = true;
+        private bool _delayRaiseInvalidated = false;
+        private static readonly double HollowLineSize = 1.0f;
+        private Rect _cachedBounds = Rect.Empty;
 
         // The private PropertyChanged event
         private PropertyChangedEventHandler _propertyChanged;

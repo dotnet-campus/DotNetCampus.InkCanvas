@@ -13,7 +13,7 @@ public readonly record struct EdidInfo
     public char ManufacturerNameChar2 { get; init; }
 
     public byte ManufactureWeek { get; init; }
-    
+
     /// <summary>
     /// 已加上 1990 的年份
     /// </summary>

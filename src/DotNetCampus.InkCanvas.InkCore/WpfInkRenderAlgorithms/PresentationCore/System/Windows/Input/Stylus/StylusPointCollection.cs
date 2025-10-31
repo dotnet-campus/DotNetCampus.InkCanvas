@@ -164,7 +164,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         {
             //note that we don't raise an exception if stylusPoints.Count == 0
             ArgumentNullException.ThrowIfNull(stylusPoints);
-         
+
 
             // cache count outside of the loop, so if this SPC is ever passed
             // we don't loop forever

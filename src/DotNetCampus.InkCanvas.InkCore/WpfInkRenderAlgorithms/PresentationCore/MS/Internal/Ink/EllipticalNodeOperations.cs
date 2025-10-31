@@ -87,7 +87,7 @@ namespace MS.Internal.Ink
         /// <param name="beginNode">a node to connect</param>
         /// <param name="endNode">another node, next to beginNode</param>
         /// <returns>connecting quadrangle</returns>
-        internal override Quad GetConnectingQuad(in StrokeNodeData beginNode,in StrokeNodeData endNode)
+        internal override Quad GetConnectingQuad(in StrokeNodeData beginNode, in StrokeNodeData endNode)
         {
             if (beginNode.IsEmpty || endNode.IsEmpty || DoubleUtil.AreClose(beginNode.Position, endNode.Position))
             {
@@ -583,7 +583,7 @@ namespace MS.Internal.Ink
                 {
                     result.EndFIndex = StrokeFIndices.AfterLast;
                 }
-                else if ((DoubleUtil.AreClose(result.BeginFIndex,StrokeFIndices.AfterLast)) && (!DoubleUtil.AreClose(result.EndFIndex, StrokeFIndices.BeforeFirst)))
+                else if ((DoubleUtil.AreClose(result.BeginFIndex, StrokeFIndices.AfterLast)) && (!DoubleUtil.AreClose(result.EndFIndex, StrokeFIndices.BeforeFirst)))
                 {
                     result.BeginFIndex = StrokeFIndices.BeforeFirst;
                 }
@@ -714,18 +714,18 @@ namespace MS.Internal.Ink
         private static double ClipTest(Vector spine, double beginRadius, double endRadius, Vector hit)
         {
             double radDiff = endRadius - beginRadius;
-            double A = spine.X*spine.X + spine.Y*spine.Y - radDiff*radDiff;
-            double B = -2.0f*(hit.X*spine.X + hit.Y * spine.Y + beginRadius*radDiff);
+            double A = spine.X * spine.X + spine.Y * spine.Y - radDiff * radDiff;
+            double B = -2.0f * (hit.X * spine.X + hit.Y * spine.Y + beginRadius * radDiff);
             double C = hit.X * hit.X + hit.Y * hit.Y - beginRadius * beginRadius;
 
             // There checks are here since if either fail no real solution can be caculated and we may
             // as well bail out now and save the caculations that are below.
-            if (DoubleUtil.IsZero(A) || !DoubleUtil.GreaterThanOrClose(B*B, 4.0f*A*C))
+            if (DoubleUtil.IsZero(A) || !DoubleUtil.GreaterThanOrClose(B * B, 4.0f * A * C))
                 return 1d;
 
-            double tmp = Math.Sqrt(B*B-4.0f * A * C);
-            double s1 = (-B + tmp)/(2.0f * A);
-            double s2 = (-B - tmp)/(2.0f * A);
+            double tmp = Math.Sqrt(B * B - 4.0f * A * C);
+            double s1 = (-B + tmp) / (2.0f * A);
+            double s2 = (-B - tmp) / (2.0f * A);
             double findex;
 
             if (DoubleUtil.IsBetweenZeroAndOne(s1) && DoubleUtil.IsBetweenZeroAndOne(s1))
@@ -828,7 +828,7 @@ namespace MS.Internal.Ink
         }
 
         private double _radius = 0;
-        private Size   _radii;
+        private Size _radii;
         private Matrix _transform;
         private Matrix _nodeShapeToCircle;
         private Matrix _circleToNodeShape;

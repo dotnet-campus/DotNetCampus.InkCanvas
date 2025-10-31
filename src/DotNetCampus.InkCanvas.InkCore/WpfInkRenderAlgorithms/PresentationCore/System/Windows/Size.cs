@@ -74,7 +74,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 {
                     throw new global::System.InvalidOperationException(SR.Size_CannotModifyEmptySize);
                 }
-                    
+
                 if (value < 0)
                 {
                     throw new global::System.ArgumentException(SR.Size_WidthCannotBeNegative);
@@ -99,7 +99,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 {
                     throw new global::System.InvalidOperationException(SR.Size_CannotModifyEmptySize);
                 }
-                    
+
                 if (value < 0)
                 {
                     throw new global::System.ArgumentException(SR.Size_HeightCannotBeNegative);
@@ -140,7 +140,7 @@ namespace WpfInk.PresentationCore.System.Windows
         #endregion Public Operators
 
         #region Private Methods
-            
+
         private static Size CreateEmptySize()
         {
             Size size = new Size
@@ -154,7 +154,7 @@ namespace WpfInk.PresentationCore.System.Windows
         }
 
         #endregion Private Methods
-            
+
         #region Private Fields
 
         private static readonly Size s_empty = CreateEmptySize();
@@ -247,8 +247,8 @@ namespace WpfInk.PresentationCore.System.Windows
                 return false;
             }
 
-            Size value = (Size)o;
-            return Size.Equals(this,value);
+            Size value = (Size) o;
+            return Size.Equals(this, value);
         }
 
         /// <summary>

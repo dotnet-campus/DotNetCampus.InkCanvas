@@ -170,7 +170,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
             var pointPathEraserResult = PointPathEraserManager.Finish();
 
             var skiaStrokeList = pointPathEraserResult.ErasingSkiaStrokeList
-                .SelectMany(t => t.IsErased 
+                .SelectMany(t => t.IsErased
                     ? t.NewStrokeList // 被擦掉的，使用新的笔迹列表替代
                     : [t.OriginStroke]); // 没有被擦掉的，使用原笔迹
 

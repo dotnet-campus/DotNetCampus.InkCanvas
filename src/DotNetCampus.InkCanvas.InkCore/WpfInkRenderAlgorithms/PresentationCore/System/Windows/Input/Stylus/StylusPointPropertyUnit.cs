@@ -85,7 +85,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
 
             _pointerUnitMap.TryGetValue(pointerUnit & UNIT_MASK, out unit);
 
-            return (IsDefined(unit)) ? unit : (StylusPointPropertyUnit?)null;
+            return (IsDefined(unit)) ? unit : (StylusPointPropertyUnit?) null;
         }
 
         internal static bool IsDefined(StylusPointPropertyUnit unit)

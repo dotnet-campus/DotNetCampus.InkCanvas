@@ -4,7 +4,7 @@
 
 
 using System;
-using SRID=MS.Internal.PresentationCore.SRID;
+using SRID = MS.Internal.PresentationCore.SRID;
 
 namespace WpfInk.PresentationCore.System.Windows.Ink
 {
@@ -44,7 +44,7 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                 return false;
             }
 
-            ExtendedProperty that = (ExtendedProperty)obj;
+            ExtendedProperty that = (ExtendedProperty) obj;
 
             if (that.Id == this.Id)
             {
@@ -56,13 +56,13 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                     Type elementType1 = type1.GetElementType();
                     Type elementType2 = type2.GetElementType();
                     if (elementType1 == elementType2 &&
-                        elementType1.IsValueType && 
+                        elementType1.IsValueType &&
                         type1.GetArrayRank() == 1 &&
-                        elementType2.IsValueType && 
+                        elementType2.IsValueType &&
                         type2.GetArrayRank() == 1)
                     {
-                        Array array1 = (Array)this.Value;
-                        Array array2 = (Array)that.Value;
+                        Array array1 = (Array) this.Value;
+                        Array array2 = (Array) that.Value;
                         if (array1.Length == array2.Length)
                         {
                             for (int i = 0; i < array1.Length; i++)
@@ -88,11 +88,11 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         /// two ExtendedProperty objects</summary>
         public static bool operator ==(ExtendedProperty first, ExtendedProperty second)
         {
-            if ((object)first == null && (object)second == null)
+            if ((object) first == null && (object) second == null)
             {
                 return true;
             }
-            else if ((object)first == null || (object)second == null)
+            else if ((object) first == null || (object) second == null)
             {
                 return false;
             }
@@ -196,8 +196,8 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                     // copy the array memebers, which we know are copy
                     // on assignment value types
                     //
-                    Array newArray = Array.CreateInstance(elementType, ((Array)_value).Length);
-                    Array.Copy((Array)_value, newArray, ((Array)_value).Length);
+                    Array newArray = Array.CreateInstance(elementType, ((Array) _value).Length);
+                    Array.Copy((Array) _value, newArray, ((Array) _value).Length);
                     return new ExtendedProperty(guid, newArray);
                 }
             }

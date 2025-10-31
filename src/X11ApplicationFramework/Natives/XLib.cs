@@ -159,7 +159,7 @@ namespace X11ApplicationFramework.Natives
         }
 
         [DllImport(libX11)]
-        public static extern IntPtr XInternAtom(IntPtr display,[MarshalAs(UnmanagedType.LPStr)] string atom_name, bool only_if_exists);
+        public static extern IntPtr XInternAtom(IntPtr display, [MarshalAs(UnmanagedType.LPStr)] string atom_name, bool only_if_exists);
 
         [DllImport(libX11)]
         public static extern int XInternAtoms(IntPtr display, string[] atom_names, int atom_count, bool only_if_exists,
@@ -648,13 +648,13 @@ namespace X11ApplicationFramework.Natives
 
         public static void XISetMask(ref int mask, XiEventType ev)
         {
-            mask |= (1 << (int)ev);
+            mask |= (1 << (int) ev);
         }
 
         public static int XiEventMaskLen { get; } = 4;
 
         public static bool XIMaskIsSet(void* ptr, int shift) =>
-            (((byte*)(ptr))[(shift) >> 3] & (1 << (shift & 7))) != 0;
+            (((byte*) (ptr))[(shift) >> 3] & (1 << (shift & 7))) != 0;
 
         [DllImport(libXInput)]
         public static extern Status XISelectEvents(
@@ -822,7 +822,7 @@ namespace X11ApplicationFramework.Natives
             {
                 if (obj == null || obj.GetType() != GetType())
                     return false;
-                Pollfd value = (Pollfd)obj;
+                Pollfd value = (Pollfd) obj;
                 return value.events == events && value.revents == revents;
             }
 
@@ -861,14 +861,14 @@ namespace X11ApplicationFramework.Natives
             for (int i = 0; i < send.Length; i++)
             {
                 send[i].fd = fds[i].fd;
-                send[i].events = (short)fds[i].events;
+                send[i].events = (short) fds[i].events;
             }
 
             int r = sys_poll(send, nfds, timeout);
 
             for (int i = 0; i < send.Length; i++)
             {
-                fds[i].revents = (PollEvents)(send[i].revents);
+                fds[i].revents = (PollEvents) (send[i].revents);
             }
 
             return r;

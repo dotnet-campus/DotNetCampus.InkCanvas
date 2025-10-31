@@ -18,174 +18,174 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid X = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.X];
+        internal static readonly Guid X = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.X];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Y = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.Y];
+        internal static readonly Guid Y = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.Y];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Z = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.Z];
+        internal static readonly Guid Z = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.Z];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid PacketStatus = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.PacketStatus];
+        internal static readonly Guid PacketStatus = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.PacketStatus];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid TimerTick = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.TimerTick];
+        internal static readonly Guid TimerTick = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.TimerTick];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid SerialNumber = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.SerialNumber];
+        internal static readonly Guid SerialNumber = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.SerialNumber];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid NormalPressure = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.NormalPressure];
+        internal static readonly Guid NormalPressure = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.NormalPressure];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid TangentPressure = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.TangentPressure];
+        internal static readonly Guid TangentPressure = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.TangentPressure];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid ButtonPressure = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.ButtonPressure];
+        internal static readonly Guid ButtonPressure = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.ButtonPressure];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid XTiltOrientation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.XTiltOrientation];
+        internal static readonly Guid XTiltOrientation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.XTiltOrientation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid YTiltOrientation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.YTiltOrientation];
+        internal static readonly Guid YTiltOrientation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.YTiltOrientation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid AzimuthOrientation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.AzimuthOrientation];
+        internal static readonly Guid AzimuthOrientation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.AzimuthOrientation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid AltitudeOrientation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.AltitudeOrientation];
+        internal static readonly Guid AltitudeOrientation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.AltitudeOrientation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid TwistOrientation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.TwistOrientation];
+        internal static readonly Guid TwistOrientation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.TwistOrientation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid PitchRotation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.PitchRotation];
+        internal static readonly Guid PitchRotation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.PitchRotation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid RollRotation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.RollRotation];
+        internal static readonly Guid RollRotation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.RollRotation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid YawRotation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.YawRotation];
+        internal static readonly Guid YawRotation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.YawRotation];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Color = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.ColorRef];
+        internal static readonly Guid Color = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.ColorRef];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid DrawingFlags = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.DrawingFlags];
+        internal static readonly Guid DrawingFlags = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.DrawingFlags];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid CursorId = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.CursorId];
+        internal static readonly Guid CursorId = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.CursorId];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid WordAlternates = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.WordAlternates];
+        internal static readonly Guid WordAlternates = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.WordAlternates];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid CharacterAlternates = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.CharAlternates];
+        internal static readonly Guid CharacterAlternates = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.CharAlternates];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid InkMetrics = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.InkMetrics];
+        internal static readonly Guid InkMetrics = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.InkMetrics];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid GuideStructure = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.GuideStructure];
+        internal static readonly Guid GuideStructure = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.GuideStructure];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Timestamp = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.Timestamp];
+        internal static readonly Guid Timestamp = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.Timestamp];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Language = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.Language];
+        internal static readonly Guid Language = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.Language];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid Transparency = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.Transparency];
+        internal static readonly Guid Transparency = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.Transparency];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid CurveFittingError = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.CurveFittingError];
+        internal static readonly Guid CurveFittingError = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.CurveFittingError];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid RecognizedLattice = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.RecoLattice];
+        internal static readonly Guid RecognizedLattice = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.RecoLattice];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid CursorDown = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.CursorDown];
+        internal static readonly Guid CursorDown = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.CursorDown];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid SecondaryTipSwitch = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.SecondaryTipSwitch];
+        internal static readonly Guid SecondaryTipSwitch = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.SecondaryTipSwitch];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid TabletPick = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.TabletPick];
+        internal static readonly Guid TabletPick = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.TabletPick];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid BarrelDown = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.BarrelDown];
+        internal static readonly Guid BarrelDown = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.BarrelDown];
         /// <summary>
         ///    <para>[To be supplied.]</para>
         /// </summary>
-        internal static readonly Guid RasterOperation = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.RasterOperation];
+        internal static readonly Guid RasterOperation = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.RasterOperation];
 
         /// <summary>
         ///    <para>The height of the pen tip which affects the stroke rendering.</para>
         /// </summary>
-        internal static readonly Guid StylusHeight = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.StylusHeight];
+        internal static readonly Guid StylusHeight = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.StylusHeight];
 
         /// <summary>
         ///    <para>The width of the pen tip which affects the stroke rendering.</para>
         /// </summary>
-        internal static readonly Guid StylusWidth = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.StylusWidth];
+        internal static readonly Guid StylusWidth = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.StylusWidth];
 
         /// <summary>
         /// Guid identifying the highlighter property
         /// </summary>
-        internal static readonly Guid Highlighter = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.Highlighter];
+        internal static readonly Guid Highlighter = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.Highlighter];
         /// <summary>
         /// Guid identifying the Ink properties
         /// </summary>
-        internal static readonly Guid InkProperties = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.InkProperties];
+        internal static readonly Guid InkProperties = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.InkProperties];
         /// <summary>
         /// Guid identifying the Ink Style bold property
         /// </summary>
-        internal static readonly Guid InkStyleBold = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.InkStyleBold];
+        internal static readonly Guid InkStyleBold = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.InkStyleBold];
         /// <summary>
         /// Guid identifying the ink style italics property
         /// </summary>
-        internal static readonly Guid InkStyleItalics = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.InkStyleItalics];
+        internal static readonly Guid InkStyleItalics = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.InkStyleItalics];
         /// <summary>
         /// Guid identifying the stroke timestamp property
         /// </summary>
-        internal static readonly Guid StrokeTimestamp = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.StrokeTimestamp];
+        internal static readonly Guid StrokeTimestamp = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.StrokeTimestamp];
         /// <summary>
         /// Guid identifying the stroke timeid property
         /// </summary>
-        internal static readonly Guid StrokeTimeId = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.StrokeTimeId];
+        internal static readonly Guid StrokeTimeId = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.StrokeTimeId];
 
         /// <summary>
         /// Guid identifying the StylusTip
@@ -203,25 +203,25 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         /// </summary>
         internal static readonly Guid IsHighlighter = new Guid(0xce305e1a, 0xe08, 0x45e3, 0x8c, 0xdc, 0xe4, 0xb, 0xb4, 0x50, 0x6f, 0x21);
 
-//        /// <summary>
-//        /// Guid used for identifying the fill-brush for rendering a stroke.
-//        /// </summary>
-//        public static readonly Guid FillBrush              = new Guid(0x9a547c5c, 0x1fff, 0x4987, 0x8a, 0xb6, 0xbe, 0xed, 0x75, 0xde, 0xa, 0x1d);
-//
-//        /// <summary>
-//        /// Guid used for identifying the pen used for rendering a stroke's outline.
-//        /// </summary>
-//        public static readonly Guid OutlinePen             = new Guid(0x9967aea6, 0x3980, 0x4337, 0xb7, 0xc6, 0x34, 0xa, 0x33, 0x98, 0x8e, 0x6b);
-//
-//        /// <summary>
-//        /// Guid used for identifying the blend mode used for rendering a stroke (similar to ROP in v1).
-//        /// </summary>
-//        public static readonly Guid BlendMode              = new Guid(0xd6993943, 0x7a84, 0x4a80, 0x84, 0x68, 0xa8, 0x3c, 0xca, 0x65, 0xb0, 0x5);
-//
-//        /// <summary>
-//        /// Guid used for identifying StylusShape object
-//        /// </summary>
-//        public static readonly Guid StylusShape = new Guid(0xf998e7f8, 0x7cdb, 0x4c0e, 0xb2, 0xe2, 0x63, 0x2b, 0xca, 0x21, 0x2a, 0x7b);
+        //        /// <summary>
+        //        /// Guid used for identifying the fill-brush for rendering a stroke.
+        //        /// </summary>
+        //        public static readonly Guid FillBrush              = new Guid(0x9a547c5c, 0x1fff, 0x4987, 0x8a, 0xb6, 0xbe, 0xed, 0x75, 0xde, 0xa, 0x1d);
+        //
+        //        /// <summary>
+        //        /// Guid used for identifying the pen used for rendering a stroke's outline.
+        //        /// </summary>
+        //        public static readonly Guid OutlinePen             = new Guid(0x9967aea6, 0x3980, 0x4337, 0xb7, 0xc6, 0x34, 0xa, 0x33, 0x98, 0x8e, 0x6b);
+        //
+        //        /// <summary>
+        //        /// Guid used for identifying the blend mode used for rendering a stroke (similar to ROP in v1).
+        //        /// </summary>
+        //        public static readonly Guid BlendMode              = new Guid(0xd6993943, 0x7a84, 0x4a80, 0x84, 0x68, 0xa8, 0x3c, 0xca, 0x65, 0xb0, 0x5);
+        //
+        //        /// <summary>
+        //        /// Guid used for identifying StylusShape object
+        //        /// </summary>
+        //        public static readonly Guid StylusShape = new Guid(0xf998e7f8, 0x7cdb, 0x4c0e, 0xb2, 0xe2, 0x63, 0x2b, 0xca, 0x21, 0x2a, 0x7b);
         #endregion
 
         #region Internal Ids
@@ -229,23 +229,23 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         /// <summary>
         ///    <para>The style of the rendering used for the pen tip.</para>
         /// </summary>
-        internal static readonly Guid PenStyle = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.PenStyle];
+        internal static readonly Guid PenStyle = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.PenStyle];
 
         /// <summary>
         ///    <para>The shape of the tip of the pen used for stroke rendering.</para>
         /// </summary>
-        internal static readonly Guid PenTip = KnownIdCache.OriginalISFIdTable[(int)KnownIdCache.OriginalISFIdIndex.PenTip];
+        internal static readonly Guid PenTip = KnownIdCache.OriginalISFIdTable[(int) KnownIdCache.OriginalISFIdIndex.PenTip];
 
         /// <summary>
         /// Guid used for identifying the Custom Stroke
         /// </summary>
         /// <remarks>Should we hide the CustomStrokes and StrokeLattice data?</remarks>
-        internal static readonly Guid InkCustomStrokes     = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.InkCustomStrokes];
+        internal static readonly Guid InkCustomStrokes = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.InkCustomStrokes];
 
         /// <summary>
         /// Guid used for identifying the Stroke Lattice
         /// </summary>
-        internal static readonly Guid InkStrokeLattice     = KnownIdCache.TabletInternalIdTable[(int)KnownIdCache.TabletInternalIdIndex.InkStrokeLattice];
+        internal static readonly Guid InkStrokeLattice = KnownIdCache.TabletInternalIdTable[(int) KnownIdCache.TabletInternalIdIndex.InkStrokeLattice];
 
 #if UNDO_ENABLED
         /// <summary>

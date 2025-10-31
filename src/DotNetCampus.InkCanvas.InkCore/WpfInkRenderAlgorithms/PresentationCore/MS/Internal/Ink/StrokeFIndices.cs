@@ -62,7 +62,7 @@ namespace MS.Internal.Ink
         internal double EndFIndex
         {
             get { return _endFIndex; }
-            set { _endFIndex = value;}
+            set { _endFIndex = value; }
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace MS.Internal.Ink
         public override string ToString()
         {
             return "{" + GetStringRepresentation(_beginFIndex) + "," + GetStringRepresentation(_endFIndex) + "}";
-		}
+        }
 
         /// <summary>
         /// Equals
@@ -93,7 +93,7 @@ namespace MS.Internal.Ink
             // Check for null and compare run-time types
             if (obj == null || GetType() != obj.GetType())
                 return false;
-            return ((StrokeFIndices)obj == this);
+            return ((StrokeFIndices) obj == this);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace MS.Internal.Ink
         /// <summary>
         ///
         /// </summary>
-        internal bool IsFull { get { return ((DoubleUtil.AreClose(_beginFIndex, BeforeFirst)) && (DoubleUtil.AreClose(_endFIndex,AfterLast))); } }
+        internal bool IsFull { get { return ((DoubleUtil.AreClose(_beginFIndex, BeforeFirst)) && (DoubleUtil.AreClose(_endFIndex, AfterLast))); } }
 
 
 #if DEBUG

@@ -57,13 +57,13 @@ namespace WpfInk.WindowsBase.System.Windows.Media
     ///<summary>
     /// Matrix
     ///</summary>
-    internal partial struct Matrix: IFormattable
+    internal partial struct Matrix : IFormattable
     {
         // the transform is identity by default
         // Actually fill in the fields - some (internal) code uses the fields directly for perf.
         private static Matrix s_identity = CreateIdentity();
 
-#region Constructor
+        #region Constructor
 
         /// <summary>
         /// Creates a matrix of the form
@@ -89,9 +89,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             DeriveMatrixType();
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region Identity
+        #region Identity
 
         /// <summary>
         /// Identity
@@ -124,9 +124,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             }
         }
 
-#endregion Identity
+        #endregion Identity
 
-#region Operators
+        #region Operators
         /// <summary>
         /// Multiplies two transformations.
         /// </summary>
@@ -147,9 +147,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             return trans1;
         }
 
-#endregion Operators
+        #endregion Operators
 
-#region Combine Methods
+        #region Combine Methods
 
         /// <summary>
         /// Append - "this" becomes this * matrix, the same as this *= matrix.
@@ -176,7 +176,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         public void Rotate(double angle)
         {
             angle %= 360.0; // Doing the modulo before converting to radians reduces total error
-            this *= CreateRotationRadians(angle * (Math.PI/180.0));
+            this *= CreateRotationRadians(angle * (Math.PI / 180.0));
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         public void RotatePrepend(double angle)
         {
             angle %= 360.0; // Doing the modulo before converting to radians reduces total error
-            this = CreateRotationRadians(angle * (Math.PI/180.0)) * this;
+            this = CreateRotationRadians(angle * (Math.PI / 180.0)) * this;
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         public void RotateAt(double angle, double centerX, double centerY)
         {
             angle %= 360.0; // Doing the modulo before converting to radians reduces total error
-            this *= CreateRotationRadians(angle * (Math.PI/180.0), centerX, centerY);
+            this *= CreateRotationRadians(angle * (Math.PI / 180.0), centerX, centerY);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         public void RotateAtPrepend(double angle, double centerX, double centerY)
         {
             angle %= 360.0; // Doing the modulo before converting to radians reduces total error
-            this = CreateRotationRadians(angle * (Math.PI/180.0), centerX, centerY) * this;
+            this = CreateRotationRadians(angle * (Math.PI / 180.0), centerX, centerY) * this;
         }
 
         /// <summary>
@@ -266,8 +266,8 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             skewX %= 360;
             skewY %= 360;
-            this *= CreateSkewRadians(skewX * (Math.PI/180.0),
-                                      skewY * (Math.PI/180.0));
+            this *= CreateSkewRadians(skewX * (Math.PI / 180.0),
+                                      skewY * (Math.PI / 180.0));
         }
 
         /// <summary>
@@ -279,8 +279,8 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             skewX %= 360;
             skewY %= 360;
-            this = CreateSkewRadians(skewX * (Math.PI/180.0),
-                                     skewY * (Math.PI/180.0)) * this;
+            this = CreateSkewRadians(skewX * (Math.PI / 180.0),
+                                     skewY * (Math.PI / 180.0)) * this;
         }
 
         /// <summary>
@@ -335,9 +335,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             this = CreateTranslation(offsetX, offsetY) * this;
         }
 
-#endregion Set Methods
+        #endregion Set Methods
 
-#region Transformation Services
+        #region Transformation Services
 
         /// <summary>
         /// Transform - returns the result of transforming the point by this matrix
@@ -352,7 +352,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             var x = newPoint.X;
             var y = newPoint.Y;
             MultiplyPoint(ref x, ref y);
-            return new Point(x,y);
+            return new Point(x, y);
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
                     var x = point.X;
                     var y = point.Y;
                     MultiplyPoint(ref x, ref y);
-                    points[i]=new Point(x,y);
+                    points[i] = new Point(x, y);
                 }
             }
         }
@@ -386,7 +386,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             var x = vector.X;
             var y = vector.Y;
             MultiplyVector(ref x, ref y);
-            Vector newVector = new Vector(x,y);
+            Vector newVector = new Vector(x, y);
             return newVector;
         }
 
@@ -410,9 +410,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             }
         }
 
-#endregion Transformation Services
+        #endregion Transformation Services
 
-#region Inversion
+        #region Inversion
 
         /// <summary>
         /// The determinant of this matrix
@@ -423,14 +423,14 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             {
                 switch (_type)
                 {
-                case MatrixTypes.TRANSFORM_IS_IDENTITY:
-                case MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                    return 1.0;
-                case MatrixTypes.TRANSFORM_IS_SCALING:
-                case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                    return(_m11  * _m22);
-                default:
-                    return(_m11  * _m22) - (_m12 * _m21);
+                    case MatrixTypes.TRANSFORM_IS_IDENTITY:
+                    case MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                        return 1.0;
+                    case MatrixTypes.TRANSFORM_IS_SCALING:
+                    case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                        return (_m11 * _m22);
+                    default:
+                        return (_m11 * _m22) - (_m12 * _m21);
                 }
             }
         }
@@ -465,44 +465,44 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             // Inversion does not change the type of a matrix.
             switch (_type)
             {
-            case MatrixTypes.TRANSFORM_IS_IDENTITY:
-                break;
-            case MatrixTypes.TRANSFORM_IS_SCALING:
-                {
-                    _m11 = 1.0 / _m11;
-                    _m22 = 1.0 / _m22;
-                }
-                break;
-            case MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                _offsetX = -_offsetX;
-                _offsetY = -_offsetY;
-                break;
-            case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                {
-                    _m11 = 1.0 / _m11;
-                    _m22 = 1.0 / _m22;
-                    _offsetX = -_offsetX * _m11;
-                    _offsetY = -_offsetY * _m22;
-                }
-                break;
-            default:
-                {
-                    double invdet = 1.0/determinant;
-                    SetMatrix(_m22 * invdet,
-                              -_m12 * invdet,
-                              -_m21 * invdet,
-                              _m11 * invdet,
-                              (_m21 * _offsetY - _offsetX * _m22) * invdet,
-                              (_offsetX * _m12 - _m11 * _offsetY) * invdet,
-                              MatrixTypes.TRANSFORM_IS_UNKNOWN);
-                }
-                break;
+                case MatrixTypes.TRANSFORM_IS_IDENTITY:
+                    break;
+                case MatrixTypes.TRANSFORM_IS_SCALING:
+                    {
+                        _m11 = 1.0 / _m11;
+                        _m22 = 1.0 / _m22;
+                    }
+                    break;
+                case MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    _offsetX = -_offsetX;
+                    _offsetY = -_offsetY;
+                    break;
+                case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    {
+                        _m11 = 1.0 / _m11;
+                        _m22 = 1.0 / _m22;
+                        _offsetX = -_offsetX * _m11;
+                        _offsetY = -_offsetY * _m22;
+                    }
+                    break;
+                default:
+                    {
+                        double invdet = 1.0 / determinant;
+                        SetMatrix(_m22 * invdet,
+                                  -_m12 * invdet,
+                                  -_m21 * invdet,
+                                  _m11 * invdet,
+                                  (_m21 * _offsetY - _offsetX * _m22) * invdet,
+                                  (_offsetX * _m12 - _m11 * _offsetY) * invdet,
+                                  MatrixTypes.TRANSFORM_IS_UNKNOWN);
+                    }
+                    break;
             }
         }
 
-#endregion Inversion
+        #endregion Inversion
 
-#region Public Properties
+        #region Public Properties
 
         /// <summary>
         /// M11
@@ -724,22 +724,22 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             switch (_type)
             {
-            case MatrixTypes.TRANSFORM_IS_IDENTITY:
-            case MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                return;
-            case MatrixTypes.TRANSFORM_IS_SCALING:
-            case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                x *= _m11;
-                y *= _m22;
-                break;
-            default:
-                double xadd = y * _m21;
-                double yadd = x * _m12;
-                x *= _m11;
-                x += xadd;
-                y *= _m22;
-                y += yadd;
-                break;
+                case MatrixTypes.TRANSFORM_IS_IDENTITY:
+                case MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    return;
+                case MatrixTypes.TRANSFORM_IS_SCALING:
+                case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    x *= _m11;
+                    y *= _m22;
+                    break;
+                default:
+                    double xadd = y * _m21;
+                    double yadd = x * _m12;
+                    x *= _m11;
+                    x += xadd;
+                    y *= _m22;
+                    y += yadd;
+                    break;
             }
         }
 
@@ -750,30 +750,30 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             switch (_type)
             {
-            case MatrixTypes.TRANSFORM_IS_IDENTITY:
-                return;
-            case MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                x += _offsetX;
-                y += _offsetY;
-                return;
-            case MatrixTypes.TRANSFORM_IS_SCALING:
-                x *= _m11;
-                y *= _m22;
-                return;
-            case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                x *= _m11;
-                x += _offsetX;
-                y *= _m22;
-                y += _offsetY;
-                break;
-            default:
-                double xadd = y * _m21 + _offsetX;
-                double yadd = x * _m12 + _offsetY;
-                x *= _m11;
-                x += xadd;
-                y *= _m22;
-                y += yadd;
-                break;
+                case MatrixTypes.TRANSFORM_IS_IDENTITY:
+                    return;
+                case MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    x += _offsetX;
+                    y += _offsetY;
+                    return;
+                case MatrixTypes.TRANSFORM_IS_SCALING:
+                    x *= _m11;
+                    y *= _m22;
+                    return;
+                case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    x *= _m11;
+                    x += _offsetX;
+                    y *= _m22;
+                    y += _offsetY;
+                    break;
+                default:
+                    double xadd = y * _m21 + _offsetX;
+                    double yadd = x * _m12 + _offsetY;
+                    x *= _m11;
+                    x += xadd;
+                    y *= _m22;
+                    y += yadd;
+                    break;
             }
         }
 
@@ -798,12 +798,12 @@ namespace WpfInk.WindowsBase.System.Windows.Media
 
             double sin = Math.Sin(angle);
             double cos = Math.Cos(angle);
-            double dx    = (centerX * (1.0 - cos)) + (centerY * sin);
-            double dy    = (centerY * (1.0 - cos)) - (centerX * sin);
+            double dx = (centerX * (1.0 - cos)) + (centerY * sin);
+            double dy = (centerY * (1.0 - cos)) - (centerX * sin);
 
-            matrix.SetMatrix( cos, sin,
+            matrix.SetMatrix(cos, sin,
                               -sin, cos,
-                              dx,    dy,
+                              dx, dy,
                               MatrixTypes.TRANSFORM_IS_UNKNOWN);
 
             return matrix;
@@ -820,9 +820,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             Matrix matrix = new Matrix();
 
-            matrix.SetMatrix(scaleX,  0,
+            matrix.SetMatrix(scaleX, 0,
                              0, scaleY,
-                             centerX - scaleX*centerX, centerY - scaleY*centerY,
+                             centerX - scaleX * centerX, centerY - scaleY * centerY,
                              MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION);
 
             return matrix;
@@ -836,7 +836,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         internal static Matrix CreateScaling(double scaleX, double scaleY)
         {
             Matrix matrix = new Matrix();
-            matrix.SetMatrix(scaleX,  0,
+            matrix.SetMatrix(scaleX, 0,
                              0, scaleY,
                              0, 0,
                              MatrixTypes.TRANSFORM_IS_SCALING);
@@ -852,7 +852,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         {
             Matrix matrix = new Matrix();
 
-            matrix.SetMatrix(1.0,  Math.Tan(skewY),
+            matrix.SetMatrix(1.0, Math.Tan(skewY),
                              Math.Tan(skewX), 1.0,
                              0.0, 0.0,
                              MatrixTypes.TRANSFORM_IS_UNKNOWN);
@@ -877,9 +877,9 @@ namespace WpfInk.WindowsBase.System.Windows.Media
             return matrix;
         }
 
-#endregion Internal Methods
+        #endregion Internal Methods
 
-#region Private Methods
+        #region Private Methods
         /// <summary>
         /// Sets the transformation to the identity.
         /// </summary>
@@ -953,37 +953,37 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         [Conditional("DEBUG")]
         private void Debug_CheckType()
         {
-            switch(_type)
+            switch (_type)
             {
-            case MatrixTypes.TRANSFORM_IS_IDENTITY:
-                return;
-            case MatrixTypes.TRANSFORM_IS_UNKNOWN:
-                return;
-            case MatrixTypes.TRANSFORM_IS_SCALING:
-                Debug.Assert(_m21 == 0);
-                Debug.Assert(_m12 == 0);
-                Debug.Assert(_offsetX == 0);
-                Debug.Assert(_offsetY == 0);
-                return;
-            case MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                Debug.Assert(_m21 == 0);
-                Debug.Assert(_m12 == 0);
-                Debug.Assert(_m11 == 1);
-                Debug.Assert(_m22 == 1);
-                return;
-            case MatrixTypes.TRANSFORM_IS_SCALING|MatrixTypes.TRANSFORM_IS_TRANSLATION:
-                Debug.Assert(_m21 == 0);
-                Debug.Assert(_m12 == 0);
-                return;
-            default:
-                Debug.Assert(false);
-                return;
+                case MatrixTypes.TRANSFORM_IS_IDENTITY:
+                    return;
+                case MatrixTypes.TRANSFORM_IS_UNKNOWN:
+                    return;
+                case MatrixTypes.TRANSFORM_IS_SCALING:
+                    Debug.Assert(_m21 == 0);
+                    Debug.Assert(_m12 == 0);
+                    Debug.Assert(_offsetX == 0);
+                    Debug.Assert(_offsetY == 0);
+                    return;
+                case MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    Debug.Assert(_m21 == 0);
+                    Debug.Assert(_m12 == 0);
+                    Debug.Assert(_m11 == 1);
+                    Debug.Assert(_m22 == 1);
+                    return;
+                case MatrixTypes.TRANSFORM_IS_SCALING | MatrixTypes.TRANSFORM_IS_TRANSLATION:
+                    Debug.Assert(_m21 == 0);
+                    Debug.Assert(_m12 == 0);
+                    return;
+                default:
+                    Debug.Assert(false);
+                    return;
             }
         }
 
-#endregion Private Methods
-    
-#region Private Properties and Fields
+        #endregion Private Methods
+
+        #region Private Properties and Fields
 
         /// <summary>
         /// Efficient but conservative test for identity.  Returns
@@ -1001,8 +1001,8 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         // The hash code for a matrix is the xor of its element's hashes.
         // Since the identity matrix has 2 1's and 4 0's its hash is 0.
         private const int c_identityHashCode = 0;
-    
-#endregion Private Properties and Fields
+
+        #endregion Private Properties and Fields
 
         internal double _m11;
         internal double _m12;
@@ -1012,7 +1012,7 @@ namespace WpfInk.WindowsBase.System.Windows.Media
         internal double _offsetY;
         internal MatrixTypes _type;
 
-// This field is only used by unmanaged code which isn't detected by the compiler.
+        // This field is only used by unmanaged code which isn't detected by the compiler.
 #pragma warning disable 0414
         // Matrix in blt'd to unmanaged code, so this is padding 
         // to align structure.

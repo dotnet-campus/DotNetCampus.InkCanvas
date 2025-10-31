@@ -43,10 +43,10 @@ namespace WpfInk.PresentationCore.System.Windows
                 throw new global::System.ArgumentException(SR.Size_WidthAndHeightCannotBeNegative);
             }
 
-            _x    = x;
-            _y     = y;
-            _width   = width;
-            _height  = height;
+            _x = x;
+            _y = y;
+            _width = width;
+            _height = height;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// which results from point + vector.
         /// </summary>
         public Rect(Point point,
-            Vector vector): this(point, point+vector)
+            Vector vector) : this(point, point + vector)
         {
         }
 
@@ -78,7 +78,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// </summary>
         public Rect(Size size)
         {
-            if(size.IsEmpty)
+            if (size.IsEmpty)
             {
                 this = s_empty;
             }
@@ -142,7 +142,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 {
                     throw new global::System.InvalidOperationException(SR.Rect_CannotModifyEmptyRect);
                 }
-                
+
                 _x = value._x;
                 _y = value._y;
             }
@@ -239,7 +239,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 {
                     throw new global::System.InvalidOperationException(SR.Rect_CannotModifyEmptyRect);
                 }
-                                
+
                 if (value < 0)
                 {
                     throw new global::System.ArgumentException(SR.Size_WidthCannotBeNegative);
@@ -416,7 +416,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 return false;
             }
 
-            return ContainsInternal(x,y);
+            return ContainsInternal(x, y);
         }
 
         /// <summary>
@@ -433,8 +433,8 @@ namespace WpfInk.PresentationCore.System.Windows
 
             return (_x <= rect._x &&
                     _y <= rect._y &&
-                    _x+_width >= rect._x+rect._width &&
-                    _y+_height >= rect._y+rect._height );
+                    _x + _width >= rect._x + rect._width &&
+                    _y + _height >= rect._y + rect._height);
         }
 
         /// <summary>
@@ -474,12 +474,12 @@ namespace WpfInk.PresentationCore.System.Windows
             }
             else
             {
-                double left   = Math.Max((double)Left, rect.Left);
-                double top    = Math.Max((double)Top, rect.Top);
-                
+                double left = Math.Max((double) Left, rect.Left);
+                double top = Math.Max((double) Top, rect.Top);
+
                 //  Max with 0 to prevent double weirdness from causing us to be (-epsilon..0)
-                _width = Math.Max(Math.Min((double)Right, rect.Right) - left, 0);
-                _height = Math.Max(Math.Min((double)Bottom, rect.Bottom) - top, 0);
+                _width = Math.Max(Math.Min((double) Right, rect.Right) - left, 0);
+                _height = Math.Max(Math.Min((double) Bottom, rect.Bottom) - top, 0);
 
                 _x = left;
                 _y = top;
@@ -507,10 +507,10 @@ namespace WpfInk.PresentationCore.System.Windows
             }
             else if (!rect.IsEmpty)
             {
-                double left = Math.Min((double)Left, rect.Left);
-                double top = Math.Min((double)Top, rect.Top);
+                double left = Math.Min((double) Left, rect.Left);
+                double top = Math.Min((double) Top, rect.Top);
 
-                
+
                 // We need this check so that the math does not result in NaN
                 if ((rect.Width == Double.PositiveInfinity) || (Width == Double.PositiveInfinity))
                 {
@@ -519,7 +519,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 else
                 {
                     //  Max with 0 to prevent double weirdness from causing us to be (-epsilon..0)                    
-                    double maxRight = Math.Max((double)Right, rect.Right);
+                    double maxRight = Math.Max((double) Right, rect.Right);
                     _width = Math.Max(maxRight - left, 0);
                 }
 
@@ -531,7 +531,7 @@ namespace WpfInk.PresentationCore.System.Windows
                 else
                 {
                     //  Max with 0 to prevent double weirdness from causing us to be (-epsilon..0)
-                    double maxBottom = Math.Max((double)Bottom, rect.Bottom);
+                    double maxBottom = Math.Max((double) Bottom, rect.Bottom);
                     _height = Math.Max(maxBottom - top, 0);
                 }
 
@@ -639,7 +639,7 @@ namespace WpfInk.PresentationCore.System.Windows
 
             _x -= width;
             _y -= height;
-            
+
             // Do two additions rather than multiplication by 2 to avoid spurious overflow
             // That is: (A + 2 * B) != ((A + B) + B) if 2*B overflows.
             // Note that multiplication by 2 might work in this case because A should start
@@ -653,7 +653,7 @@ namespace WpfInk.PresentationCore.System.Windows
             // maintains the invariant that either the Rect is Empty or _width and _height are
             // non-negative, even if the user parameters were NaN, though this isn't strictly maintained
             // by other methods.
-            if ( !(_width >= 0 && _height >= 0) )
+            if (!(_width >= 0 && _height >= 0))
             {
                 this = s_empty;
             }
@@ -851,8 +851,8 @@ namespace WpfInk.PresentationCore.System.Windows
                 return false;
             }
 
-            Rect value = (Rect)o;
-            return Rect.Equals(this,value);
+            Rect value = (Rect) o;
+            return Rect.Equals(this, value);
         }
 
         /// <summary>

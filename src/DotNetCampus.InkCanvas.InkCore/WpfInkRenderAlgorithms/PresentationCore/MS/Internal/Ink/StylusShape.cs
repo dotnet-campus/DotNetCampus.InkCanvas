@@ -22,18 +22,18 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
     {
         #region Fields
 
-        private double    m_width;
-        private double    m_height;
-        private double    m_rotation;
-        private Point[]   m_vertices;
+        private double m_width;
+        private double m_height;
+        private double m_rotation;
+        private Point[] m_vertices;
         private StylusTip m_tip;
-        private Matrix    _transform = Matrix.Identity;
+        private Matrix _transform = Matrix.Identity;
 
         #endregion
 
         #region Constructors
 
-        internal StylusShape(){}
+        internal StylusShape() { }
 
         ///<summary>
         /// constructor for a StylusShape.
@@ -110,14 +110,14 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                 {
                     for (int i = 0; i < vertices.Length; i++)
                     {
-                        vertices[i] = (Vector)m_vertices[i];
+                        vertices[i] = (Vector) m_vertices[i];
                     }
                 }
                 else
                 {
                     for (int i = 0; i < vertices.Length; i++)
                     {
-                        vertices[i] = _transform.Transform((Vector)m_vertices[i]);
+                        vertices[i] = _transform.Transform((Vector) m_vertices[i]);
                     }
 
                     // A transform might make the vertices in counter-clockwise order
@@ -134,7 +134,7 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                 vertices = new Vector[p.Length];
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    vertices[i] = (Vector)p[i];
+                    vertices[i] = (Vector) p[i];
                 }
             }
             return vertices;
@@ -227,7 +227,7 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
             // The private method should only called for Rectangle case.
             global::System.Diagnostics.Debug.Assert(vertices.Length == 4);
 
-            Point prevVertex = (Point)vertices[vertices.Length - 1];
+            Point prevVertex = (Point) vertices[vertices.Length - 1];
             int counterClockIndex = 0, clockWiseIndex = 0;
 
             for (int i = 0; i < vertices.Length; i++)
@@ -236,7 +236,7 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
                 Vector edge = vertex - prevVertex;
 
                 // Verify that the next vertex is on the right side off the edge vector.
-                double det = Vector.Determinant(edge, (Point)vertices[(i + 1) % vertices.Length] - (Point)vertex);
+                double det = Vector.Determinant(edge, (Point) vertices[(i + 1) % vertices.Length] - (Point) vertex);
                 if (0 > det)
                 {
                     counterClockIndex++;
@@ -255,12 +255,12 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
             if (counterClockIndex == vertices.Length)
             {
                 // Make it Clockwise
-                int lastIndex = vertices.Length -1;
-                for (int j = 0; j < vertices.Length/2; j++)
+                int lastIndex = vertices.Length - 1;
+                for (int j = 0; j < vertices.Length / 2; j++)
                 {
                     Vector tmp = vertices[j];
                     vertices[j] = vertices[lastIndex - j];
-                    vertices[lastIndex-j] = tmp;
+                    vertices[lastIndex - j] = tmp;
                 }
             }
         }
@@ -330,7 +330,7 @@ namespace WpfInk.PresentationCore.System.Windows.Ink
         /// <param name="width"></param>
         /// <param name="height"></param>
         public EllipseStylusShape(double width, double height)
-            :this(width, height, 0f)
+            : this(width, height, 0f)
         {
         }
 

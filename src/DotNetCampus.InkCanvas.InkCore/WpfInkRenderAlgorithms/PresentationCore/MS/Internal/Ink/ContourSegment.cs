@@ -29,7 +29,7 @@ namespace MS.Internal.Ink
             _vector = DoubleUtil.AreClose(begin, end) ? new Vector(0, 0) : (end - begin);
             _radius = new Vector(0, 0);
         }
-        
+
         /// <summary>
         /// Constructor for arcs
         /// </summary>
@@ -47,10 +47,10 @@ namespace MS.Internal.Ink
         internal bool IsArc { get { return (_radius.X != 0) || (_radius.Y != 0); } }
 
         /// <summary> Returns the begin point of the segment </summary>
-        internal Point  Begin { get { return _begin; } }
+        internal Point Begin { get { return _begin; } }
 
         /// <summary> Returns the end point of the segment </summary>
-        internal Point  End { get { return _begin + _vector; } }
+        internal Point End { get { return _begin + _vector; } }
 
         /// <summary> Returns the vector from Begin to End </summary>
         internal Vector Vector { get { return _vector; } }
@@ -61,9 +61,9 @@ namespace MS.Internal.Ink
 
         #region Fields
 
-        private readonly Point   _begin;
-        private readonly Vector  _vector;
-        private readonly Vector  _radius;
+        private readonly Point _begin;
+        private readonly Vector _vector;
+        private readonly Vector _radius;
 
         #endregion
     }

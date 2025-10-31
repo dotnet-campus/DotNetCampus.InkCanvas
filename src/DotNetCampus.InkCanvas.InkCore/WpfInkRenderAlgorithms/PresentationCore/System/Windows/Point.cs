@@ -96,8 +96,8 @@ namespace WpfInk.PresentationCore.System.Windows
                 return false;
             }
 
-            Point value = (Point)o;
-            return Point.Equals(this,value);
+            Point value = (Point) o;
+            return Point.Equals(this, value);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace WpfInk.PresentationCore.System.Windows
                    Y.GetHashCode();
         }
 
-      
+
 
         #endregion Public Methods
 
@@ -231,7 +231,7 @@ namespace WpfInk.PresentationCore.System.Windows
             return $"({X},{Y})";
         }
 
-      
+
 
 
         #endregion Internal Properties
@@ -296,7 +296,7 @@ namespace WpfInk.PresentationCore.System.Windows
         #endregion Constructors
 
         #region Public Methods
-        
+
         /// <summary>
         /// Offset - update the location by adding offsetX to X and offsetY to Y
         /// </summary>
@@ -316,7 +316,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// </returns>
         /// <param name="point"> The Point to be added to the Vector </param>
         /// <param name="vector"> The Vectr to be added to the Point </param>
-        public static Point operator + (Point point, Vector vector)
+        public static Point operator +(Point point, Vector vector)
         {
             return new Point(point._x + vector._x, point._y + vector._y);
         }
@@ -342,7 +342,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// </returns>
         /// <param name="point"> The Point from which the Vector is subtracted </param>
         /// <param name="vector"> The Vector which is subtracted from the Point </param>
-        public static Point operator - (Point point, Vector vector)
+        public static Point operator -(Point point, Vector vector)
         {
             return new Point(point._x - vector._x, point._y - vector._y);
         }
@@ -368,7 +368,7 @@ namespace WpfInk.PresentationCore.System.Windows
         /// </returns>
         /// <param name="point1"> The Point from which point2 is subtracted </param>
         /// <param name="point2"> The Point subtracted from point1 </param>
-        public static Vector operator - (Point point1, Point point2)
+        public static Vector operator -(Point point1, Point point2)
         {
             return new Vector(point1._x - point2._x, point1._y - point2._y);
         }

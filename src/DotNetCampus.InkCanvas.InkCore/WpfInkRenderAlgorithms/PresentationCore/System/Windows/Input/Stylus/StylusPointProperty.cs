@@ -15,8 +15,8 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// <summary>
         /// Instance data
         /// </summary>
-        private Guid                    _id;
-        private bool                    _isButton;
+        private Guid _id;
+        private bool _isButton;
 
         /// <summary>
         /// StylusPointProperty
@@ -73,7 +73,7 @@ namespace WpfInk.PresentationCore.System.Windows.Input.Stylus
         /// <summary>
         /// Id
         /// </summary>
-        public Guid Id 
+        public Guid Id
         {
             get { return _id; }
         }

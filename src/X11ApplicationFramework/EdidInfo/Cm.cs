@@ -1,4 +1,4 @@
-namespace WhonurqaikarjurceLallchelceeqalbear;
+﻿namespace WhonurqaikarjurceLallchelceeqalbear;
 
 public readonly record struct Cm(uint Value)
 {

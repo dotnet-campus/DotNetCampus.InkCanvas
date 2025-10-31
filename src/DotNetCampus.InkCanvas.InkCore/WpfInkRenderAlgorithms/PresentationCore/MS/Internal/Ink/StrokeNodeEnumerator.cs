@@ -81,8 +81,8 @@ namespace MS.Internal.Ink
         /// from array(s) of points and a given stylus shape.
         /// </summary>
         /// <param name="nodeShape">a shape that defines the stroke contour</param>
-        internal StrokeNodeIterator(StylusShape nodeShape) 
-            : this( null,   //stylusPoints
+        internal StrokeNodeIterator(StylusShape nodeShape)
+            : this(null,   //stylusPoints
                     StrokeNodeOperations.CreateInstance(nodeShape),
                     false)  //usePressure)
         {
@@ -95,7 +95,7 @@ namespace MS.Internal.Ink
         /// </summary>
         /// <param name="drawingAttributes">drawing attributes</param>
         internal StrokeNodeIterator(DrawingAttributes drawingAttributes)
-            : this( null,   //stylusPoints
+            : this(null,   //stylusPoints
                     StrokeNodeOperations.CreateInstance((drawingAttributes == null ? null : drawingAttributes.StylusShape)),
                     (drawingAttributes == null ? false : !drawingAttributes.IgnorePressure))  //usePressure
         {
@@ -147,7 +147,7 @@ namespace MS.Internal.Ink
                 stylusPoints.Insert(0, sp);
             }
 
-            return new StrokeNodeIterator(  stylusPoints,
+            return new StrokeNodeIterator(stylusPoints,
                                             _operations,
                                             _usePressure);
         }
@@ -160,7 +160,7 @@ namespace MS.Internal.Ink
         /// <param name="points">an array of points representing a stroke increment</param>
         /// <returns>yields StrokeNode objects one by one</returns>
         internal StrokeNodeIterator GetIteratorForNextSegment(Point[] points)
-        {   
+        {
             if (points == null)
             {
                 throw new System.ArgumentNullException("points");
@@ -172,7 +172,7 @@ namespace MS.Internal.Ink
                 newStylusPoints.Insert(0, _stylusPoints[_stylusPoints.Count - 1]);
             }
 
-            return new StrokeNodeIterator(  newStylusPoints,
+            return new StrokeNodeIterator(newStylusPoints,
                                             _operations,
                                             _usePressure);
         }
@@ -229,11 +229,11 @@ namespace MS.Internal.Ink
                     previousPressureFactor = StrokeNodeIterator.GetNormalizedPressureFactor(previousStylusPoint.PressureFactor);
                 }
 
-                StrokeNodeData nodeData = new StrokeNodeData((Point)stylusPoint, pressureFactor);
+                StrokeNodeData nodeData = new StrokeNodeData((Point) stylusPoint, pressureFactor);
                 StrokeNodeData lastNodeData = StrokeNodeData.Empty;
                 if (previousIndex != -1)
                 {
-                    lastNodeData = new StrokeNodeData((Point)previousStylusPoint, previousPressureFactor);
+                    lastNodeData = new StrokeNodeData((Point) previousStylusPoint, previousPressureFactor);
                 }
 
                 //we use previousIndex+1 because index can skip ahead
@@ -241,8 +241,8 @@ namespace MS.Internal.Ink
             }
         }
 
-        private bool                    _usePressure;
-        private StrokeNodeOperations    _operations;
-        private StylusPointCollection   _stylusPoints;
+        private bool _usePressure;
+        private StrokeNodeOperations _operations;
+        private StylusPointCollection _stylusPoints;
     }
 }

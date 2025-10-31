@@ -241,7 +241,7 @@ public readonly record struct InkingModeInputArgs(int Id, InkStylusPoint StylusP
 //    public static InkingModeInputArgs ToModeInputArgs(this DeviceInputArgs args, bool ignorePressure = true)
 //    {
 //        var deviceInputPoint = args.Point;
-        
+
 //        IReadOnlyList<InkStylusPoint>? stylusPointList;
 //        var count = args.DeviceInputPointCount;
 //        if (count < 1)
@@ -256,14 +256,14 @@ public readonly record struct InkingModeInputArgs(int Id, InkStylusPoint StylusP
 //        {
 //            stylusPointList = args.GetDeviceInputPoints().Select(t => ToStylusPoint(in t, ignorePressure)).ToList();
 //        }
-        
+
 //        return new InkingModeInputArgs(args.Id, ToStylusPoint(in deviceInputPoint, ignorePressure), args.Timestamp)
 //        {
 //            IsMouse = args.IsMouse,
 //            StylusPointList = stylusPointList,
 //        };
 //    }
-    
+
 //    public static InkStylusPoint ToStylusPoint(in DeviceInputPoint point, bool ignorePressure = true) =>
 //        new InkStylusPoint(point.Position, !ignorePressure ? point.Pressure ?? 0.5f : 0.5f)
 //        {
