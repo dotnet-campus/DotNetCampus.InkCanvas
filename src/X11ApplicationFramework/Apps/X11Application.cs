@@ -4,7 +4,6 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using DotNetCampus.Logging;
-using WhonurqaikarjurceLallchelceeqalbear;
 using X11ApplicationFramework.Apps.Threading;
 using X11ApplicationFramework.Apps.X11EventArgs;
 using X11ApplicationFramework.Natives;
@@ -99,7 +98,7 @@ public class X11Application
         // https://ubuntuforums.org/showthread.php?t=1461839
         Task.Run(() =>
         {
-            var readEdidInfoResult = EdidInfo.ReadFormLinux();
+            var readEdidInfoResult = EdidInfo.EdidInfo.ReadFormLinux();
             if (readEdidInfoResult.IsSuccess)
             {
                 var edidInfo = readEdidInfoResult.EdidInfo;

@@ -1,4 +1,4 @@
-﻿namespace WhonurqaikarjurceLallchelceeqalbear;
+﻿namespace X11ApplicationFramework.EdidInfo;
 
 public readonly struct EdidBasicDisplayParameters
 {

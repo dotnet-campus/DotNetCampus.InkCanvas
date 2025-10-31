@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace WhonurqaikarjurceLallchelceeqalbear;
+namespace X11ApplicationFramework.EdidInfo;
 
 public readonly record struct EdidInfo
 {

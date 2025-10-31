@@ -7,10 +7,10 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
-using WhonurqaikarjurceLallchelceeqalbear;
 using static X11ApplicationFramework.Natives.XLib;
 
 using X11ApplicationFramework.Apps;
+using X11ApplicationFramework.EdidInfo;
 
 namespace X11ApplicationFramework.Natives;
 // Copy from https://github.com/AvaloniaUI/Avalonia \src\Avalonia.X11\Screens\X11Screen.Providers.cs
@@ -197,7 +197,7 @@ public readonly record struct MonitorInfo
     /// </summary>
     /// [dotnet X11 获取多屏 edid 信息 - lindexi - 博客园](https://www.cnblogs.com/lindexi/p/19033056 )
     /// <returns></returns>
-    public unsafe EdidInfo? TryGetEdidInfo()
+    public unsafe EdidInfo.EdidInfo? TryGetEdidInfo()
     {
         var display = Display;
         var edidAtom = XInternAtom(display, "EDID", only_if_exists: true);
@@ -253,11 +253,11 @@ public readonly record struct MonitorInfo
                 }
 
                 Span<byte> edid = new Span<byte>((void*) prop, (int) bytesAfter);
-                ReadEdidInfoResult edidInfoResult = EdidInfo.ReadEdid(edid);
+                ReadEdidInfoResult edidInfoResult = EdidInfo.EdidInfo.ReadEdid(edid);
 
                 if (edidInfoResult.IsSuccess)
                 {
-                    EdidInfo edidInfo = edidInfoResult.EdidInfo;
+                    EdidInfo.EdidInfo edidInfo = edidInfoResult.EdidInfo;
                     Log.Info(
                         $"EDID Info: ManufacturerName={edidInfo.ManufacturerName} MonitorPhysical={edidInfo.BasicDisplayParameters.MonitorPhysicalWidth.Value}x{edidInfo.BasicDisplayParameters.MonitorPhysicalHeight.Value}cm");
                     return edidInfo;
