@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Skia;
 using DotNetCampus.Inking;
 using DotNetCampus.Inking.StrokeRenderers.WpfForSkiaInkStrokeRenderers;
+using SkiaSharp;
 
 namespace AvaloniaInkCanvasDemo.Views;
 
@@ -33,6 +35,30 @@ public partial class MainView : UserControl
         else
         {
             settings.InkStrokeRenderer = null;
+        }
+    }
+
+    private void SaveStrokeAsSvgButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var saveFolder = Path.Join(AppContext.BaseDirectory, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}");
+        Directory.CreateDirectory(saveFolder);
+
+        using var skPaint = new SKPaint();
+        skPaint.IsAntialias = true;
+        skPaint.Style = SKPaintStyle.Fill;
+
+        for (var i = 0; i < InkCanvas.Strokes.Count; i++)
+        {
+            var saveSvgFile = Path.Join(saveFolder, $"{i}.svg");
+            using var fileStream = File.Create(saveSvgFile);
+
+            var stroke = InkCanvas.Strokes[i];
+
+            var bounds = InkCanvas.Bounds.ToSKRect();
+            using var skCanvas = SKSvgCanvas.Create(bounds, fileStream);
+
+            skPaint.Color = stroke.Color;
+            skCanvas.DrawPath(stroke.Path, skPaint);
         }
     }
 }

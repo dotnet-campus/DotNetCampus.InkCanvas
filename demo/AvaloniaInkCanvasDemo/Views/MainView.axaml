@@ -21,6 +21,7 @@
 			<Button x:Name="PenModeButton" Click="PenModeButton_OnClick">Pen</Button>
 			<Button x:Name="EraserModeButton" Margin="10,0,0,0" Click="EraserModeButton_OnClick">Eraser</Button>
 			<Button x:Name="SwitchRendererButton" Margin="10,0,0,0" Click="SwitchRendererButton_OnClick">Switch Renderer</Button>
+			<Button x:Name="SaveStrokeAsSvgButton" Margin="10,0,0,0" Click="SaveStrokeAsSvgButton_OnClick">Save Stroke As Svg</Button>
         </StackPanel>
     </Grid>
 </UserControl>
