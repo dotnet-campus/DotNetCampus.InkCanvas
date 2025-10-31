@@ -9,7 +9,6 @@ using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Interactives;
 using DotNetCampus.Inking.Utils;
 using SkiaSharp;
-//using Microsoft.Maui.Graphics;
 using Point = Avalonia.Point;
 using Rect = Avalonia.Rect;
 using Size = Avalonia.Size;
