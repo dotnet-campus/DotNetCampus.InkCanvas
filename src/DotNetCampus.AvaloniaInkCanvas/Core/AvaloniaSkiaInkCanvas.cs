@@ -169,18 +169,31 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     private readonly List<SkiaStroke> _staticStrokeList = [];
 
-    internal void AddStaticStroke(SkiaStroke skiaStroke)
+    public void AddStaticStroke(SkiaStroke skiaStroke)
     {
         skiaStroke.EnsureIsStaticStroke();
+        if (skiaStroke.InkCanvas != null)
+        {
+            // 禁止一个笔迹被添加到多个画布中
+            throw new InvalidOperationException("Stroke must not be added to multiple InkCanvas instances.");
+        }
+
         _staticStrokeList.Add(skiaStroke);
         skiaStroke.InkCanvas = this;
         InvalidateVisual();
     }
 
-    internal void RemoveStaticStroke(SkiaStroke skiaStroke)
+    public void RemoveStaticStroke(SkiaStroke skiaStroke)
     {
         skiaStroke.EnsureIsStaticStroke();
+
+        if (!ReferenceEquals(skiaStroke.InkCanvas, this))
+        {
+            throw new InvalidOperationException("Stroke must be removed from this InkCanvas before removing.");
+        }
+
         _staticStrokeList.Remove(skiaStroke);
+        skiaStroke.InkCanvas = null;
         InvalidateVisual();
     }
 
