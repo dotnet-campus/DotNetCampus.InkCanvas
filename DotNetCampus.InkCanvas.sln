@@ -26,6 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		.github\workflows\dotnet-build.yml = .github\workflows\dotnet-build.yml
 		README.md = README.md
+		README_zh-CN.md = README_zh-CN.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pack", "Pack", "{84B7D0BA-BF55-8175-DC3C-4073CF459070}"
