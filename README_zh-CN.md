@@ -35,6 +35,16 @@
         InkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
    ```
 
+### FAQ
+
+**Q:** 这个库支持 AOT 编译吗？
+
+**A:** 支持。这个库经过测试，确认可以在 AOT 环境下正常工作。
+
+**Q:** 这个库可以在 Linux 环境下使用吗？
+
+**A:** 可以。这个库基于 Avalonia 和 SkiaSharp 构建，这些都是支持 Linux 的跨平台框架。
+
 ### 进阶用法
 
 #### 切换笔迹渲染器

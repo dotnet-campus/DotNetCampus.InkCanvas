@@ -43,6 +43,15 @@ This project originated from: https://github.com/AvaloniaUI/Avalonia/issues/1477
           InkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
     ```
 
+### FAQ
+
+**Q:** Does this library support AOT (Ahead-Of-Time) compilation?
+
+**A:** Yes, this library supports AOT compilation. It has been tested and confirmed to work correctly in AOT environments.
+
+**Q:** Can this library be used in Linux environments?
+
+**A:** Yes, this library can be used in Linux environments. It is built on Avalonia and SkiaSharp, which are cross-platform frameworks that support Linux.
 
 ### Advanced Usage
 
