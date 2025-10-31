@@ -53,7 +53,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     public void EraserDown(in InkingModeInputArgs args)
     {
-        //InkCanvas.EnsureInputConflicts();
+        InkCanvas.EnsureInputConflicts();
         if (!IsErasing)
         {
             MainEraserInputId = args.Id;
@@ -73,7 +73,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     public void EraserMove(in InkingModeInputArgs args)
     {
-        //InkCanvas.EnsureInputConflicts();
+        InkCanvas.EnsureInputConflicts();
         if (IsErasing && args.Id == MainEraserInputId)
         {
             // 擦除
@@ -108,7 +108,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     public void EraserUp(in InkingModeInputArgs args)
     {
-        //InkCanvas.EnsureInputConflicts();
+        InkCanvas.EnsureInputConflicts();
         if (IsErasing && args.Id == MainEraserInputId)
         {
             IsErasing = false;

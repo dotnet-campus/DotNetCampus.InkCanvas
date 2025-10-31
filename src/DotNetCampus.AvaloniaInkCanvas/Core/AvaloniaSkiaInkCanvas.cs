@@ -102,6 +102,8 @@ public class AvaloniaSkiaInkCanvas : Control
 
     public void WritingDown(in InkingModeInputArgs args)
     {
+        EnsureInputConflicts();
+
         var dynamicStrokeContext = new DynamicStrokeContext(args, Context.Settings);
         _contextDictionary[args.Id] = dynamicStrokeContext;
         dynamicStrokeContext.Stroke.AddPoint(args.StylusPoint);
@@ -111,6 +113,8 @@ public class AvaloniaSkiaInkCanvas : Control
 
     public void WritingMove(in InkingModeInputArgs args)
     {
+        EnsureInputConflicts();
+
         if (_contextDictionary.TryGetValue(args.Id, out var context))
         {
             context.Stroke.AddPoint(args.StylusPoint);
@@ -120,6 +124,8 @@ public class AvaloniaSkiaInkCanvas : Control
 
     public void WritingUp(in InkingModeInputArgs args)
     {
+        EnsureInputConflicts();
+
         if (_contextDictionary.Remove(args.Id, out var context))
         {
             context.Stroke.AddPoint(args.StylusPoint);
@@ -567,6 +573,16 @@ public class AvaloniaSkiaInkCanvas : Control
         else
         {
             Log.Warn("[Ink][AvaSkiaInkCanvas][InvalidateBitmapCache] 未设置 InkTransformContext，无法更新缓存。请由笔迹元素调用 UpdateInkTransform 方法更新之。");
+        }
+    }
+
+    private bool IsWriting => _contextDictionary.Count > 0;
+
+    internal void EnsureInputConflicts()
+    {
+        if (IsWriting && EraserMode.IsErasing)
+        {
+            throw new InvalidOperationException("Writing and erasing cannot be performed at the same time.");
         }
     }
 }
