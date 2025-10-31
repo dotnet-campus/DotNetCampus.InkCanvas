@@ -83,7 +83,9 @@ public class AvaloniaSkiaInkCanvas : Control
         VisualChildren.Remove(childControl);
     }
 
-
+    /// <summary>
+    /// 橡皮擦模式
+    /// </summary>
     public AvaloniaSkiaInkCanvasEraserMode EraserMode => _eraserMode ??= new AvaloniaSkiaInkCanvasEraserMode(this);
 
     private AvaloniaSkiaInkCanvasEraserMode? _eraserMode;

@@ -107,6 +107,7 @@ public class SkiaStroke : IDisposable
         if (InkStrokeRenderer is not null)
         {
             // 如果有传入渲染器，则使用传入的渲染器
+            Path.Dispose();
             Path = InkStrokeRenderer.RenderInkToPath(pointList, InkThickness);
         }
         else

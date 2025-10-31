@@ -3,7 +3,7 @@
 namespace DotNetCampus.Inking.Contexts;
 
 /// <summary>
-/// 动态笔迹层的上下文，一个点一个对象
+/// 动态笔迹层的上下文，一个手指落下一个对象
 /// </summary>
 class DynamicStrokeContext
 {
@@ -16,6 +16,7 @@ class DynamicStrokeContext
             Color = settings.InkColor,
             InkThickness = settings.InkThickness,
             IgnorePressure = settings.IgnorePressure,
+            InkStrokeRenderer = settings.InkStrokeRenderer,
         };
     }
 
@@ -24,6 +25,5 @@ class DynamicStrokeContext
     public int Id => LastInputArgs.Id;
 
     public SkiaStroke Stroke { get; }
-
     public override string ToString() => $"DynamicStrokeContext_{Id}";
 }
