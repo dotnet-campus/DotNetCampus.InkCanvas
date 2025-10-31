@@ -49,10 +49,12 @@
 ```csharp
  AvaloniaSkiaInkCanvasSettings settings = InkCanvas.SkiaInkCanvas.Settings;
  // 使用 WPF 的笔迹渲染算法的渲染器
- settings.InkStrokeRenderer = new pfForSkiaInkStrokeRenderer();
+ settings.InkStrokeRenderer = new WpfForSkiaInkStrokeRenderer();
  // 使用默认简单的笔迹渲染器
  settings.InkStrokeRenderer = null;
 ```
+
+注： 使用 `WpfForSkiaInkStrokeRenderer` 仅使用 WPF 开源仓库中的笔迹渲染算法代码，不依赖 WPF 框架本身
 
 #### 处理笔迹收集事件
 
@@ -98,3 +100,11 @@
         AvaloniaSkiaInkCanvasSettings settings = InkCanvas.SkiaInkCanvas.Settings;
         settings.EraserSize = new Size(100, 200);
 ```
+
+# 开源社区
+
+如果你希望参与贡献，欢迎 [Pull Request](https://github.com/dotnet-campus/DotNetCampus.InkCanvas/pulls)，或给我们 [报告 Bug](https://github.com/dotnet-campus/DotNetCampus.InkCanvas/issues/new)
+
+# 授权协议
+
+[![](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](./LICENSE)
