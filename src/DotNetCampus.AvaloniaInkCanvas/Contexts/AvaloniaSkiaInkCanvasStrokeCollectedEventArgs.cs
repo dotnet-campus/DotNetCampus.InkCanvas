@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DotNetCampus.Inking.Contexts;
 
-public class SkiaStrokeCollectionEventArgs : EventArgs
+public class AvaloniaSkiaInkCanvasStrokeCollectedEventArgs : EventArgs
 {
-    public SkiaStrokeCollectionEventArgs(int stylusDeviceId, SkiaStroke skiaStroke)
+    public AvaloniaSkiaInkCanvasStrokeCollectedEventArgs(int stylusDeviceId, SkiaStroke skiaStroke)
     {
         StylusDeviceId = stylusDeviceId;
         SkiaStroke = skiaStroke;

@@ -55,7 +55,7 @@ public class InkCanvas : Control
     private AvaloniaSkiaInkCanvasEraserMode EraserMode => SkiaInkCanvas.EraserMode;
 
     /// <inheritdoc cref="AvaloniaSkiaInkCanvas.StrokeCollected"/>
-    public event EventHandler<SkiaStrokeCollectionEventArgs>? StrokeCollected
+    public event EventHandler<AvaloniaSkiaInkCanvasStrokeCollectedEventArgs>? StrokeCollected
     {
         add => SkiaInkCanvas.StrokeCollected += value;
         remove => SkiaInkCanvas.StrokeCollected -= value;

@@ -136,12 +136,12 @@ public class AvaloniaSkiaInkCanvas : Control
             context.Stroke.SetAsStatic();
             _staticStrokeList.Add(context.Stroke);
 
-            StrokeCollected?.Invoke(this, new SkiaStrokeCollectionEventArgs(args.Id, context.Stroke));
+            StrokeCollected?.Invoke(this, new AvaloniaSkiaInkCanvasStrokeCollectedEventArgs(args.Id, context.Stroke));
         }
         InvalidateVisual();
     }
 
-    public event EventHandler<SkiaStrokeCollectionEventArgs>? StrokeCollected;
+    public event EventHandler<AvaloniaSkiaInkCanvasStrokeCollectedEventArgs>? StrokeCollected;
 
     public void WritingCompleted()
     {
