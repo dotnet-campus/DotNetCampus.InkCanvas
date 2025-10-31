@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Metadata;
 using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Erasing;
 using DotNetCampus.Inking.Interactives;
@@ -71,9 +72,8 @@ public class InkCanvas : Control
             return;
         }
 
-        _inputDictionary[e.Pointer.Id] = new InputInfo();
-
         var args = ToArgs(e);
+        _inputDictionary[e.Pointer.Id] = new InputInfo(args.StylusPoint);
 
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
@@ -105,7 +105,9 @@ public class InkCanvas : Control
             return;
         }
 
-        var args = ToArgs(e);
+        var args = ToArgs(e, inputInfo);
+        inputInfo.LastStylusPoint = args.StylusPoint;
+
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
             SkiaInkCanvas.WritingMove(in args);
@@ -132,6 +134,7 @@ public class InkCanvas : Control
         }
 
         var args = ToArgs(e);
+        inputInfo.LastStylusPoint = args.StylusPoint;
 
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
@@ -152,21 +155,27 @@ public class InkCanvas : Control
 
     class InputInfo
     {
+        public InputInfo(InkStylusPoint lastStylusPoint)
+        {
+            LastStylusPoint = lastStylusPoint;
+        }
+
+        public InkStylusPoint LastStylusPoint { get; set; }
     }
 
     private readonly Dictionary<int /*Id*/, InputInfo> _inputDictionary = [];
     private bool IsDuringInput => _inputDictionary.Count != 0;
 
-    private InkingModeInputArgs ToArgs(PointerEventArgs args)
+    private InkingModeInputArgs ToArgs(PointerEventArgs args, InputInfo? inputInfo = null)
     {
         var currentPoint = args.GetCurrentPoint(SkiaInkCanvas);
-        var inkStylusPoint = new InkStylusPoint(currentPoint.Position.ToPoint2D(), currentPoint.Properties.Pressure);
+        var inkStylusPoint = new InkStylusPoint(currentPoint.Position.ToPoint2D(), EnsurePressure(currentPoint.Properties.Pressure));
 
         IReadOnlyList<InkStylusPoint>? stylusPointList = null;
         var list = args.GetIntermediatePoints(SkiaInkCanvas);
         if (list.Count > 1)
         {
-            stylusPointList = list.Select(t => new InkStylusPoint(t.Position.ToPoint2D(), t.Properties.Pressure))
+            stylusPointList = list.Select(t => new InkStylusPoint(t.Position.ToPoint2D(), EnsurePressure(t.Properties.Pressure)))
                 .ToList();
         }
 
@@ -174,6 +183,19 @@ public class InkCanvas : Control
         {
             StylusPointList = stylusPointList,
         };
+
+        float EnsurePressure(float pressure)
+        {
+            // 这是一个修复补丁。在 Linux X11 上，如果前后两个点的压力是相同的，则后点将不会报告压力，此时 Avalonia 上将使用默认压力值 0.5 来填充压力值
+            // 为了避免压力值抖动，将压力值修正为上一个点的压力值
+            const float defaultPressure = InkStylusPoint.DefaultPressure;
+            if (inputInfo != null && (pressure == 0 || Math.Abs(pressure - defaultPressure) < 0.00001))
+            {
+                return inputInfo.LastStylusPoint.Pressure;
+            }
+
+            return pressure;
+        }
     }
 
     #endregion
