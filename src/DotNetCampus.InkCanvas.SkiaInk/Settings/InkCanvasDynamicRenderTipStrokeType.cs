@@ -5,7 +5,7 @@ namespace DotNetCampus.Inking.Settings;
 /// <summary>
 /// 笔尖渲染模式
 /// </summary>
-public enum InkCanvasDynamicRenderTipStrokeType
+enum InkCanvasDynamicRenderTipStrokeType
 {
     /// <summary>
     /// 通过裁剪画布的方式进行绘制所有的笔迹

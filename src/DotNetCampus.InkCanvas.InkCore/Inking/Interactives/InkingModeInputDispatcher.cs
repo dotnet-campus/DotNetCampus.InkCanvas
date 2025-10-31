@@ -6,7 +6,7 @@ namespace DotNetCampus.Inking.Interactives;
 /// <summary>
 /// 输入调度器
 /// </summary>
-public class InkingModeInputDispatcher
+class InkingModeInputDispatcher
 {
     private HashSet<int> CurrentInputIdHashSet { get; } = new HashSet<int>();
 

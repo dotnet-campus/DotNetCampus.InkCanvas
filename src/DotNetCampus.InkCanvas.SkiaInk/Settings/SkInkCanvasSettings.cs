@@ -8,7 +8,7 @@ namespace DotNetCampus.Inking.Settings;
 /// 画板的配置
 /// </summary>
 /// <param name="AutoSoftPen">是否开启自动软笔模式</param>
-public record SkInkCanvasSettings(bool AutoSoftPen = true)
+record SkInkCanvasSettings(bool AutoSoftPen = true)
 {
     public InkCanvasEraserAlgorithmMode EraserMode { init; get; } =
         InkCanvasEraserAlgorithmMode.EnableClippingEraserWithoutEraserPathCombine;

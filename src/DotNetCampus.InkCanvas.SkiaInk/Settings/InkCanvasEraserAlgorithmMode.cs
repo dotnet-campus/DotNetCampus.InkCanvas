@@ -3,7 +3,7 @@
 /// <summary>
 /// 橡皮擦算法模式
 /// </summary>
-public enum InkCanvasEraserAlgorithmMode
+enum InkCanvasEraserAlgorithmMode
 {
     /// <summary>
     /// 是否允许使用裁剪方式的橡皮擦，而不是走静态笔迹层。使用裁剪而不是使用笔迹计算，将笔迹的点给去掉

@@ -3,7 +3,7 @@
 /// <summary>
 /// 对清空笔迹的配置
 /// </summary>
-public record CleanStrokeSettings
+record CleanStrokeSettings
 {
     /// <summary>
     /// 清空笔迹之后，需要绘制背景图。对于一些背景是没有任何内容的应用，则不需要绘制，提升性能。因为清空笔迹之后，会将当前的静态笔迹都绘制一次，除非背景有图片或其他内容，否则不需要绘制背景

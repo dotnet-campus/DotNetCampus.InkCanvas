@@ -9,7 +9,7 @@ namespace DotNetCampus.Inking.Settings;
 /// <summary>
 /// 丢点配置
 /// </summary>
-public record DropPointSettings
+record DropPointSettings
 {
     /// <summary>
     /// 最大丢点数量

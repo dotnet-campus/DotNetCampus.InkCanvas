@@ -3,7 +3,7 @@
 /// <summary>
 /// 输入处理者
 /// </summary>
-public interface IInkingInputProcessor
+interface IInkingInputProcessor
 {
     /// <summary>
     /// 是否有效，是否接受输入

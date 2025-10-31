@@ -1,6 +1,6 @@
 ﻿namespace DotNetCampus.Inking.Interactives;
 
-public record InkingInputProcessorSettings
+record InkingInputProcessorSettings
 {
     // 不好实现，存在漏洞是首次收到 Move 的情况，此时不仅需要补 Down 还需要补 Start 的情况
     ///// <summary>
