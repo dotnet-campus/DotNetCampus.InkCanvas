@@ -114,7 +114,7 @@ public class SkiaStroke : IDisposable
         {
             if (pointList.Count >= 2)
             {
-                var outlinePointList = SkiaSimpleInkRender.GetOutlineSKPointList(pointList, InkThickness);
+                var outlinePointList = SimpleInkRender.GetOutlinePointList(pointList, InkThickness);
 
                 Path.Reset();
                 Path.AddPoly(outlinePointList.Select(t => new SKPoint((float) t.X, (float) t.Y)).ToArray());
