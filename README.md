@@ -53,6 +53,10 @@ This project originated from: https://github.com/AvaloniaUI/Avalonia/issues/1477
 
 **A:** Yes, this library can be used in Linux environments. It is built on Avalonia and SkiaSharp, which are cross-platform frameworks that support Linux.
 
+**Q:** Can I directly use this library to create a high-performance handwriting whiteboard application?
+
+**A:** No, due to the rendering performance limitations of Avalonia, this library cannot currently be used to create high-performance handwriting whiteboard applications. If you need a high-performance handwriting whiteboard application, it is recommended to add a WPF acceleration layer on the Windows platform to use WPF for rendering strokes to improve performance; on the Linux platform, use native X11 rendering to enhance performance. For related discussions, please refer to <https://github.com/AvaloniaUI/Avalonia/discussions/18702>
+
 ### Advanced Usage
 
 #### Switch stroke renderer
