@@ -168,14 +168,14 @@ public class InkCanvas : Control
 
     private InkingModeInputArgs ToArgs(PointerEventArgs args, InputInfo? inputInfo = null)
     {
-        var currentPoint = args.GetCurrentPoint(SkiaInkCanvas);
-        var inkStylusPoint = new InkStylusPoint(currentPoint.Position.ToPoint2D(), EnsurePressure(currentPoint.Properties.Pressure));
+        PointerPoint currentPoint = args.GetCurrentPoint(SkiaInkCanvas);
+        var inkStylusPoint = ToInkStylusPoint(currentPoint);
 
         IReadOnlyList<InkStylusPoint>? stylusPointList = null;
         var list = args.GetIntermediatePoints(SkiaInkCanvas);
         if (list.Count > 1)
         {
-            stylusPointList = list.Select(t => new InkStylusPoint(t.Position.ToPoint2D(), EnsurePressure(t.Properties.Pressure)))
+            stylusPointList = list.Select(ToInkStylusPoint)
                 .ToList();
         }
 
@@ -183,6 +183,18 @@ public class InkCanvas : Control
         {
             StylusPointList = stylusPointList,
         };
+
+        InkStylusPoint ToInkStylusPoint(PointerPoint point)
+        {
+            var pressure = EnsurePressure(currentPoint.Properties.Pressure);
+
+            var stylusPoint = new InkStylusPoint(currentPoint.Position.ToPoint2D(), pressure)
+            {
+
+            };
+
+            return stylusPoint;
+        }
 
         float EnsurePressure(float pressure)
         {

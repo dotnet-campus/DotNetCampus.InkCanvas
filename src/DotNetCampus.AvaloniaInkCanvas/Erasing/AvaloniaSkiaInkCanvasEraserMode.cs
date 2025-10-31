@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Diagnostics;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -69,7 +70,11 @@ public class AvaloniaSkiaInkCanvasEraserMode
         {
             InkCanvas.AddChild(eraserView);
         }
+
+        _inputProcessStopwatch.Restart();
     }
+
+    private readonly Stopwatch _inputProcessStopwatch = new();
 
     public void EraserDown(in InkingModeInputArgs args)
     {
@@ -101,6 +106,18 @@ public class AvaloniaSkiaInkCanvasEraserMode
             var eraserWidth = Settings.EraserSize.Width;
             var eraserHeight = Settings.EraserSize.Height;
 
+            if (Settings.EnableStylusSizeAsEraserSize)
+            {
+                var touchWidth = args.StylusPoint.Width ?? eraserWidth;
+                var touchHeight = args.StylusPoint.Height ?? eraserHeight;
+
+                if (Settings.CanEraserAlwaysFollowsTouchSize || _inputProcessStopwatch.Elapsed < Settings.EraserCanResizeDuringTimeSpan)
+                {
+                    eraserWidth = touchWidth;
+                    eraserHeight = touchHeight;
+                }
+            }
+
 #if DEBUG
             if (_debugEraserSizeScale > 0)
             {
@@ -117,6 +134,18 @@ public class AvaloniaSkiaInkCanvasEraserMode
                 eraserHeight *= (1 + _debugEraserSizeScale / 100);
             }
 #endif
+
+            if (Settings.LockMinEraserSize)
+            {
+                // 锁定最小橡皮擦
+                // 有人嫌弃小咯，那就改大点咯
+                eraserWidth = Math.Max(eraserWidth, Settings.MinEraserSize.Width);
+                eraserHeight = Math.Max(eraserHeight, Settings.MinEraserSize.Height);
+            }
+
+            // 限制最大橡皮擦，防止那些 SB 设备报告的宽度过大
+            eraserWidth = Math.Min(eraserWidth, Settings.MaxEraserSize.Width);
+            eraserHeight = Math.Min(eraserHeight, Settings.MaxEraserSize.Height);
 
             var rect = new Rect(args.Position.X - eraserWidth / 2, args.Position.Y - eraserHeight / 2, eraserWidth, eraserHeight);
             PointPathEraserManager.Move(rect.ToRect2D());
