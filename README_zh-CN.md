@@ -54,6 +54,42 @@
  settings.InkStrokeRenderer = null;
 ```
 
+#### 处理笔迹收集事件
+
+```csharp
+        InkCanvas.StrokeCollected += (o, args) =>
+        {
+            var addedStroke = args.SkiaStroke;
+        };
+```
+
+#### 处理笔迹擦除事件
+
+```csharp
+        InkCanvas.StrokeErased += (o, args) =>
+        {
+            foreach (ErasedSkiaStroke erasedSkiaStroke in args.ErasingSkiaStrokeList)
+            {
+                if (erasedSkiaStroke.IsErased)
+                {
+                    // 被擦掉的笔迹
+                    IReadOnlyList<SkiaStroke> newStrokes = erasedSkiaStroke.NewStrokeList;
+
+                    // 一段笔迹可以被擦掉成多段笔迹。但也可能被完全擦掉，变成 0 段笔迹
+                    foreach (var skiaStroke in newStrokes)
+                    {
+                        
+                    }
+                }
+                else
+                {
+                    // 没有被擦掉的笔迹，保持原样
+                    SkiaStroke originalStroke = erasedSkiaStroke.OriginStroke;
+                }
+            }
+        };
+```
+
 #### 控制橡皮擦属性
 
 通过 AvaloniaSkiaInkCanvasSettings 进行控制，例如：
