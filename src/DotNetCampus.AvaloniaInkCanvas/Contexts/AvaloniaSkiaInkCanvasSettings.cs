@@ -5,6 +5,9 @@ using SkiaSharp;
 
 namespace DotNetCampus.Inking.Contexts;
 
+/// <summary>
+/// 笔迹画布设置
+/// </summary>
 public class AvaloniaSkiaInkCanvasSettings
 {
     /// <summary>
@@ -12,6 +15,9 @@ public class AvaloniaSkiaInkCanvasSettings
     /// </summary>
     public float InkThickness { get; set; } = DefaultInkThickness;
 
+    /// <summary>
+    /// 默认的笔迹粗细
+    /// </summary>
     public static float DefaultInkThickness => 10;
 
     /// <summary>

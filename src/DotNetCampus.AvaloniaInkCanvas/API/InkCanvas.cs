@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Metadata;
 
 using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Erasing;
@@ -48,6 +47,9 @@ public class InkCanvas : Control
 
     private InkCanvasEditingMode _editingMode = InkCanvasEditingMode.Ink;
 
+    /// <summary>
+    /// 为 Avalonia 实现的基于 Skia 的 InkCanvas 笔迹画布
+    /// </summary>
     public AvaloniaSkiaInkCanvas SkiaInkCanvas { get; }
 
     private AvaloniaSkiaInkCanvasEraserMode EraserMode => SkiaInkCanvas.EraserMode;

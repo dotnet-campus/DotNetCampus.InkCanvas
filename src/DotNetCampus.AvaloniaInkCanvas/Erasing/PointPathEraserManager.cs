@@ -1,18 +1,15 @@
-﻿using Avalonia.Skia;
+﻿using System.Diagnostics;
+
+using Avalonia.Skia;
 
 using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Primitive;
-using DotNetCampus.Inking.Utils;
 using DotNetCampus.Numerics;
 using DotNetCampus.Numerics.Geometry;
 
 using SkiaSharp;
 
-using System.Diagnostics;
-
-using Point = DotNetCampus.Numerics.Geometry.Point2D;
 using Point2D = DotNetCampus.Numerics.Geometry.Point2D;
-using Rect = DotNetCampus.Numerics.Geometry.Rect2D;
 
 namespace DotNetCampus.Inking.Erasing;
 

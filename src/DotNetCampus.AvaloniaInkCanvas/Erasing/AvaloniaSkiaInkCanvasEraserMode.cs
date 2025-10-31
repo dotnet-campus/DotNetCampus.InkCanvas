@@ -72,6 +72,7 @@ public class AvaloniaSkiaInkCanvasEraserMode
         }
 
         _inputProcessStopwatch.Restart();
+        _lastEraserSize = Settings.EraserSize;
     }
 
     private readonly Stopwatch _inputProcessStopwatch = new();
@@ -97,14 +98,16 @@ public class AvaloniaSkiaInkCanvasEraserMode
         }
     }
 
+    private Size _lastEraserSize;
+
     public void EraserMove(in InkingModeInputArgs args)
     {
         InkCanvas.EnsureInputConflicts();
         if (IsErasing && args.Id == MainEraserInputId)
         {
             // 擦除
-            var eraserWidth = Settings.EraserSize.Width;
-            var eraserHeight = Settings.EraserSize.Height;
+            var eraserWidth = _lastEraserSize.Width;
+            var eraserHeight = _lastEraserSize.Height;
 
             if (Settings.EnableStylusSizeAsEraserSize)
             {
@@ -150,7 +153,9 @@ public class AvaloniaSkiaInkCanvasEraserMode
             var rect = new Rect(args.Position.X - eraserWidth / 2, args.Position.Y - eraserHeight / 2, eraserWidth, eraserHeight);
             PointPathEraserManager.Move(rect.ToRect2D());
 
-            EraserView.SetEraserSize(new Size(eraserWidth, eraserHeight));
+            var eraserSize = new Size(eraserWidth, eraserHeight);
+            _lastEraserSize = eraserSize;
+            EraserView.SetEraserSize(eraserSize);
             EraserView.Move(args.Position.ToAvaloniaPoint());
             InkCanvas.InvalidateVisual();
         }

@@ -69,6 +69,9 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     internal AvaloniaSkiaInkCanvasContext Context { get; } = new();
 
+    /// <summary>
+    /// 获取可以由业务指定的笔迹设置。
+    /// </summary>
     public AvaloniaSkiaInkCanvasSettings Settings => Context.Settings;
 
     internal void AddChild(Control childControl)
