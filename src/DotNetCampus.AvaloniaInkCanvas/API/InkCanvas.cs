@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Metadata;
+
 using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Erasing;
 using DotNetCampus.Inking.Interactives;
@@ -187,10 +188,27 @@ public class InkCanvas : Control
         InkStylusPoint ToInkStylusPoint(PointerPoint point)
         {
             var pressure = EnsurePressure(currentPoint.Properties.Pressure);
+            var contactRect = currentPoint.Properties.ContactRect;
+            var width = contactRect.Width;
+            var height = contactRect.Height;
+
+            if (inputInfo is not null)
+            {
+                if (width == 0 && inputInfo.LastStylusPoint.Width is { } lastWidth)
+                {
+                    width = lastWidth;
+                }
+
+                if (height == 0 && inputInfo.LastStylusPoint.Height is { } lastHeight)
+                {
+                    height = lastHeight;
+                }
+            }
 
             var stylusPoint = new InkStylusPoint(currentPoint.Position.ToPoint2D(), pressure)
             {
-
+                Width = width != 0 ? width : null,
+                Height = height != 0 ? height : null,
             };
 
             return stylusPoint;
