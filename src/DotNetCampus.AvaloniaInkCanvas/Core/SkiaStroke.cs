@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Diagnostics.CodeAnalysis;
+using Avalonia;
 using Avalonia.Skia;
 using DotNetCampus.Inking.Contexts;
 using DotNetCampus.Inking.Primitive;
@@ -102,6 +103,21 @@ public class SkiaStroke : IDisposable
         RenderInk(pointList);
     }
 
+    [AllowNull]
+    internal SkiaSimpleInkRender SimpleInkRender
+    {
+        get
+        {
+            return _skiaSimpleInkRender ??= new SkiaSimpleInkRender();
+        }
+        init
+        {
+            _skiaSimpleInkRender = value;
+        }
+    }
+
+    private SkiaSimpleInkRender? _skiaSimpleInkRender;
+
     private void RenderInk(List<InkStylusPoint> pointList)
     {
         if (InkStrokeRenderer is not null)
@@ -114,10 +130,10 @@ public class SkiaStroke : IDisposable
         {
             if (pointList.Count >= 2)
             {
-                var outlinePointList = SimpleInkRender.GetOutlinePointList(pointList, InkThickness);
+                var outlinePointList = SimpleInkRender.GetOutlineSKPointList(pointList, InkThickness);
 
                 Path.Reset();
-                Path.AddPoly(outlinePointList.Select(t => new SKPoint((float) t.X, (float) t.Y)).ToArray());
+                Path.AddPoly(outlinePointList);
             }
             else if (pointList.Count == 1)
             {
@@ -206,6 +222,8 @@ public class SkiaStroke : IDisposable
     {
         _drawBounds = GetDrawBounds();
         _isStaticStroke = true;
+        // 不再需要渲染了，释放渲染器
+        _skiaSimpleInkRender = null;
     }
 
     public static SkiaStroke CreateStaticStroke(InkId id, SKPath path, StylusPointListSpan pointList, SKColor color,
@@ -256,10 +274,10 @@ public class SkiaStroke : IDisposable
 
         if (_pointList.Count > 2)
         {
-            var outlinePointList = SimpleInkRender.GetOutlinePointList(_pointList, InkThickness);
+            var outlinePointList = SimpleInkRender.GetOutlineSKPointList(_pointList, InkThickness);
 
             Path.Reset();
-            Path.AddPoly(outlinePointList.Select(t => new SKPoint((float) t.X, (float) t.Y)).ToArray());
+            Path.AddPoly(outlinePointList);
         }
 
         Transform = SKMatrix.Identity;

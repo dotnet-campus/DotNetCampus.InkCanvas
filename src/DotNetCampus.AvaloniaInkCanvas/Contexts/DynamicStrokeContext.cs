@@ -7,9 +7,18 @@ namespace DotNetCampus.Inking.Contexts;
 /// </summary>
 class DynamicStrokeContext
 {
-    public DynamicStrokeContext(InkingModeInputArgs lastInputArgs, AvaloniaSkiaInkCanvasSettings settings)
+    public DynamicStrokeContext(InkingModeInputArgs lastInputArgs, AvaloniaSkiaInkCanvas canvas)
     {
         LastInputArgs = lastInputArgs;
+
+        var settings = canvas.Context.Settings;
+
+        SkiaSimpleInkRender? simpleInkRender = null;
+
+        if(settings.InkStrokeRenderer is null)
+        {
+            simpleInkRender = canvas.SimpleInkRender;
+        }
 
         Stroke = new SkiaStroke(InkId.NewId())
         {
@@ -17,6 +26,7 @@ class DynamicStrokeContext
             InkThickness = settings.InkThickness,
             IgnorePressure = settings.IgnorePressure,
             InkStrokeRenderer = settings.InkStrokeRenderer,
+            SimpleInkRender = simpleInkRender,
         };
     }
 

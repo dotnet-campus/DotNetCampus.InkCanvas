@@ -74,6 +74,12 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     public AvaloniaSkiaInkCanvasSettings Settings => Context.Settings;
 
+    /// <summary>
+    /// 共享的简单笔迹渲染器
+    /// </summary>
+    internal SkiaSimpleInkRender SimpleInkRender => _skiaSimpleInkRender ??= new SkiaSimpleInkRender();
+    private SkiaSimpleInkRender? _skiaSimpleInkRender;
+
     internal void AddChild(Control childControl)
     {
         LogicalChildren.Add(childControl);
@@ -107,7 +113,7 @@ public class AvaloniaSkiaInkCanvas : Control
     {
         EnsureInputConflicts();
 
-        var dynamicStrokeContext = new DynamicStrokeContext(args, Context.Settings);
+        var dynamicStrokeContext = new DynamicStrokeContext(args, this);
         _contextDictionary[args.Id] = dynamicStrokeContext;
         dynamicStrokeContext.Stroke.AddPoint(args.StylusPoint);
 
