@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using DotNetCampus.Inking.Diagnostics;
-using DotNetCampus.Inking.Primitive;
-using DotNetCampus.Numerics.Geometry;
 
 namespace DotNetCampus.Inking.Interactives;
 
@@ -197,78 +195,3 @@ public class InkingModeInputDispatcher
     /// </summary>
     public int CurrentDeviceCount => CurrentInputIdHashSet.Count;
 }
-
-//public class DefaultModeInputSource : IModeInputSource
-//{
-
-//}
-
-//public interface IModeInputSource
-//{
-
-//}
-
-public record InkingInputProcessorSettings
-{
-    // 不好实现，存在漏洞是首次收到 Move 的情况，此时不仅需要补 Down 还需要补 Start 的情况
-    ///// <summary>
-    ///// 对于丢失了 Down 的触摸，是否启用。如启用，则会自动补 Down 事件。默认 false 即丢点
-    ///// </summary>
-    //public bool EnableLostDownTouch { init; get; } = false;
-
-    public bool EnableMultiTouch { init; get; } = true;
-
-    public static readonly InkingInputProcessorSettings Default = new InkingInputProcessorSettings();
-}
-
-public readonly record struct InkingModeInputArgs(int Id, InkStylusPoint StylusPoint, ulong Timestamp)
-{
-    public Point2D Position => StylusPoint.Point;
-
-    /// <summary>
-    /// 是否来自鼠标的输入
-    /// </summary>
-    public bool IsMouse { init; get; }
-
-    /// <summary>
-    /// 被合并的其他历史的触摸点。可能为空
-    /// </summary>
-    public IReadOnlyList<InkStylusPoint>? StylusPointList { init; get; }
-}
-
-//static class ModeInputArgsExtension
-//{
-//    public static InkingModeInputArgs ToModeInputArgs(this DeviceInputArgs args, bool ignorePressure = true)
-//    {
-//        var deviceInputPoint = args.Point;
-
-//        IReadOnlyList<InkStylusPoint>? stylusPointList;
-//        var count = args.DeviceInputPointCount;
-//        if (count < 1)
-//        {
-//            stylusPointList = null;
-//        }
-//        else if (count == 1)
-//        {
-//            stylusPointList = [ToStylusPoint(in deviceInputPoint, ignorePressure)];
-//        }
-//        else
-//        {
-//            stylusPointList = args.GetDeviceInputPoints().Select(t => ToStylusPoint(in t, ignorePressure)).ToList();
-//        }
-
-//        return new InkingModeInputArgs(args.Id, ToStylusPoint(in deviceInputPoint, ignorePressure), args.Timestamp)
-//        {
-//            IsMouse = args.IsMouse,
-//            StylusPointList = stylusPointList,
-//        };
-//    }
-
-//    public static InkStylusPoint ToStylusPoint(in DeviceInputPoint point, bool ignorePressure = true) =>
-//        new InkStylusPoint(point.Position, !ignorePressure ? point.Pressure ?? 0.5f : 0.5f)
-//        {
-//            IsPressureEnable = !ignorePressure && point.Pressure is not null,
-//            Width = point.PixelWidth,
-//            Height = point.PixelHeight
-//        };
-//}
