@@ -4,6 +4,8 @@
 
 这个项目起源于： https://github.com/AvaloniaUI/Avalonia/issues/1477
 
+![](./docs/images/Image1.png)
+
 ### Avalonia InkCanvas
 
 ### 快速开始
