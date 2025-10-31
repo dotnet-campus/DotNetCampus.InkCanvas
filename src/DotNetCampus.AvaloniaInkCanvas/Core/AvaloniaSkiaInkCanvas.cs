@@ -501,21 +501,7 @@ public class AvaloniaSkiaInkCanvas : Control
                 // 绘制笔迹。
                 foreach (var skiaStrokeDrawContext in _pathList)
                 {
-                    skPaint.Color = skiaStrokeDrawContext.Color;
-                    var transform = skiaStrokeDrawContext.Transform;
-                    var useTransform = transform != SKMatrix.Empty && transform != SKMatrix.Identity;
-                    if (useTransform)
-                    {
-                        canvas.Save();
-                        canvas.Concat(ref transform);
-                    }
-
-                    canvas.DrawPath(skiaStrokeDrawContext.Path, skPaint);
-
-                    if (useTransform)
-                    {
-                        canvas.Restore();
-                    }
+                    canvas.DrawStroke(in skiaStrokeDrawContext, skPaint);
                 }
 
                 //// 清除动态层的笔迹渲染，然后清除动态层。
