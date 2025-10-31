@@ -37,9 +37,24 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     private PointPathEraserManager PointPathEraserManager { get; } = new PointPathEraserManager();
 
-    private readonly EraserView _eraserView = new EraserView();
+    private IEraserView EraserView
+    {
+        get
+        {
+            if (_eraserView is null)
+            {
+                var eraserViewCreator = Settings.EraserViewCreator;
+                _eraserView = eraserViewCreator?.CreateEraserView()
+                    ?? new EraserView();
+            }
 
-    public void StartEraser()
+            return _eraserView;
+        }
+    }
+
+    private IEraserView? _eraserView;
+
+    private void StartEraser()
     {
 #if DEBUG
         var topLevel = TopLevel.GetTopLevel(InkCanvas)!;
@@ -50,7 +65,10 @@ public class AvaloniaSkiaInkCanvasEraserMode
         var staticStrokeList = InkCanvas.StaticStrokeList;
         PointPathEraserManager.StartEraserPointPath(staticStrokeList);
 
-        InkCanvas.AddChild(_eraserView);
+        if (EraserView is Control eraserView)
+        {
+            InkCanvas.AddChild(eraserView);
+        }
     }
 
     public void EraserDown(in InkingModeInputArgs args)
@@ -64,8 +82,8 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
             StartEraser();
 
-            _eraserView.SetEraserSize(Settings.EraserSize);
-            _eraserView.Move(args.Position.ToAvaloniaPoint());
+            EraserView.SetEraserSize(Settings.EraserSize);
+            EraserView.Move(args.Position.ToAvaloniaPoint());
             InkCanvas.InvalidateVisual();
         }
         else
@@ -103,8 +121,8 @@ public class AvaloniaSkiaInkCanvasEraserMode
             var rect = new Rect(args.Position.X - eraserWidth / 2, args.Position.Y - eraserHeight / 2, eraserWidth, eraserHeight);
             PointPathEraserManager.Move(rect.ToRect2D());
 
-            _eraserView.SetEraserSize(new Size(eraserWidth, eraserHeight));
-            _eraserView.Move(args.Position.ToAvaloniaPoint());
+            EraserView.SetEraserSize(new Size(eraserWidth, eraserHeight));
+            EraserView.Move(args.Position.ToAvaloniaPoint());
             InkCanvas.InvalidateVisual();
         }
     }
@@ -132,7 +150,10 @@ public class AvaloniaSkiaInkCanvasEraserMode
 
     private void ClearEraser()
     {
-        InkCanvas.RemoveChild(_eraserView);
+        if (EraserView is Control eraserView)
+        {
+            InkCanvas.RemoveChild(eraserView);
+        }
     }
 
     public event EventHandler<ErasingCompletedEventArgs>? ErasingCompleted;

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using DotNetCampus.Inking.Erasing;
 using DotNetCampus.Inking.StrokeRenderers;
 using SkiaSharp;
 
@@ -30,6 +31,11 @@ public class AvaloniaSkiaInkCanvasSettings
     /// </summary>
     public static Size DefaultEraserSize => new Size(48,
         72);
+
+    /// <summary>
+    /// 橡皮擦界面的创建器，默认为空使用默认的橡皮擦界面创建器
+    /// </summary>
+    public IEraserViewCreator? EraserViewCreator { get; set; }
 
     /// <summary>
     /// 将触摸尺寸当成橡皮擦尺寸，即橡皮擦大小不完全跟随 <see cref="EraserSize"/> 尺寸，而是会根据 <see cref="DotNetCampus.Inking.Primitive.InkStylusPoint"/> 的触摸大小决定

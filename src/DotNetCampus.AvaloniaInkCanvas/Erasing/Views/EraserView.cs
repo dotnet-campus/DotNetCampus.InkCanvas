@@ -5,7 +5,7 @@ using Avalonia.Media;
 
 namespace DotNetCampus.Inking.Erasing;
 
-class EraserView : Control
+class EraserView : Control, IEraserView
 {
     public EraserView()
     {
