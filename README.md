@@ -114,6 +114,36 @@ Control eraser behavior via `AvaloniaSkiaInkCanvasSettings`, for example:
         settings.EraserSize = new Size(100, 200);
 ```
 
+### Save strokes as SVG image
+
+You can export the strokes drawn on the `InkCanvas` to an SVG image format. Here's an example of how to do this:
+
+```csharp
+    private void SaveStrokeAsSvgButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var saveFolder = Path.Join(AppContext.BaseDirectory, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}");
+        Directory.CreateDirectory(saveFolder);
+
+        using var skPaint = new SKPaint();
+        skPaint.IsAntialias = true;
+        skPaint.Style = SKPaintStyle.Fill;
+
+        for (var i = 0; i < InkCanvas.Strokes.Count; i++)
+        {
+            var saveSvgFile = Path.Join(saveFolder, $"{i}.svg");
+            using var fileStream = File.Create(saveSvgFile);
+
+            var stroke = InkCanvas.Strokes[i];
+
+            var bounds = InkCanvas.Bounds.ToSKRect();
+            using var skCanvas = SKSvgCanvas.Create(bounds, fileStream);
+
+            skPaint.Color = stroke.Color;
+            skCanvas.DrawPath(stroke.Path, skPaint);
+        }
+    }
+```
+
 # Contributing
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/dotnet-campus/DotNetCampus.InkCanvas/pulls)

@@ -101,6 +101,36 @@
         settings.EraserSize = new Size(100, 200);
 ```
 
+#### 将笔迹导出为 SVG 图片
+
+演示将每一笔笔迹导出为单独的 SVG 图片：
+
+```csharp
+    private void SaveStrokeAsSvgButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var saveFolder = Path.Join(AppContext.BaseDirectory, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}");
+        Directory.CreateDirectory(saveFolder);
+
+        using var skPaint = new SKPaint();
+        skPaint.IsAntialias = true;
+        skPaint.Style = SKPaintStyle.Fill;
+
+        for (var i = 0; i < InkCanvas.Strokes.Count; i++)
+        {
+            var saveSvgFile = Path.Join(saveFolder, $"{i}.svg");
+            using var fileStream = File.Create(saveSvgFile);
+
+            var stroke = InkCanvas.Strokes[i];
+
+            var bounds = InkCanvas.Bounds.ToSKRect();
+            using var skCanvas = SKSvgCanvas.Create(bounds, fileStream);
+
+            skPaint.Color = stroke.Color;
+            skCanvas.DrawPath(stroke.Path, skPaint);
+        }
+    }
+```
+
 # 开源社区
 
 如果你希望参与贡献，欢迎 [Pull Request](https://github.com/dotnet-campus/DotNetCampus.InkCanvas/pulls)，或给我们 [报告 Bug](https://github.com/dotnet-campus/DotNetCampus.InkCanvas/issues/new)
