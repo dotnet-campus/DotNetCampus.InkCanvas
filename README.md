@@ -90,7 +90,7 @@ Note: Using `WpfForSkiaInkStrokeRenderer` only utilizes the stroke rendering alg
 ```
 
 
-### Handle stroke erased event
+#### Handle stroke erased event
 
 ```csharp
         InkCanvas.StrokeErased += (o, args) =>
@@ -118,7 +118,7 @@ Note: Using `WpfForSkiaInkStrokeRenderer` only utilizes the stroke rendering alg
 ```
 
 
-### Control eraser properties
+#### Control eraser properties
 
 Control eraser behavior via `AvaloniaSkiaInkCanvasSettings`, for example:
 
@@ -127,7 +127,26 @@ Control eraser behavior via `AvaloniaSkiaInkCanvasSettings`, for example:
         settings.EraserSize = new Size(100, 200);
 ```
 
-### Save strokes as SVG image
+#### How to customize the eraser view
+
+1. Create a custom eraser control by inheriting from `Control` and implementing the `IEraserView` interface.
+2. Assign a delegate that creates an instance of your custom eraser control to the `EraserViewCreator` property of `InkCanvas.AvaloniaSkiaInkCanvas.Settings`.
+
+Example code:
+
+```csharp
+internal class CustomEraserView : Control, IEraserView
+{
+    ...
+}
+
+        var settings = InkCanvas.AvaloniaSkiaInkCanvas.Settings;
+        settings.EraserViewCreator = new DelegateEraserViewCreator(() => new CustomEraserView());
+```
+
+Note: You cannot dynamically change the `EraserViewCreator` property during usage; it should only be set during initialization. Ensure to set this property before any eraser views are created.
+
+#### Save strokes as SVG image
 
 You can export the strokes drawn on the `InkCanvas` to an SVG image format. Here's an example of how to do this:
 

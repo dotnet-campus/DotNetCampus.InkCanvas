@@ -115,6 +115,25 @@
         settings.EraserSize = new Size(100, 200);
 ```
 
+#### 如何自定义橡皮擦界面
+
+1. 编写一个继承自 Control 的橡皮擦控件，且让其实现 IEraserView 接口
+2. 将该橡皮擦控件的创建委托赋值给 InkCanvas.AvaloniaSkiaInkCanvas.Settings 的 EraserViewCreator 属性
+
+示例代码如下：
+
+```csharp
+internal class CustomEraserView : Control, IEraserView
+{
+    ...
+}
+
+        var settings = InkCanvas.AvaloniaSkiaInkCanvas.Settings;
+        settings.EraserViewCreator = new DelegateEraserViewCreator(() => new CustomEraserView());
+```
+
+注： 不能在使用过程中动态更换 EraserViewCreator 属性，仅支持在初始化时设置该属性。应当在任何橡皮擦视图创建之前设置该属性
+
 #### 将笔迹导出为 SVG 图片
 
 演示将每一笔笔迹导出为单独的 SVG 图片：
