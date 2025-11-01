@@ -7,21 +7,21 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AvaloniaInkCanvasDemo.Views.MainView"
              x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
-	<Grid RowDefinitions="*,Auto"
+        <vm:MainViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="*,Auto"
         Background="Gray">
-		<Border Background="White">
-			<inking:InkCanvas x:Name="InkCanvas"/>
+        <Border Background="White">
+            <inking:InkCanvas x:Name="InkCanvas"/>
         </Border>
-		<StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,10,10">
-			<Button x:Name="PenModeButton" Click="PenModeButton_OnClick">Pen</Button>
-			<Button x:Name="EraserModeButton" Margin="10,0,0,0" Click="EraserModeButton_OnClick">Eraser</Button>
-			<Button x:Name="SwitchRendererButton" Margin="10,0,0,0" Click="SwitchRendererButton_OnClick">Switch Renderer</Button>
-			<Button x:Name="SaveStrokeAsSvgButton" Margin="10,0,0,0" Click="SaveStrokeAsSvgButton_OnClick">Save Stroke As Svg</Button>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,10,10">
+            <Button x:Name="PenModeButton" Click="PenModeButton_OnClick">Pen</Button>
+            <Button x:Name="EraserModeButton" Margin="10,0,0,0" Click="EraserModeButton_OnClick">Eraser</Button>
+            <Button x:Name="SwitchRendererButton" Margin="10,0,0,0" Click="SwitchRendererButton_OnClick">Switch Renderer</Button>
+            <Button x:Name="SaveStrokeAsSvgButton" Margin="10,0,0,0" Click="SaveStrokeAsSvgButton_OnClick">Save Stroke As Svg</Button>
         </StackPanel>
     </Grid>
 </UserControl>
