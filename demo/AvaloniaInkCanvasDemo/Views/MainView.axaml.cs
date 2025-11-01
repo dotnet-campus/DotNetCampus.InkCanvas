@@ -26,7 +26,7 @@ public partial class MainView : UserControl
 
     private void SwitchRendererButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var settings = InkCanvas.SkiaInkCanvas.Settings;
+        var settings = InkCanvas.AvaloniaSkiaInkCanvas.Settings;
 
         if (settings.InkStrokeRenderer is null)
         {

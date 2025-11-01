@@ -21,7 +21,7 @@ public class InkCanvas : Control
             IsHitTestVisible = false
         };
         AddChild(avaloniaSkiaInkCanvas);
-        SkiaInkCanvas = avaloniaSkiaInkCanvas;
+        AvaloniaSkiaInkCanvas = avaloniaSkiaInkCanvas;
         HorizontalAlignment = HorizontalAlignment.Stretch;
         VerticalAlignment = VerticalAlignment.Stretch;
     }
@@ -43,22 +43,22 @@ public class InkCanvas : Control
 
     public event EventHandler? EditingModeChanged;
 
-    public IReadOnlyList<SkiaStroke> Strokes => SkiaInkCanvas.StaticStrokeList;
+    public IReadOnlyList<SkiaStroke> Strokes => AvaloniaSkiaInkCanvas.StaticStrokeList;
 
     private InkCanvasEditingMode _editingMode = InkCanvasEditingMode.Ink;
 
     /// <summary>
     /// 为 Avalonia 实现的基于 Skia 的 InkCanvas 笔迹画布
     /// </summary>
-    public AvaloniaSkiaInkCanvas SkiaInkCanvas { get; }
+    public AvaloniaSkiaInkCanvas AvaloniaSkiaInkCanvas { get; }
 
-    private AvaloniaSkiaInkCanvasEraserMode EraserMode => SkiaInkCanvas.EraserMode;
+    private AvaloniaSkiaInkCanvasEraserMode EraserMode => AvaloniaSkiaInkCanvas.EraserMode;
 
     /// <inheritdoc cref="AvaloniaSkiaInkCanvas.StrokeCollected"/>
     public event EventHandler<AvaloniaSkiaInkCanvasStrokeCollectedEventArgs>? StrokeCollected
     {
-        add => SkiaInkCanvas.StrokeCollected += value;
-        remove => SkiaInkCanvas.StrokeCollected -= value;
+        add => AvaloniaSkiaInkCanvas.StrokeCollected += value;
+        remove => AvaloniaSkiaInkCanvas.StrokeCollected -= value;
     }
 
     public event EventHandler<ErasingCompletedEventArgs>? StrokeErased
@@ -83,10 +83,10 @@ public class InkCanvas : Control
         {
             if (!IsDuringInput)
             {
-                SkiaInkCanvas.WritingStart();
+                AvaloniaSkiaInkCanvas.WritingStart();
             }
 
-            SkiaInkCanvas.WritingDown(in args);
+            AvaloniaSkiaInkCanvas.WritingDown(in args);
         }
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
@@ -114,7 +114,7 @@ public class InkCanvas : Control
 
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
-            SkiaInkCanvas.WritingMove(in args);
+            AvaloniaSkiaInkCanvas.WritingMove(in args);
         }
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
@@ -142,11 +142,11 @@ public class InkCanvas : Control
 
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
-            SkiaInkCanvas.WritingUp(in args);
+            AvaloniaSkiaInkCanvas.WritingUp(in args);
 
             if (!IsDuringInput)
             {
-                SkiaInkCanvas.WritingCompleted();
+                AvaloniaSkiaInkCanvas.WritingCompleted();
             }
         }
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
@@ -172,11 +172,11 @@ public class InkCanvas : Control
 
     private InkingModeInputArgs ToArgs(PointerEventArgs args, InputInfo? inputInfo = null)
     {
-        PointerPoint currentPoint = args.GetCurrentPoint(SkiaInkCanvas);
+        PointerPoint currentPoint = args.GetCurrentPoint(AvaloniaSkiaInkCanvas);
         var inkStylusPoint = ToInkStylusPoint(currentPoint);
 
         IReadOnlyList<InkStylusPoint>? stylusPointList = null;
-        var list = args.GetIntermediatePoints(SkiaInkCanvas);
+        var list = args.GetIntermediatePoints(AvaloniaSkiaInkCanvas);
         if (list.Count > 1)
         {
             stylusPointList = list.Select(ToInkStylusPoint)
