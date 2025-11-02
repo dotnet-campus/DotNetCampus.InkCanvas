@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Skia;
 using AvaloniaInkCanvasDemo.Views.ErasingView;
 using DotNetCampus.Inking;
@@ -63,6 +64,17 @@ public partial class MainView : UserControl
 
             skPaint.Color = stroke.Color;
             skCanvas.DrawPath(stroke.Path, skPaint);
+        }
+    }
+
+    private void SelectingItemsControl_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count is 1)
+        {
+            if (e.AddedItems[0] is ISolidColorBrush brush)
+            {
+                InkCanvas.AvaloniaSkiaInkCanvas.Settings.InkColor = brush.Color.ToSKColor();
+            }
         }
     }
 }
