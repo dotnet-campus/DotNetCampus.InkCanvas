@@ -376,17 +376,17 @@ public class AvaloniaSkiaInkCanvas : Control
             _list = [];
             _pathList = [];
 
+            foreach (var skiaStroke in inkCanvas._staticStrokeList)
+            {
+                var skiaStrokeDrawContext = skiaStroke.CreateDrawContext();
+                _pathList.Add(skiaStrokeDrawContext);
+            }
+
             foreach (var strokeContext in contextDictionary.Values)
             {
                 var stroke = strokeContext.Stroke;
 
                 var skiaStrokeDrawContext = stroke.CreateDrawContext();
-                _pathList.Add(skiaStrokeDrawContext);
-            }
-
-            foreach (var skiaStroke in inkCanvas._staticStrokeList)
-            {
-                var skiaStrokeDrawContext = skiaStroke.CreateDrawContext();
                 _pathList.Add(skiaStrokeDrawContext);
             }
 
