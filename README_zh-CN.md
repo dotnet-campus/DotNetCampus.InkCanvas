@@ -47,7 +47,7 @@
 
 **Q:** 我是否能直接用这个库制作出一个高性能笔迹白板应用？
 
-**A:** 不可以。受限于 Avalonia 的渲染性能，目前这个库还不能用来制作高性能的笔迹白板应用。如果你需要一个高性能的笔迹白板应用，建议在 Windows 平台上添加 WPF 加速层，使用 WPF 绘制笔迹以提升性能；在 Linux 平台上使用 X11 原生绘制以提升性能。相关讨论请参考 <https://github.com/AvaloniaUI/Avalonia/discussions/18702>
+**A:** 不可以。受限于 Avalonia 的渲染性能，目前这个库还不能用来制作高性能的笔迹白板应用。如果你需要一个高性能的笔迹白板应用，建议在 Windows 平台上添加 WPF 加速层，使用 WPF 绘制笔迹以提升性能；在 Linux 平台上使用 X11 原生绘制以提升性能。相关讨论请参考 <https://github.com/AvaloniaUI/Avalonia/discussions/18702> 和 <https://www.cnblogs.com/lindexi/p/18835048>
 
 ### 进阶用法
 
