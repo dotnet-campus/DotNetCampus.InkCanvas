@@ -22,7 +22,7 @@ This project originated from: https://github.com/AvaloniaUI/Avalonia/issues/1477
 
    ```xml
      <ItemGroup>
-       <PackageReference Include="DotNetCampus.AvaloniaInkCanvas" Version="1.0.0-alpha.2" />
+       <PackageReference Include="DotNetCampus.AvaloniaInkCanvas" Version="1.0.0" />
      </ItemGroup>
    ```
 
