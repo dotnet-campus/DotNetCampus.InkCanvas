@@ -363,7 +363,7 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     private void UpdateCacheCore()
     {
-        var scale = VisualRoot?.RenderScaling ?? 1;
+        var scale = GetRenderScaling();
         if (_cache.UseCacheOnNextRender is false && Context.ShouldUseBitmapCache)
         {
             if (_inkTransformContext is { } inkContext)
@@ -590,7 +590,7 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     public void InvalidateBitmapCache()
     {
-        var scale = VisualRoot?.RenderScaling ?? 1;
+        var scale = GetRenderScaling();
         if (_inkTransformContext is { } inkContext)
         {
             _cache.UpdateCacheContext(scale, inkContext.VisibleBounds, inkContext.TransformToRoot);
@@ -599,6 +599,11 @@ public class AvaloniaSkiaInkCanvas : Control
         {
             Log.Warn("[Ink][AvaSkiaInkCanvas][InvalidateBitmapCache] 未设置 InkTransformContext，无法更新缓存。请由笔迹元素调用 UpdateInkTransform 方法更新之。");
         }
+    }
+
+    private double GetRenderScaling()
+    {
+        return TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
     }
 
     private bool IsWriting => _contextDictionary.Count > 0;
