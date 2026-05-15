@@ -1,7 +1,5 @@
-﻿using ReactiveUI;
+﻿namespace AvaloniaInkCanvasDemo.ViewModels;
 
-namespace AvaloniaInkCanvasDemo.ViewModels;
-
-public class ViewModelBase : ReactiveObject
+public class ViewModelBase
 {
 }

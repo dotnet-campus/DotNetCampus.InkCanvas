@@ -56,6 +56,24 @@ public readonly record struct RotatedRect : ISimilarityTransformable2D<RotatedRe
         return new RotatedRect(newLocation, newSize, newRotate.Normalized);
     }
 
+    /// <inheritdoc />
+    public RotatedRect ScaleTransform(double scaling)
+    {
+        return new RotatedRect(Location.ScaleTransform(scaling), new Size2D(Size.Width * scaling, Size.Height * scaling), Rotate);
+    }
+
+    /// <inheritdoc />
+    public RotatedRect RotateTransform(AngularMeasure rotation)
+    {
+        return new RotatedRect(Location.RotateTransform(rotation), Size, (Rotate + rotation).Normalized);
+    }
+
+    /// <inheritdoc />
+    public RotatedRect TranslateTransform(Vector2D translation)
+    {
+        return new RotatedRect(Location.TranslateTransform(translation), Size, Rotate);
+    }
+
     /// <summary>
     /// 判断指定的点是否在矩形内。这里考虑了矩形的旋转。
     /// </summary>

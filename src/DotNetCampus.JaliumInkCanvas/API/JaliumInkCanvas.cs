@@ -21,6 +21,7 @@ public class JaliumInkCanvas : FrameworkElement
     private readonly JaliumCommittedLayerCache _committedLayerCache = new();
     private readonly PressureSmoother _pressureSmoother = new();
     private readonly InkPerformanceCounter _performanceCounter = new();
+    private readonly Stopwatch _eraserInputStopwatch = new();
 
     private readonly IStrokeRenderer _nativeRenderer = new NativeIncrementalStrokeRenderer();
     private readonly IStrokeRenderer _skiaFallbackRenderer = new SkiaFallbackStrokeRenderer();
@@ -29,10 +30,14 @@ public class JaliumInkCanvas : FrameworkElement
 
     private double _inkThickness = 6d;
     private Color _inkColor = Color.Red;
+    private uint? _mainEraserPointerId;
+    private double _lastEraserSize;
+    private IJaliumEraserOverlay? _eraserOverlay;
+    private Rect? _eraserOverlayRect;
 
     public JaliumInkCanvas()
     {
-        _backendSelector = new RenderBackendSelector(() => true);
+        _backendSelector = new RenderBackendSelector(JaliumDx12AvailabilityProbe.IsAvailable);
         _strokeRenderer = _backendSelector.Select(Options.BackendMode, _nativeRenderer, _skiaFallbackRenderer);
 
         AddHandler(UIElement.PointerPressedEvent, new PointerPressedEventHandler(OnPointerPressed));
@@ -66,7 +71,15 @@ public class JaliumInkCanvas : FrameworkElement
 
     public int StrokeCount => _committedLayerCache.StrokeCount;
 
+    public IReadOnlyList<InkStrokeSnapshot> Strokes => GetStrokeSnapshots();
+
     public string ActiveRendererName => _strokeRenderer.Name;
+
+    public bool IsNativeBackendAvailable => _backendSelector.LastNativeAvailable;
+
+    public event Action<InkStrokeSnapshot>? StrokeCollected;
+
+    public event Action<IReadOnlyList<InkStrokeSnapshot>>? StrokeErased;
 
     public JaliumInkCanvasPerformanceSnapshot GetPerformanceSnapshot()
     {
@@ -76,6 +89,17 @@ public class JaliumInkCanvas : FrameworkElement
             dynamicPointCount,
             _committedLayerCache.CacheHitCount,
             _committedLayerCache.CacheMissCount);
+    }
+
+    public IReadOnlyList<InkStrokeSnapshot> GetStrokeSnapshots()
+    {
+        var snapshots = _committedLayerCache.GetStrokeSnapshots().ToList();
+        foreach (var stroke in _dynamicStrokes.Values)
+        {
+            snapshots.Add(new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList()));
+        }
+
+        return snapshots;
     }
 
     public void RefreshRenderer()
@@ -89,12 +113,64 @@ public class JaliumInkCanvas : FrameworkElement
         _activeInputs.Clear();
         _dynamicStrokes.Clear();
         _committedLayerCache.Reset();
+        _mainEraserPointerId = null;
+        _eraserOverlayRect = null;
         InvalidateVisual();
     }
 
-    protected override void OnRender(DrawingContext drawingContext)
+    public void AddStroke(InkStrokeSnapshot stroke)
     {
-        base.OnRender(drawingContext);
+        if (stroke.Points.Count == 0)
+        {
+            return;
+        }
+
+        var data = CreateStrokeData(stroke.Color, stroke.Thickness, stroke.Points);
+        _committedLayerCache.Add(data);
+        InvalidateVisual();
+    }
+
+    public void AddStrokes(IEnumerable<InkStrokeSnapshot> strokes)
+    {
+        var hasChanged = false;
+        foreach (var stroke in strokes)
+        {
+            if (stroke.Points.Count == 0)
+            {
+                continue;
+            }
+
+            var data = CreateStrokeData(stroke.Color, stroke.Thickness, stroke.Points);
+            _committedLayerCache.Add(data);
+            hasChanged = true;
+        }
+
+        if (hasChanged)
+        {
+            InvalidateVisual();
+        }
+    }
+
+    public int RemoveStrokes(Predicate<InkStrokeSnapshot> predicate)
+    {
+        var removed = _committedLayerCache.ReplaceWhere(stroke => predicate(ToSnapshot(stroke)), _ => Array.Empty<StrokeData>());
+        if (removed.Count == 0)
+        {
+            return 0;
+        }
+
+        InvalidateVisual();
+        return removed.Count;
+    }
+
+    protected override void OnRender(object? drawingContextObject)
+    {
+        if (drawingContextObject is not DrawingContext drawingContext)
+        {
+            return;
+        }
+
+        base.OnRender(drawingContextObject);
 
         if (Options.EnableCommittedLayerCache)
         {
@@ -104,6 +180,15 @@ public class JaliumInkCanvas : FrameworkElement
         foreach (var stroke in _dynamicStrokes.Values)
         {
             drawingContext.DrawGeometry(stroke.Brush, null, stroke.Geometry);
+        }
+
+        if (Options.ShowEraserOverlay
+            && EditingMode == InkCanvasEditingMode.EraseByPath
+            && _eraserOverlayRect is { } eraserRect)
+        {
+            var overlay = _eraserOverlay ??= (Options.EraserOverlayCreator?.Invoke() ?? new DefaultJaliumEraserOverlay());
+            overlay.Update(eraserRect);
+            overlay.Render(drawingContext);
         }
 
         if (Options.EnablePerformanceCounters)
@@ -120,7 +205,7 @@ public class JaliumInkCanvas : FrameworkElement
         }
 
         var args = ToInputArgs(e);
-        _activeInputs[e.Pointer.PointerId] = new InputInfo(args.StylusPoint);
+        _activeInputs[e.Pointer.PointerId] = new InputInfo(args.StylusPoint, Options.IgnorePressure);
 
         if (EditingMode == InkCanvasEditingMode.Ink)
         {
@@ -132,6 +217,17 @@ public class JaliumInkCanvas : FrameworkElement
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
             EraseAt(args.StylusPoint.Point);
+        }
+        else if (EditingMode == InkCanvasEditingMode.EraseByPath)
+        {
+            _mainEraserPointerId ??= e.Pointer.PointerId;
+            if (_mainEraserPointerId == e.Pointer.PointerId)
+            {
+                _eraserInputStopwatch.Restart();
+                _lastEraserSize = Math.Max(1d, Options.EraserSize);
+                EraseByEraserRect(args.StylusPoint);
+                UpdateEraserOverlay(args.StylusPoint);
+            }
         }
 
         InvalidateVisual();
@@ -155,7 +251,13 @@ public class JaliumInkCanvas : FrameworkElement
             }
 
             var points = ExpandPoints(args).ToList();
-            var smoothedPoints = ApplySmoothing(points, stroke.Points.LastOrDefault().Pressure);
+            var filteredPoints = FilterPointsByDistance(points, stroke.Points[^1]);
+            if (filteredPoints.Count == 0)
+            {
+                return;
+            }
+
+            var smoothedPoints = ApplySmoothing(filteredPoints, stroke.Points.LastOrDefault().Pressure);
 
             var sw = Stopwatch.StartNew();
             _strokeRenderer.AppendPoints(stroke, smoothedPoints, _inkThickness);
@@ -167,6 +269,17 @@ public class JaliumInkCanvas : FrameworkElement
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
             EraseAt(args.StylusPoint.Point);
+        }
+        else if (EditingMode == InkCanvasEditingMode.EraseByPath)
+        {
+            if (_mainEraserPointerId == e.Pointer.PointerId)
+            {
+                foreach (var point in ExpandPoints(args))
+                {
+                    EraseByEraserRect(point);
+                    UpdateEraserOverlay(point);
+                }
+            }
         }
 
         InvalidateVisual();
@@ -188,6 +301,7 @@ public class JaliumInkCanvas : FrameworkElement
             _strokeRenderer.AppendPoints(stroke, smoothedPoints, _inkThickness);
             _dynamicStrokes.Remove(e.Pointer.PointerId);
             _committedLayerCache.Add(stroke);
+            StrokeCollected?.Invoke(new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList()));
             sw.Stop();
 
             _performanceCounter.AddInputPoints(smoothedPoints.Count);
@@ -196,6 +310,12 @@ public class JaliumInkCanvas : FrameworkElement
         else if (EditingMode == InkCanvasEditingMode.EraseByPoint)
         {
             EraseAt(args.StylusPoint.Point);
+        }
+        else if (EditingMode == InkCanvasEditingMode.EraseByPath && _mainEraserPointerId == e.Pointer.PointerId)
+        {
+            EraseByEraserRect(args.StylusPoint);
+            _mainEraserPointerId = null;
+            _eraserOverlayRect = null;
         }
 
         InvalidateVisual();
@@ -215,14 +335,213 @@ public class JaliumInkCanvas : FrameworkElement
     {
         var sw = Stopwatch.StartNew();
         var hitPoint = new Jalium.UI.Point(point.X, point.Y);
-        _committedLayerCache.RemoveWhere(stroke => _strokeRenderer.HitTest(stroke, hitPoint));
+        var erasedStrokes = _committedLayerCache.RemoveWhere(stroke => _strokeRenderer.HitTest(stroke, hitPoint));
+
+        var dynamicErased = new List<InkStrokeSnapshot>();
+        var dynamicKeys = _dynamicStrokes
+            .Where(pair => _strokeRenderer.HitTest(pair.Value, hitPoint))
+            .Select(pair => pair.Key)
+            .ToList();
+        foreach (var key in dynamicKeys)
+        {
+            var stroke = _dynamicStrokes[key];
+            dynamicErased.Add(new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList()));
+            _dynamicStrokes.Remove(key);
+        }
+
         sw.Stop();
         _performanceCounter.AddErase(sw.Elapsed.TotalMilliseconds);
+
+        RaiseStrokeErased(erasedStrokes, dynamicErased);
+    }
+
+    private void EraseByEraserRect(InkStylusPoint point)
+    {
+        var size = ResolveEraserSize(point);
+        var half = size / 2;
+        var rect = new Rect(point.X - half, point.Y - half, size, size);
+
+        var sw = Stopwatch.StartNew();
+        var erasedStrokes = _committedLayerCache.ReplaceWhere(
+            stroke => stroke.Bounds.IntersectsWith(rect),
+            stroke => SplitStrokeByRect(stroke, rect));
+
+        var dynamicErased = new List<InkStrokeSnapshot>();
+        var dynamicReplacement = new List<(uint Key, IReadOnlyList<StrokeData> Replacement)>();
+        foreach (var pair in _dynamicStrokes)
+        {
+            if (!pair.Value.Bounds.IntersectsWith(rect))
+            {
+                continue;
+            }
+
+            var replacement = SplitStrokeByRect(pair.Value, rect);
+            if (replacement.Count == 1 && ReferenceEquals(replacement[0], pair.Value))
+            {
+                continue;
+            }
+
+            dynamicErased.Add(new InkStrokeSnapshot(pair.Value.Brush.Color, pair.Value.Thickness, pair.Value.Points.ToList()));
+            dynamicReplacement.Add((pair.Key, replacement));
+        }
+
+        foreach (var (key, replacement) in dynamicReplacement)
+        {
+            _dynamicStrokes.Remove(key);
+            if (replacement.Count == 0)
+            {
+                continue;
+            }
+
+            _dynamicStrokes[key] = replacement[0];
+            for (var i = 1; i < replacement.Count; i++)
+            {
+                _committedLayerCache.Add(replacement[i]);
+            }
+        }
+
+        sw.Stop();
+        _performanceCounter.AddErase(sw.Elapsed.TotalMilliseconds);
+
+        RaiseStrokeErased(erasedStrokes, dynamicErased);
+    }
+
+    private double ResolveEraserSize(InkStylusPoint point)
+    {
+        var size = _lastEraserSize > 0 ? _lastEraserSize : Math.Max(1d, Options.EraserSize);
+
+        if (Options.EnableStylusSizeAsEraserSize)
+        {
+            var touchWidth = point.Width ?? size;
+            var touchHeight = point.Height ?? size;
+            var touchSize = Math.Max(touchWidth, touchHeight);
+            var allowResize = Options.CanEraserAlwaysFollowsTouchSize || _eraserInputStopwatch.Elapsed < Options.EraserCanResizeDuringTimeSpan;
+            if (allowResize)
+            {
+                size = touchSize;
+            }
+        }
+
+        if (Options.LockMinEraserSize)
+        {
+            size = Math.Max(size, Math.Max(1d, Options.MinEraserSize));
+        }
+
+        size = Math.Min(size, Math.Max(1d, Options.MaxEraserSize));
+        _lastEraserSize = size;
+        return size;
+    }
+
+    private IReadOnlyList<StrokeData> SplitStrokeByRect(StrokeData stroke, Rect rect)
+    {
+        if (stroke.Points.Count == 0)
+        {
+            return [stroke];
+        }
+
+        var segments = new List<List<InkStylusPoint>>();
+        List<InkStylusPoint>? current = null;
+        foreach (var p in stroke.Points)
+        {
+            var inside = p.X >= rect.X && p.X <= rect.X + rect.Width && p.Y >= rect.Y && p.Y <= rect.Y + rect.Height;
+            if (inside)
+            {
+                if (current is { Count: > 1 })
+                {
+                    segments.Add(current);
+                }
+
+                current = null;
+                continue;
+            }
+
+            current ??= new List<InkStylusPoint>();
+            current.Add(p);
+        }
+
+        if (current is { Count: > 1 })
+        {
+            segments.Add(current);
+        }
+
+        if (segments.Count == 0)
+        {
+            return Array.Empty<StrokeData>();
+        }
+
+        if (segments.Count == 1 && segments[0].Count == stroke.Points.Count)
+        {
+            return [stroke];
+        }
+
+        return segments.Select(segment => CreateStrokeData(stroke.Brush.Color, stroke.Thickness, segment)).ToList();
+    }
+
+    private StrokeData CreateStrokeData(Color color, double thickness, IReadOnlyList<InkStylusPoint> points)
+    {
+        var stroke = _strokeRenderer.CreateStroke(color, thickness, points[0]);
+        if (points.Count > 1)
+        {
+            _strokeRenderer.AppendPoints(stroke, points.Skip(1).ToList(), thickness);
+        }
+
+        return stroke;
+    }
+
+    private void RaiseStrokeErased(IReadOnlyList<InkStrokeSnapshot> erasedStrokes, IReadOnlyList<InkStrokeSnapshot> dynamicErased)
+    {
+        if (erasedStrokes.Count == 0 && dynamicErased.Count == 0)
+        {
+            return;
+        }
+
+        var allErased = new List<InkStrokeSnapshot>(erasedStrokes.Count + dynamicErased.Count);
+        allErased.AddRange(erasedStrokes);
+        allErased.AddRange(dynamicErased);
+        StrokeErased?.Invoke(allErased);
+    }
+
+    private void UpdateEraserOverlay(InkStylusPoint point)
+    {
+        var size = Math.Max(1d, _lastEraserSize);
+        var half = size / 2;
+        _eraserOverlayRect = new Rect(point.X - half, point.Y - half, size, size);
+    }
+
+    private static InkStrokeSnapshot ToSnapshot(StrokeData stroke)
+    {
+        return new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList());
+    }
+
+    private List<InkStylusPoint> FilterPointsByDistance(IReadOnlyList<InkStylusPoint> points, InkStylusPoint lastPoint)
+    {
+        var minDistance = Math.Max(0d, Options.MinPointDistance);
+        if (minDistance <= 0)
+        {
+            return points.ToList();
+        }
+
+        var result = new List<InkStylusPoint>(points.Count);
+        var previous = lastPoint;
+        foreach (var point in points)
+        {
+            var dx = point.X - previous.X;
+            var dy = point.Y - previous.Y;
+            if (Math.Sqrt(dx * dx + dy * dy) < minDistance)
+            {
+                continue;
+            }
+
+            result.Add(point);
+            previous = point;
+        }
+
+        return result;
     }
 
     private IEnumerable<InkStylusPoint> ExpandPoints(InkingModeInputArgs args)
     {
-        if (args.StylusPointList is { Count: > 0 })
+        if (Options.EnableIntermediatePoints && args.StylusPointList is { Count: > 0 })
         {
             foreach (var point in args.StylusPointList)
             {
@@ -237,12 +556,14 @@ public class JaliumInkCanvas : FrameworkElement
     private InkingModeInputArgs ToInputArgs(PointerEventArgs args, InputInfo? inputInfo = null)
     {
         var currentPoint = args.GetCurrentPoint(this);
-        var stylusPoint = ToInkStylusPoint(currentPoint, inputInfo);
+        var stylusPoint = ToInkStylusPoint(currentPoint, NormalizeToLocalPosition(currentPoint.Position), inputInfo);
         var list = args.GetIntermediatePoints(this);
         IReadOnlyList<InkStylusPoint>? stylusPointList = null;
         if (list.Count > 1)
         {
-            stylusPointList = list.Select(p => ToInkStylusPoint(p, inputInfo)).ToList();
+            stylusPointList = list
+                .Select(p => ToInkStylusPoint(p, NormalizeToLocalPosition(p.Position), inputInfo))
+                .ToList();
         }
 
         return new InkingModeInputArgs((int)args.Pointer.PointerId, stylusPoint, currentPoint.Timestamp)
@@ -252,9 +573,14 @@ public class JaliumInkCanvas : FrameworkElement
         };
     }
 
-    private static InkStylusPoint ToInkStylusPoint(PointerPoint point, InputInfo? inputInfo)
+    private Jalium.UI.Point NormalizeToLocalPosition(Jalium.UI.Point rawPosition)
     {
-        var pressure = EnsurePressure(point.Properties, inputInfo);
+        return rawPosition;
+    }
+
+    private static InkStylusPoint ToInkStylusPoint(PointerPoint point, Jalium.UI.Point localPosition, InputInfo? inputInfo)
+    {
+        var pressure = EnsurePressure(point.Properties, inputInfo, inputInfo?.IgnorePressure ?? false);
         var width = point.Properties.ContactRect.Width;
         var height = point.Properties.ContactRect.Height;
 
@@ -271,15 +597,20 @@ public class JaliumInkCanvas : FrameworkElement
             }
         }
 
-        return new InkStylusPoint(point.Position.X, point.Position.Y, pressure)
+        return new InkStylusPoint(localPosition.X, localPosition.Y, pressure)
         {
             Width = width != 0 ? width : null,
             Height = height != 0 ? height : null,
         };
     }
 
-    private static float EnsurePressure(PointerPointProperties properties, InputInfo? inputInfo)
+    private static float EnsurePressure(PointerPointProperties properties, InputInfo? inputInfo, bool ignorePressure)
     {
+        if (ignorePressure)
+        {
+            return InkStylusPoint.DefaultPressure;
+        }
+
         if (!properties.HasPressure && inputInfo is not null)
         {
             return inputInfo.LastStylusPoint.Pressure;
@@ -294,8 +625,10 @@ public class JaliumInkCanvas : FrameworkElement
         return pressure > 0 ? pressure : InkStylusPoint.DefaultPressure;
     }
 
-    private sealed class InputInfo(InkStylusPoint lastStylusPoint)
+    private sealed class InputInfo(InkStylusPoint lastStylusPoint, bool ignorePressure)
     {
         public InkStylusPoint LastStylusPoint { get; set; } = lastStylusPoint;
+
+        public bool IgnorePressure { get; } = ignorePressure;
     }
 }

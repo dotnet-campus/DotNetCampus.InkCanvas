@@ -1,6 +1,5 @@
 using DotNetCampus.Inking;
 using Jalium.UI;
-using Jalium.UI.Interop;
 using System.Diagnostics;
 
 namespace JaliumInkCanvasDemo;
@@ -10,10 +9,8 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        var backend = RenderBackend.D3D12;
-        var renderContext = RenderContext.GetOrCreateCurrent(RenderBackend.D3D12);
-        renderContext.DefaultRenderingEngine = RenderingEngine.Impeller;
-        Debug.WriteLine($"[JaliumInkCanvasDemo] Selected backend={backend}, engine={renderContext.DefaultRenderingEngine}");
+        Environment.SetEnvironmentVariable("JALIUM_RENDER_BACKEND", "d3d12");
+        Debug.WriteLine("[JaliumInkCanvasDemo] Preferred backend=d3d12 (via env)");
 
         var builder = AppBuilder.CreateBuilder(args);
         using var app = builder.Build();

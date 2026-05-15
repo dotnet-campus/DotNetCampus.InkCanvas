@@ -6,6 +6,12 @@
 
 ![](./docs/images/Image1.png)
 
+### 多平台状态
+
+- Avalonia 线已基于 Avalonia 12。
+- Jalium 线位于 `DotNetCampus.JaliumInkCanvas`，默认优先使用原生渲染（可用时走 DX12），并保留 Skia fallback。
+- 共享逻辑保持在 `DotNetCampus.InkCanvas.InkCore`，避免 UI 平台层耦合。
+
 ### Avalonia InkCanvas
 
 ### 快速开始

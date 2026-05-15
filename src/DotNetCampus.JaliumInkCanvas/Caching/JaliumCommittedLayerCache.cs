@@ -25,18 +25,80 @@ internal sealed class JaliumCommittedLayerCache
     public void Add(StrokeData stroke)
     {
         _strokes.Add(stroke);
-        _dirty = true;
+        if (_dirty)
+        {
+            return;
+        }
+
+        var key = BrushKey(stroke.Brush);
+        if (!_groups.TryGetValue(key, out var group))
+        {
+            group = new GeometryGroup();
+            _groups[key] = group;
+        }
+
+        group.Children.Add(stroke.Geometry.Clone());
     }
 
-    public void RemoveWhere(Func<StrokeData, bool> predicate)
+    public IReadOnlyList<InkStrokeSnapshot> ReplaceWhere(
+        Func<StrokeData, bool> candidate,
+        Func<StrokeData, IReadOnlyList<StrokeData>> rewrite)
     {
-        if (_strokes.RemoveAll(s => predicate(s)) > 0)
+        if (_strokes.Count == 0)
         {
-            _dirty = true;
+            return Array.Empty<InkStrokeSnapshot>();
         }
+
+        var erased = new List<InkStrokeSnapshot>();
+        var replacement = new List<StrokeData>(_strokes.Count);
+        var changed = false;
+
+        foreach (var stroke in _strokes)
+        {
+            if (!candidate(stroke))
+            {
+                replacement.Add(stroke);
+                continue;
+            }
+
+            erased.Add(new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList()));
+            var rewritten = rewrite(stroke);
+            if (rewritten.Count > 0)
+            {
+                replacement.AddRange(rewritten);
+            }
+
+            changed = true;
+        }
+
+        if (!changed)
+        {
+            return Array.Empty<InkStrokeSnapshot>();
+        }
+
+        _strokes.Clear();
+        _strokes.AddRange(replacement);
+        _dirty = true;
+        return erased;
+    }
+
+    public IReadOnlyList<InkStrokeSnapshot> RemoveWhere(Func<StrokeData, bool> predicate)
+    {
+        return ReplaceWhere(predicate, _ => Array.Empty<StrokeData>());
     }
 
     public int StrokeCount => _strokes.Count;
+
+    public IReadOnlyList<InkStrokeSnapshot> GetStrokeSnapshots()
+    {
+        var snapshots = new List<InkStrokeSnapshot>(_strokes.Count);
+        foreach (var stroke in _strokes)
+        {
+            snapshots.Add(new InkStrokeSnapshot(stroke.Brush.Color, stroke.Thickness, stroke.Points.ToList()));
+        }
+
+        return snapshots;
+    }
 
     public void Draw(DrawingContext drawingContext)
     {

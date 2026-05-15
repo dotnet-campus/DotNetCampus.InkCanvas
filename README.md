@@ -14,6 +14,12 @@ This project originated from: https://github.com/AvaloniaUI/Avalonia/issues/1477
 
 ![](./docs/images/Image1.png)
 
+## Multi-platform Status
+
+- Avalonia line runs on Avalonia 12.
+- Jalium line is isolated in `DotNetCampus.JaliumInkCanvas` and prefers native rendering (DX12 when available), with Skia fallback.
+- Cross-platform shared logic remains in `DotNetCampus.InkCanvas.InkCore` to avoid UI-layer coupling.
+
 ## Avalonia InkCanvas
 
 ### Quick Start

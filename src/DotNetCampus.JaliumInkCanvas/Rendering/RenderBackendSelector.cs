@@ -4,12 +4,15 @@ internal sealed class RenderBackendSelector(Func<bool> nativeAvailableProbe)
 {
     public string LastSelectedRenderer { get; private set; } = "native";
 
+    public bool LastNativeAvailable { get; private set; } = true;
+
     public IStrokeRenderer Select(
         JaliumRenderBackendMode mode,
         IStrokeRenderer nativeRenderer,
         IStrokeRenderer skiaFallbackRenderer)
     {
         var nativeAvailable = nativeAvailableProbe();
+        LastNativeAvailable = nativeAvailable;
         IStrokeRenderer renderer = mode switch
         {
             JaliumRenderBackendMode.ForceNative => nativeAvailable ? nativeRenderer : skiaFallbackRenderer,

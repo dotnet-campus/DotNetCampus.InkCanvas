@@ -12,5 +12,7 @@ internal sealed class StrokeData
 
     public required List<InkStylusPoint> Points { get; init; }
 
+    public required double Thickness { get; init; }
+
     public Rect Bounds => Geometry.Bounds;
 }

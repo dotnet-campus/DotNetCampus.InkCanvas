@@ -1,0 +1,32 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/demo/">
+    <Project Path="demo/AvaloniaInkCanvasDemo/AvaloniaInkCanvasDemo.csproj" />
+    <Project Path="demo/JaliumInkCanvasDemo/JaliumInkCanvasDemo.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/dotnet-build.yml" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+    <File Path="README_zh-CN.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DotNetCampus.InkCanvas.InkCore/DotNetCampus.InkCanvas.InkCore.csproj" />
+    <Project Path="src/DotNetCampus.InkCanvas.SkiaInk/DotNetCampus.InkCanvas.SkiaInk.csproj" />
+    <Project Path="src/DotNetCampus.JaliumInkCanvas/DotNetCampus.JaliumInkCanvas.csproj" />
+  </Folder>
+  <Folder Name="/src/Pack/">
+    <Project Path="src/DotNetCampus.AvaloniaInkCanvas.AllInOne/DotNetCampus.AvaloniaInkCanvas.AllInOne.csproj" />
+  </Folder>
+  <Folder Name="/src/Platform/" />
+  <Folder Name="/src/Platform/Avalonia/">
+    <Project Path="src/DotNetCampus.AvaloniaInkCanvas/DotNetCampus.AvaloniaInkCanvas.csproj" />
+  </Folder>
+  <Folder Name="/src/Platform/X11/">
+    <Project Path="src/X11ApplicationFramework/X11ApplicationFramework.csproj" />
+  </Folder>
+</Solution>

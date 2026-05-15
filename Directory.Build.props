@@ -50,7 +50,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <SourceRoot Include="$(MSBuildThisFileDirectory)"/>
     <!-- 嵌入 README 文件 -->
     <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\" Visible="false"/>
   </ItemGroup>
