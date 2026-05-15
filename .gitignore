@@ -355,3 +355,4 @@ healthchecksdb
 *.apk
 *.unitypackage
 /X11/UnoInk/UnoInk/Properties/PublishProfiles
+/.claude/worktrees
