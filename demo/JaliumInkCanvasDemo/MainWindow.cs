@@ -82,8 +82,10 @@ internal sealed class MainWindow : Window
         ApplyTheme();
 
         AddHandler(KeyDownEvent, new KeyEventHandler(OnKeyDown));
-        CompositionTarget.Rendering += OnRendering;
+        _inkCanvas.StrokeCollected += _ => UpdateMetrics();
+        _inkCanvas.StrokeErased += _ => UpdateMetrics();
         SetMode(DotInkMode.Ink, "Mode: Ink");
+        UpdateMetrics();
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -105,40 +107,24 @@ internal sealed class MainWindow : Window
             case Key.C:
                 _inkCanvas.Clear();
                 _statusText.Text = "Cleared all strokes";
+                UpdateMetrics();
                 break;
             case Key.T:
                 _isDarkMode = !_isDarkMode;
                 ApplyTheme();
                 _statusText.Text = _isDarkMode ? "Theme: Dark" : "Theme: Light";
                 break;
-            case Key.D1:
-                _inkCanvas.Options.BackendMode = JaliumRenderBackendMode.NativePreferred;
-                _inkCanvas.RefreshRenderer();
-                _statusText.Text = "BackendMode: NativePreferred";
-                break;
-            case Key.D2:
-                _inkCanvas.Options.BackendMode = JaliumRenderBackendMode.ForceNative;
-                _inkCanvas.RefreshRenderer();
-                _statusText.Text = "BackendMode: ForceNative";
-                break;
-            case Key.D3:
-                _inkCanvas.Options.BackendMode = JaliumRenderBackendMode.ForceSkiaFallback;
-                _inkCanvas.RefreshRenderer();
-                _statusText.Text = "BackendMode: ForceSkiaFallback";
-                break;
         }
     }
 
-    private void OnRendering(object? sender, EventArgs e)
+    private void UpdateMetrics()
     {
         var snapshot = _inkCanvas.GetPerformanceSnapshot();
         _metricsText.Text =
             $"renderer={_inkCanvas.ActiveRendererName}  " +
-            $"native={( _inkCanvas.IsNativeBackendAvailable ? "yes" : "no" )}  " +
-            $"fps={snapshot.Fps:F1}  " +
-            $"frame={snapshot.AverageFrameMs:F2}ms  " +
             $"input/s={snapshot.InputPointsPerSecond}  " +
-            $"cache(H/M)={snapshot.CacheHitCount}/{snapshot.CacheMissCount}";
+            $"strokes={snapshot.CommittedStrokeCount}  " +
+            $"points={_inkCanvas.GetStrokeSnapshots().Sum(s => s.Points.Count)}";
     }
 
     private void ApplyTheme()
@@ -183,27 +169,6 @@ internal sealed class MainWindow : Window
         firstRow.Children.Add(CreateModeRadio("Path Eraser", DotInkMode.EraseByPath, false));
         firstRow.Children.Add(CreateModeRadio("None", DotInkMode.None, false));
 
-        // Backend selector: use Jalium ComboBox instead of hotkey-only switching.
-        var backendComboBox = new ComboBox
-        {
-            MinWidth = 180,
-            Margin = new Thickness(8, 0, 0, 0),
-        };
-        backendComboBox.Items.Add(new ComboBoxItem { Content = "Backend: NativePreferred", Tag = JaliumRenderBackendMode.NativePreferred });
-        backendComboBox.Items.Add(new ComboBoxItem { Content = "Backend: ForceNative", Tag = JaliumRenderBackendMode.ForceNative });
-        backendComboBox.Items.Add(new ComboBoxItem { Content = "Backend: ForceSkiaFallback", Tag = JaliumRenderBackendMode.ForceSkiaFallback });
-        backendComboBox.SelectedIndex = 0;
-        backendComboBox.SelectionChanged += (_, _) =>
-        {
-            if (backendComboBox.SelectedItem is ComboBoxItem { Tag: JaliumRenderBackendMode mode })
-            {
-                _inkCanvas.Options.BackendMode = mode;
-                _inkCanvas.RefreshRenderer();
-                _statusText.Text = $"BackendMode: {mode}";
-            }
-        };
-        firstRow.Children.Add(backendComboBox);
-
         // Thickness selector: use Jalium Slider.
         var thicknessSlider = new Slider
         {
@@ -217,6 +182,7 @@ internal sealed class MainWindow : Window
         {
             _inkCanvas.InkThickness = e.NewValue;
             _thicknessText.Text = $"Thickness: {e.NewValue:F1}";
+            UpdateMetrics();
         };
         firstRow.Children.Add(_thicknessText);
         firstRow.Children.Add(thicknessSlider);
@@ -233,6 +199,7 @@ internal sealed class MainWindow : Window
         {
             _inkCanvas.InkColor = e.NewColor;
             _statusText.Text = $"InkColor changed: #{e.NewColor.R:X2}{e.NewColor.G:X2}{e.NewColor.B:X2}";
+            UpdateMetrics();
         };
         firstRow.Children.Add(colorPicker);
 
@@ -332,6 +299,7 @@ internal sealed class MainWindow : Window
         {
             _inkCanvas.Options.EnableIntermediatePoints = isChecked;
             _statusText.Text = $"HighSampling: {(isChecked ? "On" : "Off")}";
+            UpdateMetrics();
         });
 
         secondRow.Children.Add(pressureText);
@@ -348,7 +316,9 @@ internal sealed class MainWindow : Window
         secondRow.Children.Add(CreateToggle("Ignore Pressure", _inkCanvas.Options.IgnorePressure, isChecked =>
         {
             _inkCanvas.Options.IgnorePressure = isChecked;
+            _inkCanvas.RefreshRenderer();
             _statusText.Text = $"IgnorePressure: {(isChecked ? "On" : "Off")}";
+            UpdateMetrics();
         }));
         secondRow.Children.Add(CreateToggle("Stylus Eraser Size", _inkCanvas.Options.EnableStylusSizeAsEraserSize, isChecked =>
         {
@@ -369,23 +339,27 @@ internal sealed class MainWindow : Window
         {
             _inkCanvas.Options.EnablePressureSmoothing = isChecked;
             _statusText.Text = $"PressureSmoothing: {(isChecked ? "On" : "Off")}";
+            UpdateMetrics();
         }));
         secondRow.Children.Add(CreateToggle("Layer Cache", _inkCanvas.Options.EnableCommittedLayerCache, isChecked =>
         {
             _inkCanvas.Options.EnableCommittedLayerCache = isChecked;
             _statusText.Text = $"CommittedLayerCache: {(isChecked ? "On" : "Off")}";
             _inkCanvas.InvalidateVisual();
+            UpdateMetrics();
         }));
         secondRow.Children.Add(CreateToggle("Perf Counters", _inkCanvas.Options.EnablePerformanceCounters, isChecked =>
         {
             _inkCanvas.Options.EnablePerformanceCounters = isChecked;
             _statusText.Text = $"PerformanceCounters: {(isChecked ? "On" : "Off")}";
+            UpdateMetrics();
         }));
         secondRow.Children.Add(CreateToggle("Eraser Overlay", _inkCanvas.Options.ShowEraserOverlay, isChecked =>
         {
             _inkCanvas.Options.ShowEraserOverlay = isChecked;
             _statusText.Text = $"EraserOverlay: {(isChecked ? "On" : "Off")}";
             _inkCanvas.InvalidateVisual();
+            UpdateMetrics();
         }));
 
         secondRow.Children.Add(CreateActionButton("Default Overlay", () =>
@@ -406,6 +380,7 @@ internal sealed class MainWindow : Window
         {
             _inkCanvas.Clear();
             _statusText.Text = "Cleared all strokes";
+            UpdateMetrics();
         }));
         secondRow.Children.Add(CreateActionButton("Theme", () =>
         {
@@ -475,6 +450,7 @@ internal sealed class MainWindow : Window
         _inkCanvas.EditingMode = mode;
         _modeText.Text = modeText;
         _statusText.Text = $"{modeText} (Toolbar/Hotkey)";
+        UpdateMetrics();
     }
 
     private void SaveStrokeAsSvg()
@@ -541,12 +517,14 @@ internal sealed class MainWindow : Window
 
         _inkCanvas.AddStroke(new InkStrokeSnapshot(color, Math.Max(1d, _inkCanvas.InkThickness), points));
         _statusText.Text = "Added sample stroke";
+        UpdateMetrics();
     }
 
     private void RemoveBlueStrokes()
     {
         var removed = _inkCanvas.RemoveStrokes(stroke => stroke.Color.B > stroke.Color.R && stroke.Color.B > stroke.Color.G);
         _statusText.Text = removed > 0 ? $"Removed {removed} blue stroke(s)" : "No blue stroke removed";
+        UpdateMetrics();
     }
 
     private sealed class DemoEraserOverlay : IJaliumEraserOverlay

@@ -10,8 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.88.7" />
-    <PackageReference Include="Jalium.UI.Desktop" Version="26.10.2" />
+    <PackageReference Include="Jalium.UI.Desktop" Version="26.10.3" />
   </ItemGroup>
 
   <ItemGroup>

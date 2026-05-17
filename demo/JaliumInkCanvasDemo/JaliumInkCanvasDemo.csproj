@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jalium.UI.Desktop" Version="26.10.2" />
+    <PackageReference Include="Jalium.UI.Desktop" Version="26.10.3" />
   </ItemGroup>
 
   <ItemGroup>
