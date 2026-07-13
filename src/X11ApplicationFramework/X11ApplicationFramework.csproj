@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetCampus.Logger" Version="1.3.0-alpha02" />
+    <PackageReference Include="DotNetCampus.Logger" Version="$(DotNetCampusLoggerVersion)" />
   </ItemGroup>
 
 </Project>

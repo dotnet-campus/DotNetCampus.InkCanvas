@@ -37,10 +37,11 @@ internal readonly record struct InkBitmapCachedData(InkQualityBitmapData? BackBi
 /// <param name="InkBounds">本次缓存的位图所使用的笔迹边界。</param>
 /// <param name="ScalingRootToBitmap">画板到位图的缩放量。</param>
 /// <param name="Quality">位图的清晰度，即位图的像素数与最大像素数的比例的平方根。</param>
-internal readonly record struct InkQualityBitmapData(SKBitmap Bitmap, BoundingBox2D InkBounds, double ScalingRootToBitmap, double Quality) : IDisposable
+internal readonly record struct InkQualityBitmapData(SKBitmap Bitmap, SKImage Image, BoundingBox2D InkBounds, double ScalingRootToBitmap, double Quality) : IDisposable
 {
     public void Dispose()
     {
+        Image.Dispose();
         Bitmap.Dispose();
     }
 }

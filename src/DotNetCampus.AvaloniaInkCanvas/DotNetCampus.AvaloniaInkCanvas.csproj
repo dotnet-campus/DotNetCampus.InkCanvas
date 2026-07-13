@@ -8,9 +8,8 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
-    <!-- 至少需要 Avalonia 11.3.0 版本，才能支持 https://github.com/AvaloniaUI/Avalonia/pull/16498 的功能 -->
-    <PackageReference Include="Avalonia" Version="11.3.0" />
-    <PackageReference Include="Avalonia.Skia" Version="11.3.0" />
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotNetCampus.InkCanvas.InkCore\DotNetCampus.InkCanvas.InkCore.csproj" />
