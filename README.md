@@ -1,4 +1,4 @@
-﻿# DotNetCampus.InkCanvas
+# DotNetCampus.InkCanvas
 
 The InkCanvas control for .NET applications, such as Avalonia, providing a versatile canvas for handwriting and drawing.
 
@@ -22,7 +22,7 @@ This project originated from: https://github.com/AvaloniaUI/Avalonia/issues/1477
 
    ```xml
      <ItemGroup>
-       <PackageReference Include="DotNetCampus.AvaloniaInkCanvas" Version="1.0.0" />
+       <PackageReference Include="DotNetCampus.AvaloniaInkCanvas" Version="1.0.1" />
      </ItemGroup>
    ```
 
@@ -175,6 +175,164 @@ You can export the strokes drawn on the `InkCanvas` to an SVG image format. Here
         }
     }
 ```
+
+#### `SkiaStroke.PointList` — read the raw stylus points (no reflection)
+
+`SkiaStroke.Path` is the **outer contour polygon** used by the Skia renderer. It looks like a stroke but is
+actually a closed ring around the center line, so drawing a poly-line from `Path.Points` will produce a
+hollow, deformed shape.
+
+The real, time-ordered stylus point sequence lives in `SkiaStroke.PointList` (`IReadOnlyList<InkStylusPoint>`).
+In the 4Darmygeometry fork it is exposed as a public property:
+
+```csharp
+using DotNetCampus.Inking;
+using DotNetCampus.Inking.Primitive;
+
+InkCanvas.StrokeCollected += (o, args) =>
+{
+    var stroke = args.SkiaStroke; // SkiaStroke
+    var pts    = stroke.PointList; // IReadOnlyList<InkStylusPoint> — public, AOT-friendly
+
+    foreach (var p in pts)
+    {
+        // p.X, p.Y, p.Pressure, p.Timestamp, ...
+    }
+};
+```
+
+#### Convert handwriting to Logo language source (PCLogo / MSWLogo / AOTLogoSharp 1.2.1+)
+
+The fork ships `DotNetCampus.Inking.LogoExport.InkToLogoConverter` and an `InkCanvas.ToLogoSource(...)`
+extension method. The output is **standard Logo source code** that any Logo interpreter (PCLogo, MSWLogo,
+[AOTLogoSharp](https://www.nuget.org/packages/AOTLogoSharp.Drawing) 1.2.1+) can execute to play back
+the handwriting via a turtle.
+
+Three export modes are supported (selected via `LogoExportMode`):
+
+| Mode | Description |
+|---|---|
+| `Optimized` | Exponential smoothing + curvature simplification (default) + LT/RT relative angles + FD merge (smallest output, 1.0.1) |
+| `AbsoluteCoordinates` | Pure `SETXY` absolute coordinates, no smoothing / simplification / angles (debug) |
+| `RawRelativeAngles` | Raw points + LT/RT + FD merge, no smoothing / simplification (debug) |
+
+The start, end and the second point of every stroke are always preserved (the endpoints fix
+the stroke's path; the second point fixes the initial `SETH` heading), so the optimization
+process never changes a stroke's overall direction — the subsequent `RT/LT+FD` chain is
+just a geometric unrolling between the endpoints.
+
+```csharp
+using DotNetCampus.Inking;
+using DotNetCampus.Inking.LogoExport;
+
+// 1) Calculate the bounding box of all strokes and use its center as the Logo origin (0,0)
+var (minX, minY, maxX, maxY) = InkToLogoConverter.GetBoundingBox(InkCanvas.Strokes);
+double cx = (minX + maxX) / 2.0;
+double cy = (minY + maxY) / 2.0;
+
+// 2) Convert to Logo source
+string logo = InkCanvas.ToLogoSource(
+    flipY:         true,            // screen Y points down → Logo Y points up
+    originShiftX:  cx,
+    originShiftY:  cy,
+    mode:          LogoExportMode.Optimized);
+
+// 3) Play back with AOTLogoSharp 1.2.1+ (or PCLogo / MSWLogo)
+File.WriteAllText("handwriting.logo", logo, System.Text.Encoding.UTF8);
+```
+
+You can also convert a single `SkiaStroke`, any `IReadOnlyList<SkiaStroke>`, or any
+`IReadOnlyList<IReadOnlyList<InkStylusPoint>>` (point-list form, useful when the consumer
+already has the raw stylus point list) — all four expose a `ToLogoSource(...)` extension
+method with the same parameters.
+
+#### Tuning the converter with `LogoExportOptions`
+
+The hardcoded constants that the converter used to keep internally (min turn angle / min
+step / smoothing α / simplification ε / curvature threshold …) are now exposed as a public
+immutable options class. You can override any of them with C# 9 init-only syntax:
+
+```csharp
+string logo = InkToLogoConverter.Convert(
+    strokes,
+    new LogoExportOptions
+    {
+        SmoothAlpha                = 0.5,   // EMA smoothing (≤0 / ≥1 = off)
+        CurvatureAngleThresholdDeg = 8.0,   // curvature: inflection if θ ≥ this (deg)
+        CurvatureMinGapPx          = 4.0,   // curvature: min spacing on straight segments (px)
+        MinAngleDeg                = 0.5,   // ignore turns below this angle (deg)
+        MinStepPx                  = 0.5,   // ignore segments shorter than this many px
+        MinMergedFdPx              = 0.5,   // ignore merged FD shorter than this many px
+    });
+```
+
+| Option | Default | Effect |
+|---|---|---|
+| `SmoothAlpha` | 0.5 | EMA smoothing factor; lower = smoother but laggier, higher = closer to raw |
+| `MinSmoothedStepSq` | 1e-6 | Drop stationary points (px²) |
+| `CurvatureAngleThresholdDeg` | 8° | An interior point is kept if the angle between its neighbouring vectors is ≥ this |
+| `CurvatureMinGapPx` | 4 px | Minimum gap between two kept points on a near-straight segment |
+| `MinAngleDeg` | 0.5 | Drop jitter turns below this angle |
+| `MinStepPx` | 0.5 | Drop jitter segments below this distance |
+| `MinMergedFdPx` | 0.5 | Drop merged FD below this length |
+
+#### Curvature-based simplification
+
+The converter uses a **curvature-based** simplification (no RDP, no distance-to-chord
+metric). For every interior point it computes the angle θ between the two neighbour
+vectors (P[i-1]→P[i] and P[i]→P[i+1]) and decides:
+
+- θ ≥ `CurvatureAngleThresholdDeg` → keep as an **inflection point**
+- otherwise, distance to the last kept point ≥ `CurvatureMinGapPx` → keep as a
+  **straight-segment uniform sample**
+- otherwise drop
+
+Two key properties of this approach for handwriting:
+
+- The **start, end, and 2nd point** of every stroke are always kept. They fix the path
+  endpoints and the initial `SETH` heading, so the simplified stroke is bit-equal to the
+  `AbsoluteCoordinates` output at the endpoints.
+- **Every stroke has exactly one `SETH`**, followed by a pure `RT/LT+FD` chain — no
+  periodic re-anchor that could split a continuous curve into discontinuous chunks.
+
+If you need pixel-perfect replay and don't care about output size, use
+`LogoExportMode.AbsoluteCoordinates` instead — that mode emits pure `SETXY` and has no
+rotation concept at all.
+
+#### Point-list form of `Convert`
+
+The point-list overload lets you convert a Logo stream **without constructing `SkiaStroke`
+instances** — useful when you've deserialized points from a `.meta` file or are replaying
+recorded points:
+
+```csharp
+IReadOnlyList<IReadOnlyList<InkStylusPoint>> pointLists = /* ... */;
+
+string logo = InkToLogoConverter.Convert(
+    pointLists,
+    options:        new LogoExportOptions(),  // default: curvature + no extra SETH
+    flipY:          true,
+    originShiftX:   cx,
+    originShiftY:   cy,
+    mode:           LogoExportMode.Optimized);
+
+var (minX, minY, maxX, maxY) = InkToLogoConverter.GetBoundingBox(pointLists);
+```
+
+`GetBoundingBox` is also overloaded for the point-list form, with identical semantics.
+
+Logo dialect conventions used by the converter:
+
+| Command | Meaning |
+|---|---|
+| `SETH θ` | Set absolute heading; `0°` = north, clockwise positive; direction = `(sin θ, cos θ)` |
+| `LT a` | Turn left (counter-clockwise) by `a` degrees |
+| `RT a` | Turn right (clockwise) by `a` degrees |
+| `FD d` | Move forward `d` units |
+| `SETXY x y` | Jump to absolute `(x, y)` |
+| `PU` / `PD` | Pen up / pen down |
+| `HOME` | Return to `(0, 0)` with heading `0` |
+| `CS` | Clear screen |
 
 # Contributing
 

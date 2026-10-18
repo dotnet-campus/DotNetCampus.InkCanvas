@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Skia;
 using DotNetCampus.Inking.Contexts;
@@ -52,7 +52,19 @@ public class SkiaStroke : IDisposable
     /// </summary>
     public float InkThickness { get; init; } = AvaloniaSkiaInkCanvasSettings.DefaultInkThickness;
 
-    internal IReadOnlyList<InkStylusPoint> PointList => _pointList;
+    /// <summary>
+    /// 笔迹的原始笔尖采样点列（按书写时间顺序）。
+    ///
+    /// <para>
+    /// 与 <see cref="Path"/> 的区别：<see cref="Path"/> 是 Skia 渲染用的"笔迹外轮廓"
+    /// 闭合多边形（即围绕笔迹的封闭路径），用 Path.Points 连成折线会画一个围绕中心的环，
+    /// 导致笔迹空心 + 变形。本属性返回的是按书写顺序的笔尖点列，与 InkCanvas 的
+    /// 画布坐标系一致，可直接用于 Logo 语言转换、SVG 路径、笔画分析等需要"中间过程点列"
+    /// 的场景。
+    /// </para>
+    ///
+    /// </summary>
+    public IReadOnlyList<InkStylusPoint> PointList => _pointList;
 
     /// <summary>
     /// 是否忽略压感
