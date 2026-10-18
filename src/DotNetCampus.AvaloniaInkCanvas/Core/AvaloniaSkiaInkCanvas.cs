@@ -363,7 +363,7 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     private void UpdateCacheCore()
     {
-        var scale = VisualRoot?.RenderScaling ?? 1;
+        var scale = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
         if (_cache.UseCacheOnNextRender is false && Context.ShouldUseBitmapCache)
         {
             if (_inkTransformContext is { } inkContext)
@@ -590,7 +590,7 @@ public class AvaloniaSkiaInkCanvas : Control
     /// </summary>
     public void InvalidateBitmapCache()
     {
-        var scale = VisualRoot?.RenderScaling ?? 1;
+        var scale = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
         if (_inkTransformContext is { } inkContext)
         {
             _cache.UpdateCacheContext(scale, inkContext.VisibleBounds, inkContext.TransformToRoot);

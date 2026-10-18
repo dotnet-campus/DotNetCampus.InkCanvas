@@ -24,7 +24,7 @@ static class SkiaStrokeDrawContextExtension
         if (useTransform)
         {
             canvas.Save();
-            canvas.Concat(ref transform);
+            canvas.Concat(in transform);
         }
 
         canvas.DrawPath(skiaStrokeDrawContext.Path, skPaint);

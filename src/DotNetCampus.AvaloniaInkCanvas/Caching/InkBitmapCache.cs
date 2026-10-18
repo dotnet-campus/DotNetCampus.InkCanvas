@@ -226,7 +226,7 @@ internal sealed class InkBitmapCache : IDisposable
             canvas.ClipRect(cb2, SKClipOperation.Difference);
         }
         var skMatrix = context.TransformFromInkToRoot.ToSkMatrix();
-        canvas.Concat(ref skMatrix);
+        canvas.Concat(in skMatrix);
 
         // 使用笔迹坐标系绘制笔迹。
         foreach (var c in paths)
@@ -236,7 +236,8 @@ internal sealed class InkBitmapCache : IDisposable
         }
 
         // 返回位图数据。
-        return new(bitmap, intersectedBounds, scalingRootToBitmap, quality);
+        var image = SKImage.FromBitmap(bitmap);
+        return new(bitmap, image, intersectedBounds, scalingRootToBitmap, quality);
     }
 
     /// <summary>
@@ -281,8 +282,8 @@ internal sealed class InkBitmapCache : IDisposable
         {
             using var paint = new SKPaint();
             paint.IsAntialias = true;
-            paint.FilterQuality = SKFilterQuality.High;
-            canvas.DrawBitmap(data.Bitmap, 0, 0, paint);
+            var sampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
+            canvas.DrawImage(data.Image, 0, 0, sampling, paint);
         }
         finally
         {

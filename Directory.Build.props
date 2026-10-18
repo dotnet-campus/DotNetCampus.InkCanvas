@@ -8,6 +8,11 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaVersion>12.1.0</AvaloniaVersion>
+    <SkiaSharpVersion>3.119.4</SkiaSharpVersion>
+    <DotNetCampusLoggerVersion>1.3.1-alpha.3</DotNetCampusLoggerVersion>
+    <DotNetCampusGeometryVersion>1.0.2-alpha.1</DotNetCampusGeometryVersion>
+    <SourceLinkVersion>10.0.300</SourceLinkVersion>
 
     <!-- Build -->
     <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
