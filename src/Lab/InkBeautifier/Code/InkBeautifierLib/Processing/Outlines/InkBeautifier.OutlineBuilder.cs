@@ -130,7 +130,6 @@ public sealed partial class InkBeautifier
             stroke.RawPoints[^1] = current with { HalfWidth = 0.03 };
         }
 
-        AppendBezierSamples(stroke, isUp);
         return true;
     }
 
@@ -201,7 +200,8 @@ public sealed partial class InkBeautifier
         return narrowPointCount >= 3 || (isUpwardDirection && narrowPointCount >= 2);
     }
 
-    private static void AppendBezierSamples(StrokeState stroke, bool completesStroke)
+    // 没有新采样的 Up 仍需从预览末端完成到最后已接受点。
+    private static void AppendBezierSamples(StrokeState stroke, bool completesStroke, bool hasNewPoint)
     {
         int count = stroke.RawPoints.Count;
         if (count < 3)
@@ -210,7 +210,7 @@ public sealed partial class InkBeautifier
         }
 
         RawPoint p0 = stroke.Samples.Count == 0 ? stroke.RawPoints[0] : stroke.Samples[^1];
-        RawPoint p1 = stroke.RawPoints[^2];
+        RawPoint p1 = hasNewPoint ? stroke.RawPoints[^2] : stroke.RawPoints[^1];
         RawPoint p2 = stroke.RawPoints[^1];
         int interpolationTimes = p1.DistanceFrom(stroke.RawPoints[^3]) switch
         {
@@ -281,20 +281,20 @@ public sealed partial class InkBeautifier
         )
             ? templateSweep
             : BuildNormalOffsetOutline(samples);
-        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke, stroke);
-        IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines = BuildSweepCells(outline, samples, stroke);
-        return new StrokeGeometry(outline, outlines);
+        var coverageCaps = new List<IReadOnlyList<InkPoint2D>>();
+        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke, stroke, coverageCaps);
+        var outlines = BuildSweepCells(samples, stroke);
+        outlines.AddRange(coverageCaps);
+        return new StrokeGeometry(outline, outlines.AsReadOnly());
     }
 
-    private static IReadOnlyList<IReadOnlyList<InkPoint2D>> BuildSweepCells
+    private static List<IReadOnlyList<InkPoint2D>> BuildSweepCells
     (
-        IReadOnlyList<InkPoint2D> outline,
         IReadOnlyList<RawPoint> samples,
         StrokeState stroke
     )
     {
         var outlines = new List<IReadOnlyList<InkPoint2D>>(samples.Count - 1);
-        double outlineArea = GetSignedArea(outline);
         for (int index = 0; index < samples.Count - 1; index++)
         {
             if (index == stroke.SweepCells.Count)
@@ -303,13 +303,11 @@ public sealed partial class InkBeautifier
                 AddPenCap(candidates, samples[index].Position, samples[index].HalfWidth);
                 AddPenCap(candidates, samples[index + 1].Position, samples[index + 1].HalfWidth);
                 InkPoint2D[] cell = BuildConvexHull(candidates).ToArray();
-                stroke.SweepCellSigns.Add(Math.Sign(GetSignedArea(cell)));
+                if (GetSignedArea(cell) < 0) Array.Reverse(cell);
                 stroke.SweepCells.Add(Array.AsReadOnly(cell));
-                stroke.ReverseSweepCells.Add(Array.AsReadOnly(cell.Reverse().ToArray()));
             }
 
-            outlines.Add(stroke.SweepCellSigns[index] == Math.Sign(outlineArea)
-                ? stroke.SweepCells[index] : stroke.ReverseSweepCells[index]);
+            outlines.Add(stroke.SweepCells[index]);
         }
 
         return outlines;
@@ -328,8 +326,7 @@ public sealed partial class InkBeautifier
             stroke.SegmentOverlaps.Clear();
             stroke.PointOverlaps.Clear();
             stroke.SweepCells.Clear();
-            stroke.ReverseSweepCells.Clear();
-            stroke.SweepCellSigns.Clear();
+
         }
         for (int i = stroke.CachedSamples.Count; i < samples.Count; i++)
         {
@@ -1461,7 +1458,8 @@ public sealed partial class InkBeautifier
         IReadOnlyList<RawPoint> rawPoints,
         IReadOnlyList<RawPoint> samples,
         bool completesStroke,
-        StrokeState stroke
+        StrokeState stroke,
+        List<IReadOnlyList<InkPoint2D>> coverageCaps
     )
     {
         List<InkPoint2D>? repairedOutline = null;
@@ -1478,7 +1476,7 @@ public sealed partial class InkBeautifier
                 continue;
             }
 
-            AppendCoveragePenCap(outline, outlineArea, rawPoint.Position, rawPoint.HalfWidth, ref repairedOutline);
+            AppendCoveragePenCap(outline, outlineArea, rawPoint.Position, rawPoint.HalfWidth, coverageCaps, ref repairedOutline);
             coverage = new CoverageIndex(repairedOutline ?? outline);
         }
 
@@ -1495,7 +1493,7 @@ public sealed partial class InkBeautifier
                 IReadOnlyList<InkPoint2D> currentOutline = coverage;
                 if (!IsFilledByNonZeroWinding(currentOutline, sample.Position))
                 {
-                    AppendCoveragePenCap(outline, outlineArea, sample.Position, sample.HalfWidth, ref repairedOutline);
+                    AppendCoveragePenCap(outline, outlineArea, sample.Position, sample.HalfWidth, coverageCaps, ref repairedOutline);
                     break;
                 }
             }
@@ -1510,6 +1508,7 @@ public sealed partial class InkBeautifier
         double outlineArea,
         InkPoint2D position,
         double halfWidth,
+        List<IReadOnlyList<InkPoint2D>> coverageCaps,
         ref List<InkPoint2D>? repairedOutline
     )
     {
@@ -1519,7 +1518,11 @@ public sealed partial class InkBeautifier
             repairedOutline.AddRange(outline);
         }
 
-        IReadOnlyList<InkPoint2D> penCap = PlacePenCap(position, halfWidth);
+        InkPoint2D[] cap = PlacePenCap(position, halfWidth).ToArray();
+        if (GetSignedArea(cap) < 0) Array.Reverse(cap);
+        IReadOnlyList<InkPoint2D> penCap = Array.AsReadOnly(cap);
+        // 渲染使用独立同向闭环；桥接边只为兼容单一 Outline 保留。
+        coverageCaps.Add(penCap);
         bool reversePenCap = Math.Sign(GetSignedArea(penCap)) != Math.Sign(outlineArea);
         InkPoint2D bridgeStart = repairedOutline[0];
         InkPoint2D penCapStart = reversePenCap ? penCap[^1] : penCap[0];

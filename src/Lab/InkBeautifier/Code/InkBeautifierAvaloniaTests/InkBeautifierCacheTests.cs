@@ -50,14 +50,28 @@ public sealed partial class InkBeautifierPerformanceTests
         Assert.AreEqual(Fingerprint(Populate(new InkBeautifier())), Fingerprint(Populate(processor)));
     }
 
-    /// <summary>A filtered Up completes the stroke while retaining its last geometry.</summary>
+    /// <summary>A filtered Up completes geometry without accepting the rejected input.</summary>
     [TestMethod]
     public void WhenUpIsFilteredThenLastGeometryIsReturnedAndStrokeCompletes()
     {
         var processor = new InkBeautifier();
         InkBeautifierResult snapshot = Populate(processor);
         InkBeautifierResult up = processor.Process(Point(23, InkPointerStatus.Up) with { Timestamp = 10_000 });
-        Assert.AreEqual((false, true, snapshot.Outline, snapshot.Outlines), (up.WasAccepted, up.IsCompleted, up.Outline, up.Outlines));
+        Assert.AreEqual((false, true, false), (up.WasAccepted, up.IsCompleted, ReferenceEquals(snapshot.Outlines, up.Outlines)));
+    }
+
+    [TestMethod]
+    public void WhenRejectedUpCompletesThenSweepReachesLastAcceptedPointWithoutRejectedCoordinates()
+    {
+        var processor = new InkBeautifier(new() { MaximumWidth = 12, VelocityResponse = 0 });
+        processor.Process(new(new(10, 40), 0, .5, 1, InkPointerStatus.Down));
+        processor.Process(new(new(50, 40), 10, .5, 1, InkPointerStatus.Move));
+        processor.Process(new(new(90, 40), 20, .5, 1, InkPointerStatus.Move));
+        InkBeautifierResult result = processor.Process(new(new(500, 500), 20, .5, 1, InkPointerStatus.Up));
+        // Sweep cells precede repair caps; the final segment must finish at the accepted endpoint.
+        Assert.IsTrue(!result.WasAccepted && result.IsCompleted &&
+            result.Outlines.Any(contour => contour.Min(p => p.X) > 70 && contour.Max(p => p.X) > 90) &&
+            result.Outlines.SelectMany(contour => contour).All(p => p.X < 110 && p.Y < 60));
     }
 
     /// <summary>Cached cells cannot be changed through a mutable list cast.</summary>

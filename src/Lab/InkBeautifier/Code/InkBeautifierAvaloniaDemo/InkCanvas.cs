@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Xml.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -22,7 +22,13 @@ public sealed class InkCanvas : Control
     public static readonly StyledProperty<double> VelocityResponseProperty =
         AvaloniaProperty.Register<InkCanvas, double>(nameof(VelocityResponse), 2);
 
-    private readonly Dictionary<long, IReadOnlyList<IReadOnlyList<InkPoint2D>>> _outlines = [];
+    public static readonly StyledProperty<Matrix> OutlineTransformProperty =
+        AvaloniaProperty.Register<InkCanvas, Matrix>(nameof(OutlineTransform), Matrix.Identity);
+
+    private static readonly IBrush InkBrush = new SolidColorBrush(Color.FromRgb(24, 32, 48)).ToImmutable();
+    private readonly Dictionary<long, StreamGeometry> _geometries = [];
+
+    static InkCanvas() => AffectsRender<InkCanvas>(OutlineTransformProperty);
     private readonly HashSet<long> _activeStrokeIds = [];
     private readonly Dictionary<long, List<InkInputPoint>> _recordedStrokes = [];
     private readonly List<long> _recordedStrokeOrder = [];
@@ -62,14 +68,18 @@ public sealed class InkCanvas : Control
     /// <summary>
     /// 获取或设置绘制轮廓时应用的坐标变换。
     /// </summary>
-    public Matrix OutlineTransform { get; set; } = Matrix.Identity;
+    public Matrix OutlineTransform
+    {
+        get => GetValue(OutlineTransformProperty);
+        set => SetValue(OutlineTransformProperty, value);
+    }
 
     /// <summary>
     /// 清空画板上的全部笔迹。
     /// </summary>
     public void Clear()
     {
-        _outlines.Clear();
+        _geometries.Clear();
         _beautifier.Reset();
         _activeStrokeIds.Clear();
         _recordedStrokes.Clear();
@@ -142,15 +152,19 @@ public sealed class InkCanvas : Control
         if (point.Status == InkPointerStatus.Down && result.WasAccepted)
         {
             _activeStrokeIds.Add(point.StrokeId);
+            if (_geometries.Remove(point.StrokeId))
+            {
+                InvalidateVisual();
+            }
         }
         else if (point.Status == InkPointerStatus.Up)
         {
             _activeStrokeIds.Remove(point.StrokeId);
         }
 
-        if (result.Outlines.Count > 0)
+        if (result.Outlines.Count > 0 && (result.WasAccepted || result.IsCompleted))
         {
-            _outlines[result.StrokeId] = result.Outlines;
+            _geometries[result.StrokeId] = BuildGeometry(result.Outlines);
             InvalidateVisual();
         }
 
@@ -162,8 +176,18 @@ public sealed class InkCanvas : Control
         base.Render(context);
         context.FillRectangle(Brushes.White, new Rect(Bounds.Size));
 
-        foreach (IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines in _outlines.Values)
+        using (context.PushTransform(OutlineTransform))
         {
+            foreach (StreamGeometry geometry in _geometries.Values)
+            {
+                context.DrawGeometry(InkBrush, null, geometry);
+            }
+        }
+    }
+
+    // 缓存输入坐标几何，避免重绘历史笔画或更改变换时重建路径。
+    private static StreamGeometry BuildGeometry(IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines)
+    {
             var geometry = new StreamGeometry();
             using (StreamGeometryContext geometryContext = geometry.Open())
             {
@@ -185,8 +209,7 @@ public sealed class InkCanvas : Control
                 }
             }
 
-            context.DrawGeometry(new SolidColorBrush(Color.FromRgb(24, 32, 48)), null, geometry);
-        }
+            return geometry;
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -280,5 +303,5 @@ public sealed class InkCanvas : Control
         _configuredVelocityResponse = VelocityResponse;
     }
 
-    private Point ToPoint(InkPoint2D point) => OutlineTransform.Transform(new Point(point.X, point.Y));
+    private static Point ToPoint(InkPoint2D point) => new(point.X, point.Y);
 }

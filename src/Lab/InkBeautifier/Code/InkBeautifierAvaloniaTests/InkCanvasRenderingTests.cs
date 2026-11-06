@@ -74,6 +74,22 @@ public sealed class InkCanvasRenderingTests
 
             Assert.IsGreaterThan(1_000, CountNonWhitePixels(bitmap));
             AssertStrokeCoverage(bitmap, replay.AcceptedStrokes, replay.Transform);
+            File.WriteAllText(Path.Combine(AppContext.BaseDirectory, $"{assetName}-coverage.txt"), replay.Diagnostics);
+            if (assetName == "Ink2.txt")
+            {
+                PixelBuffer pixels = ReadPixels(bitmap);
+                foreach (DeviceInkPoint point in replay.AcceptedStrokes.SelectMany(stroke => stroke))
+                {
+                    (int x, int y) = replay.Transform.ToPixel(point);
+                    Assert.IsTrue(ContainsInkNear(pixels, x, y, 12), $"Ink2 accepted input ({x},{y}) has no ink.");
+                }
+                foreach (DeviceInkPoint point in strokes.SelectMany(stroke => stroke))
+                {
+                    (int x, int y) = replay.Transform.ToPixel(point);
+                    Assert.IsTrue(x >= 30 && x <= width - 30 && y >= 30 && y <= height - 30,
+                        $"Ink2 raw input does not fit the replay viewport: ({x},{y}).");
+                }
+            }
             if (assetName == "Ink3.txt")
             {
                 AssertInk3InputLeavesBottomQuarterEmpty(replay, height);
@@ -305,6 +321,94 @@ public sealed class InkCanvasRenderingTests
         }
     }
 
+    [TestMethod]
+    [DataRow("clear", false, false)]
+    [DataRow("same-id", false, false)]
+    [DataRow("filtered-move", true, false)]
+    [DataRow("transform", false, true)]
+    public void WhenCachedGeometryChangesThenRenderedPixelsFollowLifecycle(string change, bool originalInk, bool translatedInk)
+    {
+        EnsureApplication();
+        var canvas = new InkCanvas { VelocityResponse = 0 };
+        var window = new Window { Width = 200, Height = 160, Content = canvas };
+        window.Show();
+        try
+        {
+            canvas.AddPoint(new(new(20, 40), 0, .5, 1, InkPointerStatus.Down));
+            canvas.AddPoint(new(new(80, 40), 10, .5, 1, InkPointerStatus.Move));
+            using (var initial = new RenderTargetBitmap(new PixelSize(200, 160), new Vector(96, 96)))
+            {
+                initial.Render(canvas);
+                PixelBuffer pixels = ReadPixels(initial);
+                Assert.IsTrue(IsInkPixel(pixels.Pixels, 40 * pixels.Stride + 50 * 4));
+            }
+            switch (change)
+            {
+                case "clear": canvas.Clear(); break;
+                case "same-id": canvas.AddPoint(new(new(120, 100), 20, .5, 1, InkPointerStatus.Down)); break;
+                case "filtered-move": canvas.AddPoint(new(new(150, 100), 10, .5, 1, InkPointerStatus.Move)); break;
+                case "transform": canvas.OutlineTransform = Matrix.CreateTranslation(0, 60); break;
+                default: throw new ArgumentOutOfRangeException(nameof(change));
+            }
+            using var bitmap = new RenderTargetBitmap(new PixelSize(200, 160), new Vector(96, 96));
+            bitmap.Render(canvas);
+            PixelBuffer actual = ReadPixels(bitmap);
+            Assert.AreEqual((originalInk, translatedInk),
+                (IsInkPixel(actual.Pixels, 40 * actual.Stride + 50 * 4),
+                 IsInkPixel(actual.Pixels, 100 * actual.Stride + 50 * 4)));
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [TestMethod]
+    [DataRow("render", true, false)]
+    [DataRow("filtered-move", true, false)]
+    [DataRow("other-stroke", true, true)]
+    [DataRow("transform", false, true)]
+    public void WhenUnchangedStrokeIsRedrawnThenInkIsPreserved(string change, bool originalInk, bool lowerInk)
+    {
+        EnsureApplication();
+        var canvas = new InkCanvas { VelocityResponse = 0 };
+        var window = new Window { Width = 200, Height = 160, Content = canvas };
+        window.Show();
+        try
+        {
+            canvas.AddPoint(new(new(20, 40), 0, .5, 1, InkPointerStatus.Down));
+            canvas.AddPoint(new(new(80, 40), 10, .5, 1, InkPointerStatus.Move));
+            using (var initial = new RenderTargetBitmap(new PixelSize(200, 160), new Vector(96, 96)))
+            {
+                initial.Render(canvas);
+                Assert.IsTrue(ContainsInkNear(ReadPixels(initial), 50, 40, 0));
+            }
+
+            switch (change)
+            {
+                case "render": break;
+                case "filtered-move": canvas.AddPoint(new(new(150, 100), 10, .5, 1, InkPointerStatus.Move)); break;
+                case "other-stroke":
+                    canvas.AddPoint(new(new(20, 100), 0, .5, 2, InkPointerStatus.Down));
+                    canvas.AddPoint(new(new(80, 100), 10, .5, 2, InkPointerStatus.Up));
+                    break;
+                case "transform": canvas.OutlineTransform = Matrix.CreateTranslation(0, 60); break;
+                default: throw new ArgumentOutOfRangeException(nameof(change));
+            }
+
+            canvas.InvalidateVisual();
+            using var bitmap = new RenderTargetBitmap(new PixelSize(200, 160), new Vector(96, 96));
+            bitmap.Render(canvas);
+            PixelBuffer pixels = ReadPixels(bitmap);
+            Assert.AreEqual((originalInk, lowerInk),
+                (ContainsInkNear(pixels, 50, 40, 0), ContainsInkNear(pixels, 50, 100, 0)));
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
     private static void AssertInk3InputLeavesBottomQuarterEmpty(DeviceInkReplay replay, int height)
     {
         int maximumAcceptedY = replay.AcceptedStrokes
@@ -458,10 +562,14 @@ public sealed class InkCanvasRenderingTests
             margin - (minimumY * scale));
 
         var acceptedStrokes = new List<IReadOnlyList<DeviceInkPoint>>(strokes.Count);
+        var diagnostics = new System.Text.StringBuilder();
+        diagnostics.AppendLine(FormattableString.Invariant($"input=({minimumX},{minimumY})-({maximumX},{maximumY}); scale={scale}; margin={margin}"));
+        Rect outputBounds = default;
         long strokeId = 1;
         foreach (IReadOnlyList<DeviceInkPoint> stroke in strokes)
         {
             var acceptedPoints = new List<DeviceInkPoint>(stroke.Count);
+            InkBeautifierResult finalResult = new(strokeId, [], false, false);
             long firstTimestamp = (long)stroke[0].Time.TotalMilliseconds;
             for (int index = 0; index < stroke.Count; index++)
             {
@@ -474,6 +582,7 @@ public sealed class InkCanvasRenderingTests
                     Math.Clamp(point.Pressure / 1024, 0, 1),
                     strokeId,
                     status));
+                finalResult = result;
                 if (result.WasAccepted)
                 {
                     acceptedPoints.Add(point);
@@ -489,19 +598,39 @@ public sealed class InkCanvasRenderingTests
                     Math.Clamp(last.Pressure / 1024, 0, 1),
                     strokeId,
                     InkPointerStatus.Up));
+                finalResult = upResult;
                 if (upResult.WasAccepted && !acceptedPoints.Contains(last))
                 {
                     acceptedPoints.Add(last);
                 }
             }
 
+            InkPoint2D[] vertices = finalResult.Outlines.SelectMany(outline => outline).ToArray();
+            if (vertices.Length > 0)
+            {
+                var bounds = new Rect(
+                    margin + (vertices.Min(p => p.X) - minimumX) * scale,
+                    margin + (vertices.Min(p => p.Y) - minimumY) * scale,
+                    (vertices.Max(p => p.X) - vertices.Min(p => p.X)) * scale,
+                    (vertices.Max(p => p.Y) - vertices.Min(p => p.Y)) * scale);
+                outputBounds = outputBounds == default ? bounds : outputBounds.Union(bounds);
+                diagnostics.AppendLine($"stroke={strokeId}; outputBounds={bounds}");
+            }
+            double spanX = (stroke.Max(p => p.X) - stroke.Min(p => p.X)) * scale;
+            double spanY = (stroke.Max(p => p.Y) - stroke.Min(p => p.Y)) * scale;
+            double maxJump = stroke.Zip(stroke.Skip(1), (a, b) =>
+                Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2)) * scale).DefaultIfEmpty().Max();
+            diagnostics.AppendLine(FormattableString.Invariant(
+                $"stroke={strokeId}; raw={stroke.Count}; accepted={acceptedPoints.Count}; start=({margin + (stroke[0].X - minimumX) * scale:F2},{margin + (stroke[0].Y - minimumY) * scale:F2}); span=({spanX:F2},{spanY:F2}); maxRawJump={maxJump:F2}; contours={finalResult.Outlines.Count}"));
+            diagnostics.AppendLine("acceptedPixels=" + string.Join(";", acceptedPoints.Select(p =>
+                FormattableString.Invariant($"({margin + (p.X - minimumX) * scale:F1},{margin + (p.Y - minimumY) * scale:F1})"))));
             acceptedStrokes.Add(acceptedPoints);
             strokeId++;
         }
 
         return new DeviceInkReplay(
             new DeviceInkTransform(scale, minimumX, minimumY, margin),
-            acceptedStrokes);
+            acceptedStrokes, outputBounds, diagnostics.AppendLine($"outputBounds={outputBounds}").ToString());
     }
 
     private readonly record struct DeviceInkPoint(
@@ -513,7 +642,9 @@ public sealed class InkCanvasRenderingTests
 
     private readonly record struct DeviceInkReplay(
         DeviceInkTransform Transform,
-        IReadOnlyList<IReadOnlyList<DeviceInkPoint>> AcceptedStrokes);
+        IReadOnlyList<IReadOnlyList<DeviceInkPoint>> AcceptedStrokes,
+        Rect OutputBounds,
+        string Diagnostics);
 
     private readonly record struct DeviceInkTransform(double Scale, double MinimumX, double MinimumY, double Margin)
     {

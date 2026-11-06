@@ -1,4 +1,4 @@
-﻿using InkBeautifierLib.Configuration;
+using InkBeautifierLib.Configuration;
 using InkBeautifierLib.Geometry;
 using InkBeautifierLib.Models;
 
@@ -44,14 +44,19 @@ public sealed partial class InkBeautifier
             return new InkBeautifierResult(input.StrokeId, [], input.Status == InkPointerStatus.Up, false);
         }
 
+        int previousCount = stroke.RawPoints.Count;
         bool accepted = TryAddPoint(stroke, input);
-        StrokeGeometry geometry = accepted
-            ? BuildGeometry(stroke, input.Status == InkPointerStatus.Up)
+        bool completed = input.Status == InkPointerStatus.Up;
+        if (accepted || completed)
+        {
+            AppendBezierSamples(stroke, completed, stroke.RawPoints.Count > previousCount);
+        }
+        StrokeGeometry geometry = accepted || completed
+            ? BuildGeometry(stroke, completed)
             : new StrokeGeometry(stroke.Outline, stroke.Outlines);
         stroke.Outline = geometry.Outline;
         stroke.Outlines = geometry.Outlines;
 
-        bool completed = input.Status == InkPointerStatus.Up;
         if (completed)
         {
             _strokes.Remove(input.StrokeId);

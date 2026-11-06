@@ -13,8 +13,7 @@ public sealed partial class InkBeautifier
         internal List<bool> SegmentOverlaps { get; } = [];
         internal List<bool> PointOverlaps { get; } = [];
         internal List<IReadOnlyList<InkPoint2D>> SweepCells { get; } = [];
-        internal List<IReadOnlyList<InkPoint2D>> ReverseSweepCells { get; } = [];
-        internal List<int> SweepCellSigns { get; } = [];
+
         internal IReadOnlyList<InkPoint2D> Outline { get; set; } = [];
         internal IReadOnlyList<IReadOnlyList<InkPoint2D>> Outlines { get; set; } = [];
         internal int NarrowPointCount { get; set; }
