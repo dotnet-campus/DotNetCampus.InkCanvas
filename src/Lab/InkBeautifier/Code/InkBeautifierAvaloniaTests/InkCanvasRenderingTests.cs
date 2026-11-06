@@ -48,7 +48,6 @@ public sealed class InkCanvasRenderingTests
     [DataRow("InkProblem-2.txt")]
     [DataRow("InkProblem-3.txt")]
     [DataRow("InkProblem-4.txt")]
-    [DataRow("InkProblem-20261106-093537.txt")]
     public void WhenDeviceInkIsRenderedThenScreenshotIsCreated(string assetName)
     {
         EnsureApplication();

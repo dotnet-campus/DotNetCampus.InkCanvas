@@ -1,4 +1,4 @@
-using InkBeautifierLib.Configuration;
+﻿using InkBeautifierLib.Configuration;
 using InkBeautifierLib.Geometry;
 using InkBeautifierLib.Models;
 
@@ -30,7 +30,6 @@ public sealed partial class InkBeautifier
     /// </summary>
     public InkBeautifierResult Process(InkInputPoint input)
     {
-        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.Process);
         ValidateInput(input);
 
         if (input.Status == InkPointerStatus.Down)
