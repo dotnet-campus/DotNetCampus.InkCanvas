@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using Avalonia;
@@ -82,9 +81,6 @@ public sealed class InkCanvasRenderingTests
             string screenshotFileName = $"{Path.GetFileNameWithoutExtension(assetName)}-Beautified.png";
             SaveBitmap(bitmap, Path.Combine(AppContext.BaseDirectory, screenshotFileName));
 
-            string visualReviewDirectory = GetVisualReviewDirectory();
-            Directory.CreateDirectory(visualReviewDirectory);
-            SaveBitmap(bitmap, Path.Combine(visualReviewDirectory, screenshotFileName));
         }
         finally
         {
@@ -532,9 +528,6 @@ public sealed class InkCanvasRenderingTests
         using FileStream stream = File.Create(path);
         bitmap.Save(stream, new PngBitmapEncoderOptions());
     }
-
-    private static string GetVisualReviewDirectory([CallerFilePath] string sourceFilePath = "") =>
-        Path.Combine(Path.GetDirectoryName(sourceFilePath)!, "TestArtifacts");
 
     private static void EnsureApplication()
     {
