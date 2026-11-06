@@ -1,4 +1,4 @@
-﻿using InkBeautifierLib.Geometry;
+using InkBeautifierLib.Geometry;
 using InkBeautifierLib.Models;
 
 namespace InkBeautifierLib.Processing;
@@ -11,6 +11,12 @@ public sealed partial class InkBeautifier
         internal List<RawPoint> Samples { get; } = [];
         internal IReadOnlyList<InkPoint2D> Outline { get; set; } = [];
         internal IReadOnlyList<IReadOnlyList<InkPoint2D>> Outlines { get; set; } = [];
+        internal List<RawPoint> CachedSamples { get; } = [];
+        internal List<bool> SegmentOverlaps { get; } = [];
+        internal List<bool> PointOverlaps { get; } = [];
+        internal List<IReadOnlyList<InkPoint2D>> SweepCells { get; } = [];
+        internal List<IReadOnlyList<InkPoint2D>> ReverseSweepCells { get; } = [];
+        internal List<int> SweepCellSigns { get; } = [];
         internal int NarrowPointCount { get; set; }
         internal bool IsTap { get; set; }
     }

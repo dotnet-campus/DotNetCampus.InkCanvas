@@ -1,4 +1,4 @@
-﻿using InkBeautifierLib.Geometry;
+using InkBeautifierLib.Geometry;
 using InkBeautifierLib.Models;
 
 namespace InkBeautifierLib.Processing;
@@ -11,6 +11,7 @@ public sealed partial class InkBeautifier
 
     private bool TryAddPoint(StrokeState stroke, InkInputPoint input)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.TryAddPoint);
         RawPoint last = stroke.RawPoints[^1];
         InkPoint2D position = input.Position;
         double distance = InkPoint2D.Distance(last.Position, position);
@@ -203,6 +204,7 @@ public sealed partial class InkBeautifier
 
     private static void AppendBezierSamples(StrokeState stroke, bool completesStroke)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.Sampling);
         int count = stroke.RawPoints.Count;
         if (count < 3)
         {
@@ -225,6 +227,7 @@ public sealed partial class InkBeautifier
 
         for (int index = 0; index <= lastIndex; index++)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.SamplingCandidates);
             double t = index * interval;
             double oneMinusT = 1 - t;
             double a = oneMinusT * oneMinusT;
@@ -247,6 +250,7 @@ public sealed partial class InkBeautifier
             );
             if (stroke.Samples.Count == 0 || sample.DistanceFrom(stroke.Samples[^1]) > 0.01)
             {
+                InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.SamplesAppended);
                 stroke.Samples.Add(sample);
             }
         }
@@ -254,6 +258,9 @@ public sealed partial class InkBeautifier
 
     private StrokeGeometry BuildGeometry(StrokeState stroke, bool completesStroke)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.BuildGeometry);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.RawPointsAtBuild, stroke.RawPoints.Count);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.SamplesAtBuild, stroke.Samples.Count);
         if (stroke.IsTap || stroke.RawPoints.Count == 1)
         {
             IReadOnlyList<InkPoint2D> tap = PlacePenCap(stroke.RawPoints[0].Position, Options.MaximumWidth * 0.4);
@@ -273,45 +280,73 @@ public sealed partial class InkBeautifier
         }
 
         IReadOnlyList<RawPoint> samples = stroke.Samples.Count > 1 ? stroke.Samples : stroke.RawPoints;
-        IReadOnlyList<InkPoint2D> templateSweep = BuildTemplateSweepOutline(samples);
+        PrepareSampleCache(stroke, samples);
+        IReadOnlyList<InkPoint2D> templateSweep = BuildTemplateSweepOutline(samples, stroke);
         IReadOnlyList<InkPoint2D> outline = templateSweep.Count >= 3 && templateSweep.All
         (static point =>
             double.IsFinite(point.X) && double.IsFinite(point.Y)
         )
             ? templateSweep
             : BuildNormalOffsetOutline(samples);
-        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke);
-        IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines = BuildSweepCells(outline, samples);
+        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke, stroke);
+        IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines = BuildSweepCells(outline, samples, stroke);
         return new StrokeGeometry(outline, outlines);
     }
 
     private static IReadOnlyList<IReadOnlyList<InkPoint2D>> BuildSweepCells
     (
         IReadOnlyList<InkPoint2D> outline,
-        IReadOnlyList<RawPoint> samples
+        IReadOnlyList<RawPoint> samples,
+        StrokeState stroke
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.SweepCells);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.SweepCellsBuilt, samples.Count - 1 - stroke.SweepCells.Count);
         var outlines = new List<IReadOnlyList<InkPoint2D>>(samples.Count - 1);
         double outlineArea = GetSignedArea(outline);
         for (int index = 0; index < samples.Count - 1; index++)
         {
-            var candidates = new List<InkPoint2D>(PenCapTemplate.Length * 2);
-            AddPenCap(candidates, samples[index].Position, samples[index].HalfWidth);
-            AddPenCap(candidates, samples[index + 1].Position, samples[index + 1].HalfWidth);
-            IReadOnlyList<InkPoint2D> sweepCell = BuildConvexHull(candidates);
-            if (Math.Sign(GetSignedArea(sweepCell)) != Math.Sign(outlineArea))
+            if (index == stroke.SweepCells.Count)
             {
-                sweepCell = sweepCell.Reverse().ToArray();
+                var candidates = new List<InkPoint2D>(PenCapTemplate.Length * 2);
+                AddPenCap(candidates, samples[index].Position, samples[index].HalfWidth);
+                AddPenCap(candidates, samples[index + 1].Position, samples[index + 1].HalfWidth);
+                IReadOnlyList<InkPoint2D> cell = Array.AsReadOnly(BuildConvexHull(candidates).ToArray());
+                stroke.SweepCells.Add(cell);
+                stroke.ReverseSweepCells.Add(Array.AsReadOnly(cell.Reverse().ToArray()));
+                stroke.SweepCellSigns.Add(Math.Sign(GetSignedArea(cell)));
             }
-
-            outlines.Add(sweepCell);
+            outlines.Add(stroke.SweepCellSigns[index] == Math.Sign(outlineArea)
+                ? stroke.SweepCells[index] : stroke.ReverseSweepCells[index]);
         }
 
         return outlines;
     }
 
-    private static IReadOnlyList<InkPoint2D> BuildTemplateSweepOutline(IReadOnlyList<RawPoint> samples)
+    private static void PrepareSampleCache(StrokeState stroke, IReadOnlyList<RawPoint> samples)
     {
+        bool valid = stroke.CachedSamples.Count <= samples.Count;
+        for (int i = 0; valid && i < stroke.CachedSamples.Count; i++)
+            valid = stroke.CachedSamples[i] == samples[i];
+        if (!valid)
+        {
+            stroke.CachedSamples.Clear();
+            stroke.SegmentOverlaps.Clear();
+            stroke.PointOverlaps.Clear();
+            stroke.SweepCells.Clear();
+            stroke.ReverseSweepCells.Clear();
+            stroke.SweepCellSigns.Clear();
+        }
+        for (int i = stroke.CachedSamples.Count; i < samples.Count; i++)
+        {
+            stroke.CachedSamples.Add(samples[i]);
+            stroke.PointOverlaps.Add(i >= 2 && OverlapsEarlierSweepAtPoint(samples, i));
+        }
+    }
+
+    private static IReadOnlyList<InkPoint2D> BuildTemplateSweepOutline(IReadOnlyList<RawPoint> samples, StrokeState stroke)
+    {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.TemplateSweep);
         var forwardBoundary = new List<InkPoint2D>((samples.Count * 4) + PenCapTemplate.Length);
         var reverseBoundary = new List<InkPoint2D>((samples.Count * 4) + PenCapTemplate.Length);
 
@@ -331,7 +366,9 @@ public sealed partial class InkBeautifier
                 ? previousTangent
                 : GetDirection(sample.Position, nextSample.Position);
             (int forwardIndex, int reverseIndex) = GetTemplateSupportIndices(tangent);
-            bool overlapsEarlierSweep = index > 0 && OverlapsEarlierSweep(samples, index);
+            if (index == stroke.SegmentOverlaps.Count)
+                stroke.SegmentOverlaps.Add(index > 0 && OverlapsEarlierSweep(samples, index));
+            bool overlapsEarlierSweep = stroke.SegmentOverlaps[index];
 
             double turn = index > 0 ? Cross(previousTangent, tangent) : 0;
             if (index > 0 && !overlapsEarlierSweep)
@@ -388,7 +425,7 @@ public sealed partial class InkBeautifier
         }
 
         RawPoint last = samples[^1];
-        if (!OverlapsEarlierSweepAtPoint(samples, samples.Count - 1))
+        if (!stroke.PointOverlaps[samples.Count - 1])
         {
             AddTemplateArc
             (
@@ -416,12 +453,14 @@ public sealed partial class InkBeautifier
 
     private static bool OverlapsEarlierSweepAtPoint(IReadOnlyList<RawPoint> samples, int currentIndex)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.OverlapPoint, true);
         RawPoint current = samples[currentIndex];
         InkPoint2D currentPosition = current.Position;
         int lastIndex = currentIndex - 2;
         RawPoint earlier = samples[0];
         for (int index = 0; index <= lastIndex; index++)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.OverlapPointCandidates);
             double pointOverlapDistance = current.HalfWidth + earlier.HalfWidth;
             InkPoint2D earlierPosition = earlier.Position;
             if (GetDistanceSquared(currentPosition, earlierPosition) <= pointOverlapDistance * pointOverlapDistance)
@@ -479,6 +518,7 @@ public sealed partial class InkBeautifier
 
     private static bool OverlapsEarlierSweep(IReadOnlyList<RawPoint> samples, int currentIndex)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.OverlapSegment, true);
         RawPoint current = samples[currentIndex];
         RawPoint next = samples[currentIndex + 1];
         InkPoint2D currentPosition = current.Position;
@@ -496,6 +536,7 @@ public sealed partial class InkBeautifier
         RawPoint earlier = samples[0];
         for (int index = 0; index <= lastIndex; index++)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.OverlapSegmentCandidates);
             double pointOverlapDistance = currentHalfWidth + earlier.HalfWidth;
             double pointOverlapDistanceSquared = pointOverlapDistance * pointOverlapDistance;
             InkPoint2D earlierPosition = earlier.Position;
@@ -758,6 +799,8 @@ public sealed partial class InkBeautifier
 
     private static (int ForwardIndex, int ReverseIndex) GetTemplateSupportIndices(InkPoint2D tangent)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.TemplateSupport, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.SupportCandidates, PenCapTemplate.Length);
         double normalX = -tangent.Y;
         double normalY = tangent.X;
         int forwardIndex = 0;
@@ -794,6 +837,7 @@ public sealed partial class InkBeautifier
         InkPoint2D preferredDirection
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.TemplateArc, true);
         if (startIndex == endIndex)
         {
             return;
@@ -823,6 +867,7 @@ public sealed partial class InkBeautifier
         bool reverse
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.BoundarySeam, true);
         int boundaryCount = boundary.Count;
         int index = reverse ? boundaryCount - 1 : 0;
         int endIndex = reverse ? -1 : boundaryCount;
@@ -857,6 +902,7 @@ public sealed partial class InkBeautifier
         InkPoint2D reversePoint
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.BoundaryPair, true);
         int reverseIntersectionIndex = -1;
         InkPoint2D forwardIntersection = default;
         int forwardIntersectionIndex = -1;
@@ -910,6 +956,7 @@ public sealed partial class InkBeautifier
         InkPoint2D nextPoint
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.OuterTrim, true);
         int boundaryCount = boundary.Count;
         if (boundaryCount <= PenCapTemplate.Length + 2)
         {
@@ -930,6 +977,7 @@ public sealed partial class InkBeautifier
         InkPoint2D historicalEnd = boundary[lastIndex + 1];
         for (int index = lastIndex; index >= 0; index--)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.OuterTrimCandidates);
             InkPoint2D historicalStart = boundary[index];
             if (!TryGetSegmentIntersection
                 (
@@ -978,6 +1026,7 @@ public sealed partial class InkBeautifier
         out InkPoint2D intersection
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.CrossBoundary, true);
         int boundaryCount = boundary.Count;
         int firstIndex = Math.Max(0, boundaryCount - PenCapTemplate.Length - 1);
         intersectionIndex = -1;
@@ -992,6 +1041,7 @@ public sealed partial class InkBeautifier
         InkPoint2D historicalEnd = boundary[boundaryCount - 1];
         for (int index = boundaryCount - 2; index >= firstIndex; index--)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.CrossBoundaryCandidates);
             InkPoint2D historicalStart = boundary[index];
             if (!TryGetSegmentIntersection
                 (
@@ -1027,6 +1077,7 @@ public sealed partial class InkBeautifier
 
     private static void AppendBoundaryPoint(List<InkPoint2D> boundary, InkPoint2D point)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.BoundaryPoint, true);
         int boundaryCount = boundary.Count;
         if (boundaryCount == 0)
         {
@@ -1053,6 +1104,7 @@ public sealed partial class InkBeautifier
         InkPoint2D historicalEnd = boundaryCount >= 3 ? boundary[^2] : default;
         for (int index = boundaryCount - 3; index >= firstIndex; index--)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.BoundaryPointCandidates);
             InkPoint2D historicalStart = boundary[index];
             if (!TryGetSegmentIntersection
                 (
@@ -1140,6 +1192,7 @@ public sealed partial class InkBeautifier
         out InkPoint2D intersection
     )
     {
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.IntersectionCalls);
         if (firstMaxX < secondMinX ||
             secondMaxX < firstMinX ||
             firstMaxY < secondMinY ||
@@ -1176,6 +1229,7 @@ public sealed partial class InkBeautifier
         out InkPoint2D intersection
     )
     {
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.IntersectionCalls);
         if (Math.Max(firstStart.X, firstEnd.X) < secondMinX ||
             secondMaxX < Math.Min(firstStart.X, firstEnd.X) ||
             Math.Max(firstStart.Y, firstEnd.Y) < secondMinY ||
@@ -1210,6 +1264,7 @@ public sealed partial class InkBeautifier
         out InkPoint2D intersection
     )
     {
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.IntersectionBoundsPassed);
         double denominator = (firstX * secondY) - (firstY * secondX);
         if (Math.Abs(denominator) <= 1e-9)
         {
@@ -1239,6 +1294,7 @@ public sealed partial class InkBeautifier
 
     private static IReadOnlyList<InkPoint2D> BuildNormalOffsetOutline(IReadOnlyList<RawPoint> samples)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.NormalOffset);
         var left = new List<InkPoint2D>(samples.Count);
         var right = new List<InkPoint2D>(samples.Count);
 
@@ -1296,11 +1352,15 @@ public sealed partial class InkBeautifier
 
     private static InkPoint2D Negate(InkPoint2D point) => new(-point.X, -point.Y);
 
-    private static InkPoint2D PlaceTemplatePoint(RawPoint sample, InkPoint2D templatePoint) => new
-    (
-        sample.Position.X + (templatePoint.X * sample.HalfWidth),
-        sample.Position.Y + (templatePoint.Y * sample.HalfWidth)
-    );
+    private static InkPoint2D PlaceTemplatePoint(RawPoint sample, InkPoint2D templatePoint)
+    {
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.TemplateTransforms);
+        return new InkPoint2D
+        (
+            sample.Position.X + (templatePoint.X * sample.HalfWidth),
+            sample.Position.Y + (templatePoint.Y * sample.HalfWidth)
+        );
+    }
 
     private static void AddTemplateArc
     (
@@ -1311,6 +1371,7 @@ public sealed partial class InkBeautifier
         InkPoint2D preferredDirection
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.TemplateArc, true);
         int step = GetMaximumDirectionProjection(sample, startIndex, endIndex, 1, preferredDirection) >=
                    GetMaximumDirectionProjection(sample, startIndex, endIndex, -1, preferredDirection)
             ? 1
@@ -1351,6 +1412,7 @@ public sealed partial class InkBeautifier
 
     private static IReadOnlyList<InkPoint2D> RemoveConsecutiveDuplicates(List<InkPoint2D> points)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.Duplicates, true);
         var result = new List<InkPoint2D>(points.Count);
         foreach (InkPoint2D point in points)
         {
@@ -1428,16 +1490,22 @@ public sealed partial class InkBeautifier
         IReadOnlyList<InkPoint2D> outline,
         IReadOnlyList<RawPoint> rawPoints,
         IReadOnlyList<RawPoint> samples,
-        bool completesStroke
+        bool completesStroke,
+        StrokeState stroke
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.RepairCoverage);
         List<InkPoint2D>? repairedOutline = null;
         double outlineArea = GetSignedArea(outline);
+        CoverageIndex coverage = new(outline);
 
+        using (InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.RawCoverage))
+        {
         for (int rawPointIndex = 0; rawPointIndex < rawPoints.Count; rawPointIndex++)
         {
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.RawCoverageChecks);
             RawPoint rawPoint = rawPoints[rawPointIndex];
-            IReadOnlyList<InkPoint2D> currentOutline = repairedOutline ?? outline;
+            IReadOnlyList<InkPoint2D> currentOutline = coverage;
             bool checkInterior = rawPointIndex >= 2 && OverlapsEarlierSweepAtPoint(rawPoints, rawPointIndex);
             if (IsPenCapInteriorFilled(currentOutline, rawPoint, checkInterior))
             {
@@ -1445,19 +1513,23 @@ public sealed partial class InkBeautifier
             }
 
             AppendCoveragePenCap(outline, outlineArea, rawPoint.Position, rawPoint.HalfWidth, ref repairedOutline);
+            coverage = new CoverageIndex(repairedOutline ?? outline);
         }
 
+        }
+        using var finalDiagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.FinalSampleCoverage);
         if (completesStroke && rawPoints.Count >= 10)
         {
             for (int sampleIndex = 2; sampleIndex < samples.Count; sampleIndex++)
             {
+                InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.FinalSampleChecks);
                 RawPoint sample = samples[sampleIndex];
-                if (!OverlapsEarlierSweepAtPoint(samples, sampleIndex))
+                if (!stroke.PointOverlaps[sampleIndex])
                 {
                     continue;
                 }
 
-                IReadOnlyList<InkPoint2D> currentOutline = repairedOutline ?? outline;
+                IReadOnlyList<InkPoint2D> currentOutline = coverage;
                 if (!IsFilledByNonZeroWinding(currentOutline, sample.Position))
                 {
                     AppendCoveragePenCap(outline, outlineArea, sample.Position, sample.HalfWidth, ref repairedOutline);
@@ -1478,6 +1550,8 @@ public sealed partial class InkBeautifier
         ref List<InkPoint2D>? repairedOutline
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.CoverageCap, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.CoverageCaps);
         repairedOutline ??= new List<InkPoint2D>(outline.Count + PenCapTemplate.Length + 3);
         if (repairedOutline.Count == 0)
         {
@@ -1517,6 +1591,7 @@ public sealed partial class InkBeautifier
         bool checkInterior
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.PenCapInterior, true);
         if (!IsFilledByNonZeroWinding(outline, sample.Position))
         {
             return false;
@@ -1556,9 +1631,14 @@ public sealed partial class InkBeautifier
         InkPoint2D point
     )
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.Winding, true);
         int windingNumber = 0;
-        for (int index = 0; index < polygon.Count; index++)
+        IReadOnlyList<int>? candidates = polygon is CoverageIndex coverage ? coverage.Candidates(point.Y) : null;
+        int edgeCount = candidates?.Count ?? polygon.Count;
+        for (int candidate = 0; candidate < edgeCount; candidate++)
         {
+            int index = candidates is null ? candidate : candidates[candidate];
+            InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.WindingEdges);
             InkPoint2D start = polygon[index];
             InkPoint2D end = polygon[(index + 1) % polygon.Count];
             if (GetDistanceToSegmentSquared(point, start, end) <= 1e-12)
@@ -1584,6 +1664,8 @@ public sealed partial class InkBeautifier
 
     private static double GetSignedArea(IReadOnlyList<InkPoint2D> polygon)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.SignedArea, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.AreaEdges, polygon.Count);
         double twiceArea = 0;
         for (int index = 0; index < polygon.Count; index++)
         {
@@ -1597,6 +1679,8 @@ public sealed partial class InkBeautifier
 
     private static IReadOnlyList<InkPoint2D> PlacePenCap(InkPoint2D center, double halfWidth)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.PlacePenCap, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.TemplateTransforms, PenCapTemplate.Length);
         var points = new InkPoint2D[PenCapTemplate.Length];
         for (int index = 0; index < PenCapTemplate.Length; index++)
         {
@@ -1613,6 +1697,8 @@ public sealed partial class InkBeautifier
 
     private static void AddPenCap(List<InkPoint2D> output, InkPoint2D center, double halfWidth)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.AddPenCap, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.TemplateTransforms, PenCapTemplate.Length);
         foreach (InkPoint2D templatePoint in PenCapTemplate)
         {
             output.Add
@@ -1628,6 +1714,8 @@ public sealed partial class InkBeautifier
 
     private static IReadOnlyList<InkPoint2D> BuildConvexHull(List<InkPoint2D> points)
     {
+        using var diagnostic = InkPerformanceDiagnostics.Measure(InkPerformanceDiagnostics.Stage.ConvexHull, true);
+        InkPerformanceDiagnostics.Count(InkPerformanceDiagnostics.Work.HullCandidates, points.Count);
         if (points.Count <= 1)
         {
             return points;

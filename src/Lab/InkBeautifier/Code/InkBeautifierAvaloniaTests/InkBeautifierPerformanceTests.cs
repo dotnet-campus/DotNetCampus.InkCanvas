@@ -13,7 +13,7 @@ namespace InkBeautifierAvaloniaTests;
 
 [TestClass]
 [DoNotParallelize]
-public sealed class InkBeautifierPerformanceTests
+public sealed partial class InkBeautifierPerformanceTests
 {
     private const int Rounds = 3;
     private const double BudgetMilliseconds = 33;
