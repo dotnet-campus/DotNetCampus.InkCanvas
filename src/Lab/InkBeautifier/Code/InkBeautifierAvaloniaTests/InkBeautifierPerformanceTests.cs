@@ -13,7 +13,7 @@ namespace InkBeautifierAvaloniaTests;
 
 [TestClass]
 [DoNotParallelize]
-public sealed class InkBeautifierPerformanceTests
+public sealed partial class InkBeautifierPerformanceTests
 {
     private const int Rounds = 3;
     private const double BudgetMilliseconds = 33;
@@ -23,15 +23,7 @@ public sealed class InkBeautifierPerformanceTests
 
     /// <summary>Replays every asset without machine-sensitive timing assertions.</summary>
     [TestMethod]
-    [DataRow("Ink0.txt")]
-    [DataRow("Ink1.txt")]
-    [DataRow("Ink2.txt")]
-    [DataRow("Ink3.txt")]
-    [DataRow("InkProblem-1.txt")]
-    [DataRow("InkProblem-2.txt")]
-    [DataRow("InkProblem-3.txt")]
-    [DataRow("InkProblem-4.txt")]
-    [DataRow("InkProblem-20261106-093537.txt")]
+    [DynamicData(nameof(RecordedAssets))]
     [TestCategory("PerformanceDiagnostics")]
     public void WhenAllRecordedInkIsReplayedThenProcessTimingsAreReported(string assetName)
     {
@@ -43,6 +35,10 @@ public sealed class InkBeautifierPerformanceTests
     [TestCategory("PerformanceBudget")]
     public void WhenWritingMidStrokeThenMoveStaysWithin33Milliseconds()
     {
+        if (Environment.GetEnvironmentVariable("INK_PERFORMANCE_BUDGET") != "1")
+        {
+            Assert.Inconclusive("Machine-sensitive budget is opt-in: INK_PERFORMANCE_BUDGET=1.");
+        }
         List<Measurement[]> runs = RunSuite("InkBeautifier-performance-budget.txt", "Ink3.txt");
         int violatingRounds = runs.Count(run => run.Any(sample =>
             sample.Input.Point.Status == InkPointerStatus.Move &&

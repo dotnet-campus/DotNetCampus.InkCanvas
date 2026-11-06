@@ -1,4 +1,4 @@
-﻿using InkBeautifierLib.Geometry;
+using InkBeautifierLib.Geometry;
 using InkBeautifierLib.Models;
 
 namespace InkBeautifierLib.Processing;
@@ -273,44 +273,72 @@ public sealed partial class InkBeautifier
         }
 
         IReadOnlyList<RawPoint> samples = stroke.Samples.Count > 1 ? stroke.Samples : stroke.RawPoints;
-        IReadOnlyList<InkPoint2D> templateSweep = BuildTemplateSweepOutline(samples);
+        PrepareSampleCache(stroke, samples);
+        IReadOnlyList<InkPoint2D> templateSweep = BuildTemplateSweepOutline(samples, stroke);
         IReadOnlyList<InkPoint2D> outline = templateSweep.Count >= 3 && templateSweep.All
         (static point =>
             double.IsFinite(point.X) && double.IsFinite(point.Y)
         )
             ? templateSweep
             : BuildNormalOffsetOutline(samples);
-        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke);
-        IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines = BuildSweepCells(outline, samples);
+        outline = RepairRawPointCoverage(outline, stroke.RawPoints, samples, completesStroke, stroke);
+        IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines = BuildSweepCells(outline, samples, stroke);
         return new StrokeGeometry(outline, outlines);
     }
 
     private static IReadOnlyList<IReadOnlyList<InkPoint2D>> BuildSweepCells
     (
         IReadOnlyList<InkPoint2D> outline,
-        IReadOnlyList<RawPoint> samples
+        IReadOnlyList<RawPoint> samples,
+        StrokeState stroke
     )
     {
         var outlines = new List<IReadOnlyList<InkPoint2D>>(samples.Count - 1);
         double outlineArea = GetSignedArea(outline);
         for (int index = 0; index < samples.Count - 1; index++)
         {
-            var candidates = new List<InkPoint2D>(PenCapTemplate.Length * 2);
-            AddPenCap(candidates, samples[index].Position, samples[index].HalfWidth);
-            AddPenCap(candidates, samples[index + 1].Position, samples[index + 1].HalfWidth);
-            IReadOnlyList<InkPoint2D> sweepCell = BuildConvexHull(candidates);
-            if (Math.Sign(GetSignedArea(sweepCell)) != Math.Sign(outlineArea))
+            if (index == stroke.SweepCells.Count)
             {
-                sweepCell = sweepCell.Reverse().ToArray();
+                var candidates = new List<InkPoint2D>(PenCapTemplate.Length * 2);
+                AddPenCap(candidates, samples[index].Position, samples[index].HalfWidth);
+                AddPenCap(candidates, samples[index + 1].Position, samples[index + 1].HalfWidth);
+                InkPoint2D[] cell = BuildConvexHull(candidates).ToArray();
+                stroke.SweepCellSigns.Add(Math.Sign(GetSignedArea(cell)));
+                stroke.SweepCells.Add(Array.AsReadOnly(cell));
+                stroke.ReverseSweepCells.Add(Array.AsReadOnly(cell.Reverse().ToArray()));
             }
 
-            outlines.Add(sweepCell);
+            outlines.Add(stroke.SweepCellSigns[index] == Math.Sign(outlineArea)
+                ? stroke.SweepCells[index] : stroke.ReverseSweepCells[index]);
         }
 
         return outlines;
     }
 
-    private static IReadOnlyList<InkPoint2D> BuildTemplateSweepOutline(IReadOnlyList<RawPoint> samples)
+    private static void PrepareSampleCache(StrokeState stroke, IReadOnlyList<RawPoint> samples)
+    {
+        bool invalid = stroke.CachedSamples.Count > samples.Count;
+        for (int i = 0; !invalid && i < stroke.CachedSamples.Count; i++)
+        {
+            invalid = stroke.CachedSamples[i] != samples[i];
+        }
+        if (invalid)
+        {
+            stroke.CachedSamples.Clear();
+            stroke.SegmentOverlaps.Clear();
+            stroke.PointOverlaps.Clear();
+            stroke.SweepCells.Clear();
+            stroke.ReverseSweepCells.Clear();
+            stroke.SweepCellSigns.Clear();
+        }
+        for (int i = stroke.CachedSamples.Count; i < samples.Count; i++)
+        {
+            stroke.CachedSamples.Add(samples[i]);
+            stroke.PointOverlaps.Add(i >= 2 && OverlapsEarlierSweepAtPoint(samples, i));
+        }
+    }
+
+    private static IReadOnlyList<InkPoint2D> BuildTemplateSweepOutline(IReadOnlyList<RawPoint> samples, StrokeState stroke)
     {
         var forwardBoundary = new List<InkPoint2D>((samples.Count * 4) + PenCapTemplate.Length);
         var reverseBoundary = new List<InkPoint2D>((samples.Count * 4) + PenCapTemplate.Length);
@@ -331,7 +359,11 @@ public sealed partial class InkBeautifier
                 ? previousTangent
                 : GetDirection(sample.Position, nextSample.Position);
             (int forwardIndex, int reverseIndex) = GetTemplateSupportIndices(tangent);
-            bool overlapsEarlierSweep = index > 0 && OverlapsEarlierSweep(samples, index);
+            if (index == stroke.SegmentOverlaps.Count)
+            {
+                stroke.SegmentOverlaps.Add(index > 0 && OverlapsEarlierSweep(samples, index));
+            }
+            bool overlapsEarlierSweep = stroke.SegmentOverlaps[index];
 
             double turn = index > 0 ? Cross(previousTangent, tangent) : 0;
             if (index > 0 && !overlapsEarlierSweep)
@@ -388,7 +420,7 @@ public sealed partial class InkBeautifier
         }
 
         RawPoint last = samples[^1];
-        if (!OverlapsEarlierSweepAtPoint(samples, samples.Count - 1))
+        if (!stroke.PointOverlaps[samples.Count - 1])
         {
             AddTemplateArc
             (
@@ -1428,16 +1460,18 @@ public sealed partial class InkBeautifier
         IReadOnlyList<InkPoint2D> outline,
         IReadOnlyList<RawPoint> rawPoints,
         IReadOnlyList<RawPoint> samples,
-        bool completesStroke
+        bool completesStroke,
+        StrokeState stroke
     )
     {
         List<InkPoint2D>? repairedOutline = null;
         double outlineArea = GetSignedArea(outline);
+        var coverage = new CoverageIndex(outline);
 
         for (int rawPointIndex = 0; rawPointIndex < rawPoints.Count; rawPointIndex++)
         {
             RawPoint rawPoint = rawPoints[rawPointIndex];
-            IReadOnlyList<InkPoint2D> currentOutline = repairedOutline ?? outline;
+            IReadOnlyList<InkPoint2D> currentOutline = coverage;
             bool checkInterior = rawPointIndex >= 2 && OverlapsEarlierSweepAtPoint(rawPoints, rawPointIndex);
             if (IsPenCapInteriorFilled(currentOutline, rawPoint, checkInterior))
             {
@@ -1445,6 +1479,7 @@ public sealed partial class InkBeautifier
             }
 
             AppendCoveragePenCap(outline, outlineArea, rawPoint.Position, rawPoint.HalfWidth, ref repairedOutline);
+            coverage = new CoverageIndex(repairedOutline ?? outline);
         }
 
         if (completesStroke && rawPoints.Count >= 10)
@@ -1452,12 +1487,12 @@ public sealed partial class InkBeautifier
             for (int sampleIndex = 2; sampleIndex < samples.Count; sampleIndex++)
             {
                 RawPoint sample = samples[sampleIndex];
-                if (!OverlapsEarlierSweepAtPoint(samples, sampleIndex))
+                if (!stroke.PointOverlaps[sampleIndex])
                 {
                     continue;
                 }
 
-                IReadOnlyList<InkPoint2D> currentOutline = repairedOutline ?? outline;
+                IReadOnlyList<InkPoint2D> currentOutline = coverage;
                 if (!IsFilledByNonZeroWinding(currentOutline, sample.Position))
                 {
                     AppendCoveragePenCap(outline, outlineArea, sample.Position, sample.HalfWidth, ref repairedOutline);
@@ -1557,8 +1592,11 @@ public sealed partial class InkBeautifier
     )
     {
         int windingNumber = 0;
-        for (int index = 0; index < polygon.Count; index++)
+        IReadOnlyList<int>? edges = (polygon as CoverageIndex)?.GetEdges(point.Y);
+        int edgeCount = edges?.Count ?? polygon.Count;
+        for (int candidate = 0; candidate < edgeCount; candidate++)
         {
+            int index = edges is null ? candidate : edges[candidate];
             InkPoint2D start = polygon[index];
             InkPoint2D end = polygon[(index + 1) % polygon.Count];
             if (GetDistanceToSegmentSquared(point, start, end) <= 1e-12)
