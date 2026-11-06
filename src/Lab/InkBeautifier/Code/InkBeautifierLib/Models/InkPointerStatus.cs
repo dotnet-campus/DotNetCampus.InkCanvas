@@ -1,4 +1,4 @@
-namespace InkBeautifierLib;
+namespace InkBeautifierLib.Models;
 
 /// <summary>
 /// 表示输入点的指针状态。

@@ -1,4 +1,4 @@
-namespace InkBeautifierLib;
+namespace InkBeautifierLib.Configuration;
 
 /// <summary>
 /// 配置笔迹宽度和采样行为。

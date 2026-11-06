@@ -1,8 +1,13 @@
+﻿using System.Globalization;
+using System.Xml.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using InkBeautifierLib;
+using InkBeautifierLib.Configuration;
+using InkBeautifierLib.Geometry;
+using InkBeautifierLib.Models;
+using InkBeautifierLib.Processing;
 
 namespace InkBeautifierAvaloniaDemo;
 
@@ -17,8 +22,10 @@ public sealed class InkCanvas : Control
     public static readonly StyledProperty<double> VelocityResponseProperty =
         AvaloniaProperty.Register<InkCanvas, double>(nameof(VelocityResponse), 2);
 
-    private readonly Dictionary<long, IReadOnlyList<InkPoint2D>> _outlines = [];
+    private readonly Dictionary<long, IReadOnlyList<IReadOnlyList<InkPoint2D>>> _outlines = [];
     private readonly HashSet<long> _activeStrokeIds = [];
+    private readonly Dictionary<long, List<InkInputPoint>> _recordedStrokes = [];
+    private readonly List<long> _recordedStrokeOrder = [];
     private InkBeautifier _beautifier = new();
     private double _configuredMaximumWidth = 12;
     private double _configuredVelocityResponse = 2;
@@ -53,6 +60,11 @@ public sealed class InkCanvas : Control
     }
 
     /// <summary>
+    /// 获取或设置绘制轮廓时应用的坐标变换。
+    /// </summary>
+    public Matrix OutlineTransform { get; set; } = Matrix.Identity;
+
+    /// <summary>
     /// 清空画板上的全部笔迹。
     /// </summary>
     public void Clear()
@@ -60,8 +72,59 @@ public sealed class InkCanvas : Control
         _outlines.Clear();
         _beautifier.Reset();
         _activeStrokeIds.Clear();
+        _recordedStrokes.Clear();
+        _recordedStrokeOrder.Clear();
         _activeStrokeId = null;
         InvalidateVisual();
+    }
+
+    /// <summary>
+    /// 获取当前画板是否包含可导出的原始输入。
+    /// </summary>
+    public bool HasRecordedInk => _recordedStrokeOrder.Count > 0;
+
+    /// <summary>
+    /// 将当前画板记录的原始输入导出为可重放的笔迹数据。
+    /// </summary>
+    public void ExportProblemInk(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        var root = new XElement("ArrayOfArrayOfInkDataModel");
+        foreach (long strokeId in _recordedStrokeOrder)
+        {
+            List<InkInputPoint> stroke = _recordedStrokes[strokeId];
+            long firstTimestamp = stroke[0].Timestamp;
+            root.Add
+            (
+                new XElement
+                (
+                    "ArrayOfInkDataModel",
+                    stroke.Select
+                    (point => new XElement
+                        (
+                            "InkDataModel",
+                            new XElement
+                            (
+                                "Time",
+                                System.Xml.XmlConvert.ToString
+                                    (TimeSpan.FromMilliseconds(point.Timestamp - firstTimestamp))
+                            ),
+                            new XElement("X", point.Position.X.ToString("R", CultureInfo.InvariantCulture)),
+                            new XElement("Y", point.Position.Y.ToString("R", CultureInfo.InvariantCulture)),
+                            new XElement
+                            (
+                                "PressureFactor",
+                                (point.Pressure * 1024).ToString("R", CultureInfo.InvariantCulture)
+                            ),
+                            new XElement("Status", point.Status)
+                        )
+                    )
+                )
+            );
+        }
+
+        new XDocument(new XDeclaration("1.0", "utf-8", null), root).Save(stream);
     }
 
     /// <summary>
@@ -69,6 +132,7 @@ public sealed class InkCanvas : Control
     /// </summary>
     public InkBeautifierResult AddPoint(InkInputPoint point)
     {
+        RecordInputPoint(point);
         if (point.Status == InkPointerStatus.Down)
         {
             RecreateBeautifierIfNeeded();
@@ -84,9 +148,9 @@ public sealed class InkCanvas : Control
             _activeStrokeIds.Remove(point.StrokeId);
         }
 
-        if (result.Outline.Count > 0)
+        if (result.Outlines.Count > 0)
         {
-            _outlines[result.StrokeId] = result.Outline;
+            _outlines[result.StrokeId] = result.Outlines;
             InvalidateVisual();
         }
 
@@ -98,23 +162,27 @@ public sealed class InkCanvas : Control
         base.Render(context);
         context.FillRectangle(Brushes.White, new Rect(Bounds.Size));
 
-        foreach (IReadOnlyList<InkPoint2D> outline in _outlines.Values)
+        foreach (IReadOnlyList<IReadOnlyList<InkPoint2D>> outlines in _outlines.Values)
         {
-            if (outline.Count < 3)
-            {
-                continue;
-            }
-
             var geometry = new StreamGeometry();
             using (StreamGeometryContext geometryContext = geometry.Open())
             {
-                geometryContext.BeginFigure(ToPoint(outline[0]), true);
-                for (int index = 1; index < outline.Count; index++)
+                geometryContext.SetFillRule(FillRule.NonZero);
+                foreach (IReadOnlyList<InkPoint2D> outline in outlines)
                 {
-                    geometryContext.LineTo(ToPoint(outline[index]));
-                }
+                    if (outline.Count < 3)
+                    {
+                        continue;
+                    }
 
-                geometryContext.EndFigure(true);
+                    geometryContext.BeginFigure(ToPoint(outline[0]), true);
+                    for (int index = 1; index < outline.Count; index++)
+                    {
+                        geometryContext.LineTo(ToPoint(outline[index]));
+                    }
+
+                    geometryContext.EndFigure(true);
+                }
             }
 
             context.DrawGeometry(new SolidColorBrush(Color.FromRgb(24, 32, 48)), null, geometry);
@@ -172,12 +240,30 @@ public sealed class InkCanvas : Control
             pressure = 0.5;
         }
 
-        return new InkInputPoint(
+        return new InkInputPoint
+        (
             new InkPoint2D(point.Position.X, point.Position.Y),
             Environment.TickCount64,
             pressure,
             strokeId,
-            status);
+            status
+        );
+    }
+
+    private void RecordInputPoint(InkInputPoint point)
+    {
+        if (point.Status == InkPointerStatus.Down)
+        {
+            _recordedStrokes[point.StrokeId] = [point];
+            _recordedStrokeOrder.Remove(point.StrokeId);
+            _recordedStrokeOrder.Add(point.StrokeId);
+            return;
+        }
+
+        if (_recordedStrokes.TryGetValue(point.StrokeId, out List<InkInputPoint>? stroke))
+        {
+            stroke.Add(point);
+        }
     }
 
     private void RecreateBeautifierIfNeeded()
@@ -188,14 +274,11 @@ public sealed class InkCanvas : Control
             return;
         }
 
-        _beautifier = new InkBeautifier(new InkBeautifierOptions
-        {
-            MaximumWidth = MaximumWidth,
-            VelocityResponse = VelocityResponse
-        });
+        _beautifier = new InkBeautifier
+            (new InkBeautifierOptions { MaximumWidth = MaximumWidth, VelocityResponse = VelocityResponse });
         _configuredMaximumWidth = MaximumWidth;
         _configuredVelocityResponse = VelocityResponse;
     }
 
-    private static Point ToPoint(InkPoint2D point) => new(point.X, point.Y);
+    private Point ToPoint(InkPoint2D point) => OutlineTransform.Transform(new Point(point.X, point.Y));
 }
