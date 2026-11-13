@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Code/">
+    <Project Path="Code/InkBeautifierAvaloniaDemo/InkBeautifierAvaloniaDemo.csproj" />
+    <Project Path="Code/InkBeautifierAvaloniaTests/InkBeautifierAvaloniaTests.csproj" />
+    <Project Path="Code/InkBeautifierLib/InkBeautifierLib.csproj" />
+  </Folder>
+</Solution>
