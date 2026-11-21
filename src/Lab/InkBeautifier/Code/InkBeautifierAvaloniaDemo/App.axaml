@@ -2,6 +2,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="InkBeautifierAvaloniaDemo.App"
              RequestedThemeVariant="Default">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#EEF1F5" />
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#FAFBFC" />
+                    <SolidColorBrush x:Key="ToolbarBorderBrush" Color="#D8DEE8" />
+                    <SolidColorBrush x:Key="ToolbarDescriptionForegroundBrush" Color="#667085" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#1E1E1E" />
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="ToolbarBorderBrush" Color="#454545" />
+                    <SolidColorBrush x:Key="ToolbarDescriptionForegroundBrush" Color="#C7C7C7" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
